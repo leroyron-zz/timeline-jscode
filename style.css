@@ -1,0 +1,10 @@
+body {margin: 0px; padding: 0px; overflow: none;-webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;}
+#info, #coords {color:#fff; position: absolute; bottom: 0px; left: 0px; z-index: 1;}
+#coords {color: #000};
+input {right: left;}
+canvas, svg {position: absolute; top: 0px; left: 0px;}
+text {font-size: 12px; fill: #bbb}
+path, line {stroke: #aaa; fill: #FFF;}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Touch ThreeJs - Boiler Plate</title>
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="description" content="Memory Plane Cinematic" />
+        <meta name="author" content="Leroy Thompson" />
+        <link rel="stylesheet" href="style.css?v=1.0" />
+        <script type="text/javascript" src="app/CSPL.js"></script>
+        <script type="text/javascript" src="app/buffer.easing.js"></script>
+        <script type="text/javascript" src="app/streaming.thrust.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <div id="info">Memory Plane Cinematic</div>
+            <br><div id="fps"></div>
+            <style>
+                #storyboard, .SB div {position: absolute;}
+                #storyboard {width: 75%; height: 65px; top: 17px; left: 80px; z-index: 22;}
+                .SB .left, .SB .right, .SB .center {width: 5px; height: 29px; top: 0px;}
+                .SB .left {left: 20px; background: transparent url(left-slide.png) no-repeat left top;}
+                .SB .right {right: -30px; background: transparent url(right-slide.png) no-repeat right top;}
+                .SB .center {width: 100%; left: 25px; background: transparent url(center-slide.png) repeat-x scroll left top;}
+                .SB .comment {width: 15px; height: 14px; top: 25px; left: 5%; background: transparent url(comment.png) no-repeat scroll left top;}
+                .SB .segment {width: 1px; height: 17px; top: 27px; left: 10%; border:#666 solid 1px; background: #fff; opacity: 0.50;}
+                .SB .seek {background: #666; top: 4px; width: 1px; left: 0%; height: 21px;}
+                .SB .slider {background: transparent url(slider.png) no-repeat left bottom; bottom: -39px; width: 20px; left: -10px; height: 36px;}
+                .SB .action {border:#666 solid 1px; background: rgb(255, 0, 0) none repeat scroll 0% 0%; top: 4px; width: 5px; height: 7px;}
+                .SB .sound {border:#666 solid 1px; background: rgb(255, 255, 255) none repeat scroll 0% 0%; width: 5px; height: 7px;}
+            </style>
+            <div id="storyboard" class="SB">
+                <div class="left"></div>
+                <div class="center">
+                    <div class="comment" style="left: 13%;"></div>
+                    <div class="comment" style="left: 24%;"></div>
+                    <div class="comment" style="left: 85%;"></div>
+                    <div class="comment" style="left: 90%;"></div>
+                    <div class="segment" style="left: 10%;"></div>
+                    <div class="segment" style="left: 39%;"></div>
+                    <div class="segment" style="left: 64%;"></div>
+                    <div class="segment" style="left: 46%;"></div>
+                    <div class="segment" style="left: 93%;"></div>
+                    <div class="seek">
+                        <div class="slider"></div>
+                    </div>
+                    <div class="action" style="left: 13%;"></div>
+                    <div class="sound" style="left: 0%; top: 17px;"></div>
+                    <div class="sound" style="left: 10%; top: 17px;"></div>
+                </div>
+                <div class="right"></div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript" src="js/three.js"></script>
+    <script type="text/javascript" src="js/OrbitControls.js"></script>
+    <script type="text/javascript" src="js/stats.js"></script>
+    <script type="text/javascript" src="js/app.dat.gui.screen.js"></script>
+    <script type="text/javascript" >
+        init("app", "fps");
+        var canvas = createCanvas('3d');
+        var ctx = canvas.context;
+    </script>
+    <!--APP - MAIN-->
+    <script type="text/javascript" src="app.js">//canvas.app = new(function() { //RunTime Private })()</script>
+</html>
