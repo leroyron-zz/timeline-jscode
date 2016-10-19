@@ -78,7 +78,7 @@ canvas.app = new(function(app)
 
         //SCENE
         var loader = new THREE.JSONLoader(),
-        callbackKey = function( geometry ) { createScene( geometry,  0, 0, 12000, 15, "memoryplane.png" ) };
+        callbackKey = function( geometry ) { createScene( geometry,  0, 0, 12000, 15, "assets/memoryplane.png" ) };
         loader.load( "memoryplane2.js", callbackKey );
     }
 
@@ -104,11 +104,11 @@ canvas.app = new(function(app)
         ctx.scene.add( ctx.scene.farlight );
 
         ctx.scene.farlight.uniforms = {};
-        ctx.scene.farlight.uniforms.red = {texture: { type: "t", value: loader.load( 'red.png' ) }, alpha: {type: "f", value: 1.0}};
-        ctx.scene.farlight.uniforms.glare = {texture: { type: "t", value: loader.load( 'glare.png' ) }, alpha: {type: "f", value: 0.3}};
-        ctx.scene.farlight.uniforms.green = {texture: { type: "t", value: loader.load( 'green.png' ) }, alpha: {type: "f", value: 1.0}};
-        ctx.scene.farlight.uniforms.darklayer = {texture: { type: "t", value: loader.load( "darklayer.png" ) }, alpha: {type: "f", value: 1.0}};
-        ctx.scene.farlight.uniforms.bluelayer = {texture: { type: "t", value: loader.load( "bluelayer.png" ) }, alpha: {type: "f", value: 1.0}};
+        ctx.scene.farlight.uniforms.red = {texture: { type: "t", value: loader.load( 'assets/red.png' ) }, alpha: {type: "f", value: 1.0}};
+        ctx.scene.farlight.uniforms.glare = {texture: { type: "t", value: loader.load( 'assets/glare.png' ) }, alpha: {type: "f", value: 0.3}};
+        ctx.scene.farlight.uniforms.green = {texture: { type: "t", value: loader.load( 'assets/green.png' ) }, alpha: {type: "f", value: 1.0}};
+        ctx.scene.farlight.uniforms.darklayer = {texture: { type: "t", value: loader.load( "assets/darklayer.png" ) }, alpha: {type: "f", value: 1.0}};
+        ctx.scene.farlight.uniforms.bluelayer = {texture: { type: "t", value: loader.load( "assets/bluelayer.png" ) }, alpha: {type: "f", value: 1.0}};
         ctx.scene.farlight.control = {};
         ctx.scene.farlight.uniforms.alphas = ctx.camera.streams.bindings('forward', [
         [ctx.scene.farlight.uniforms.alphas, 804]
