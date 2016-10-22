@@ -8,6 +8,11 @@ Install dependencies
 
     npm install
 
+Install Githooks
+----------------
+
+    ./bin/install_githooks.sh
+
 Run
 ---
 

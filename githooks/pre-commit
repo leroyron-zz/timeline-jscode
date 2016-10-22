@@ -1,0 +1,29 @@
+#!/bin/sh
+# Performs style checks prior to commit
+
+basepath=""
+
+failure() {
+  style_name=$1
+  msg="\nYour commit was rejected due to $style_name non-compliance."
+  msg="$msg\n\nIn case of emergency you can bypass this check.  Use:"
+  msg="$msg\n\$ git commit --no-verify\n\n"
+  printf "$msg"
+  exit 1
+}
+
+# list paths to check below, separated by space
+sourcecode_paths="app/ app.js"
+
+for path in $sourcecode_paths; do
+  fullpath="$basepath$path"
+
+  git diff --cached \
+    --diff-filter=AM \
+    --name-only \
+    "$fullpath" | \
+    grep -E '\.js' | \
+    xargs --no-run-if-empty \
+    `npm bin`/eslint || \
+    failure 'eslint'
+done
