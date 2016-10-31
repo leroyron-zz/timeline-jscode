@@ -6,61 +6,55 @@
         <meta name="description" content="Memory Plane Cinematic" />
         <meta name="author" content="Leroy Thompson" />
         <link rel="stylesheet" href="style.css?v=1.0" />
-        <script type="text/javascript" src="app/CSPL.js"></script>
-        <script type="text/javascript" src="app/buffer.easing.js"></script>
-        <script type="text/javascript" src="app/streaming.thrust.js"></script>
     </head>
     <body>
         <div id="app">
-            <div id="info">Memory Plane Cinematic</div>
-            <br><div id="fps"></div>
-            <style>
-                #storyboard, .SB div {position: absolute;}
-                #storyboard {width: 75%; height: 65px; top: 17px; left: 80px; z-index: 22;}
-                .SB .left, .SB .right, .SB .center {width: 5px; height: 29px; top: 0px;}
-                .SB .left {left: 20px; background: transparent url(assets/left-slide.png) no-repeat left top;}
-                .SB .right {right: -30px; background: transparent url(assets/right-slide.png) no-repeat right top;}
-                .SB .center {width: 100%; left: 25px; background: transparent url(assets/center-slide.png) repeat-x scroll left top;}
-                .SB .comment {width: 15px; height: 14px; top: 25px; left: 5%; background: transparent url(assets/comment.png) no-repeat scroll left top;}
-                .SB .segment {width: 1px; height: 17px; top: 27px; left: 10%; border:#666 solid 1px; background: #fff; opacity: 0.50;}
-                .SB .seek {background: #666; top: 4px; width: 1px; left: 0%; height: 21px;}
-                .SB .slider {background: transparent url(assets/slider.png) no-repeat left bottom; bottom: -39px; width: 20px; left: -10px; height: 36px;}
-                .SB .action {border:#666 solid 1px; background: rgb(255, 0, 0) none repeat scroll 0% 0%; top: 4px; width: 5px; height: 7px;}
-                .SB .sound {border:#666 solid 1px; background: rgb(255, 255, 255) none repeat scroll 0% 0%; width: 5px; height: 7px;}
-            </style>
-            <div id="storyboard" class="SB">
-                <div class="left"></div>
-                <div class="center">
-                    <div class="comment" style="left: 13%;"></div>
-                    <div class="comment" style="left: 24%;"></div>
-                    <div class="comment" style="left: 85%;"></div>
-                    <div class="comment" style="left: 90%;"></div>
-                    <div class="segment" style="left: 10%;"></div>
-                    <div class="segment" style="left: 39%;"></div>
-                    <div class="segment" style="left: 64%;"></div>
-                    <div class="segment" style="left: 46%;"></div>
-                    <div class="segment" style="left: 93%;"></div>
-                    <div class="seek">
-                        <div class="slider"></div>
-                    </div>
-                    <div class="action" style="left: 13%;"></div>
-                    <div class="sound" style="left: 0%; top: 17px;"></div>
-                    <div class="sound" style="left: 10%; top: 17px;"></div>
-                </div>
-                <div class="right"></div>
-            </div>
+            <div id="info"></div>
+            <br><div id="fps"></div>            
         </div>
     </body>
-    <script type="text/javascript" src="node_modules/three/build/three.js"></script>
-    <script type="text/javascript" src="node_modules/three/examples/js/controls/OrbitControls.js"></script>
-    <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script>
-    <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
-    <script type="text/javascript" src="app/app.dat.gui.screen.js"></script>
+    <script type="text/javascript" src="lib/vendor/three.js"></script>
+    <script type="text/javascript" src="lib/vendor/OrbitControls.js"></script>
+    <script type="text/javascript" src="lib/vendor/stats.js"></script>
+    <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
+
+    <script type="text/javascript" src="lib/window.app.js"></script>
+    <script type="text/javascript" src="lib/streaming.js"></script>
+    <script type="text/javascript" src="lib/streaming.addon.js"></script>
+    <script type="text/javascript" src="lib/streaming.addon.runtime.js"></script>
+    <script type="text/javascript" src="lib/streaming.addon.runtime.binding.js"></script>
+    <script type="text/javascript" src="lib/streaming.addon.runtime.timeframe.js"></script>
+    <script type="text/javascript" src="lib/streaming.addon.runtime.buffer.js"></script>
+    <script type="text/javascript" src="lib/streaming.addon.runtime.buffer.ease.js"></script>
+    
     <script type="text/javascript" >
-        init("app", "fps");
+        context('app', 'fps');
         var canvas = createCanvas('3d');
         var ctx = canvas.context;
+        //Get the streaming class
+        var streams = new streaming(1000);
+        //DATA
+        //ref/open a stream for buffing
+        ctx.streams = new streams.open;
+        //prepare stream and exploit access to addons, data and GUI
+        ctx.streams.access(true, 0, 0, true, 0, -999, false);
     </script>
     <!--APP - MAIN-->
-    <script type="text/javascript" src="app.js">//canvas.app = new(function() { //RunTime Private })()</script>
+    <script type="text/javascript" src="app.js">//THREE scene and stream binding//</script>
+    <script type="text/javascript">
+        //setup binding for streaming
+        canvas.app.setupBindings('timeline');
+        /*build stream from binding*/
+        ctx.streams.build('timeline');
+        //GRAPHICS
+        canvas.app.createGfxs();
+    </script>
+    <script type="text/javascript" src="lib/vendor/dat.gui.modified.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.window.app.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.streaming.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.streaming.buffer.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.streaming.timeframe.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.streaming.timeframe.timeline.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.streaming.timeframe.timeline.charts.js"></script>
 </html>
