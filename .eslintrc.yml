@@ -9,3 +9,5 @@ rules:
   linebreak-style:
     - 2
     - unix
+  eqeqeq:
+    - off
