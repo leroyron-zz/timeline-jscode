@@ -79,7 +79,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             ['z', 81572, -297114]
             ], // < Production [[793,0],[794,50],[795,0]],
         [801, 802, 803], // < Production (Remove)
-        true)
+        false)
     }
     // All stream lengths have to match <> !!!ctx.timeline.length!!! because of parallel stream
     function setupUniformBindings (stream) {
@@ -104,8 +104,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             ['light', 1000]
             ], // < Production [[793,0],[794,50],[795,0]],
         [805, 806, 807], // < Production (Remove)
-        true)
-        ctx.timeline.addon.buffer.eval(stream, [[ctx.scene.farlight.uniforms.alphas[0]], [['darklayer', -700]], [['linear', 500]]], true)
+        false)
+        ctx.timeline.addon.buffer.eval(stream, [[ctx.scene.farlight.uniforms.alphas[0]], [['darklayer', -700]], [['linear', 500]]], false)
     }
 
     this.createGfxs = function () {

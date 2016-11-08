@@ -35,7 +35,7 @@
         var stream = new Streaming(1000); 
         // prepare stream and exploit access to context, addons, data and GUI
         // timeline context with Streaming
-        ctx.timeline = stream.access(true, 0, 0, true, 0, -999, false);
+        ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
     </script>
     <!--APP - MAIN-->
     <script type="text/javascript" src="app.js">// THREE scene and stream bindings//</script>
@@ -57,5 +57,6 @@
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.buffer.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.slider.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.charts.js"></script>
 </html>
