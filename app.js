@@ -39,18 +39,18 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     }
 
     var calc = function () {
-        if (ctx.scene.farlight.uniforms.alphas[0].darklayer) {
-            ctx.scene.farlight.uniforms.darklayer.alpha.value = ctx.scene.farlight.uniforms.alphas[0].darklayer / 1000
-        }
         if (ctx.scene.farlight) {
             ctx.scene.farlight.position.z = ctx.camera.position.z - 18360
         }
 
         if (zmesh) {
+            if (ctx.camera.position.z - zmesh.position.z > 83379)
+                zmesh.position.z = ctx.camera.position.z
             if (ctx.camera.position.z < zmesh.position.z + zmesh.geometry.boundingSphere.radius / 2) {
                 controls.target = ctx.scene.farlight.position
                 zmesh.position.z -= (zmesh.geometry.boundingSphere.radius + 8000)
-            } }
+            }
+        }
     }
 
     var compute = function () {
@@ -64,7 +64,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     this.SetupContextBindsForStream = function () {
         // DATA
         // make a stream for buffing
-        // eslint-disable-next-line new-cap
         setupCameraBindings('timeline')
         setupUniformBindings('timeline')
     }
@@ -72,14 +71,34 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     function setupCameraBindings (stream) {
         ctx.timeline.addon.binding(stream, [
         [ctx.camera.position, 800]
-        ], // return all part/nodes
+        ],
             [
             ['x', -4200, 4200],
             ['y', 910, 1480],
             ['z', 81572, -297114]
-            ], // < Production [[793,0],[794,50],[795,0]],
-        [801, 802, 803], // < Production (Remove)
+            ],
+        [801, 802, 803],
         false)
+
+        ctx.timeline.addon.binding(stream, [
+        [ctx.camera.rotation, 804]
+        ],
+            [
+            ['x', 0],
+            ['y', 0],
+            ['z', 0]
+            ],
+        [805, 806, 807],
+        false)
+
+        // update precision for easing to 1000 (default:100 = choppy rotations :/)
+        // Change all ease precision
+        // ctx.timeline.addon.buffer.ease.precisions = 200
+        // ctx.timeline.addon.buffer.ease.update()
+        ctx.timeline.addon.buffer.eval(stream, [[ctx.camera.rotation], [['z', 70], ['z', -140], ['z', 70]], [['easeInSine', 166], ['easeOutSine', 166]]], false, 166)
+                                                                    // To flood stream:
+                                                                    // duration/precision formula ( stream.length / (displacements * eases ) )
+                                                                    //                              1000 / (3 * 2) = 166
     }
     // All stream lengths have to match <> !!!ctx.timeline.length!!! because of parallel stream
     function setupUniformBindings (stream) {
@@ -95,17 +114,32 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         ctx.scene.farlight.uniforms.green = {texture: { type: 't', value: loader.load('assets/green.png') }, alpha: {type: 'f', value: 1.0}}
         ctx.scene.farlight.uniforms.darklayer = {texture: { type: 't', value: loader.load('assets/darklayer.png') }, alpha: {type: 'f', value: 1.0}}
         ctx.scene.farlight.control = {}
-        ctx.scene.farlight.uniforms.alphas = ctx.timeline.addon.binding(stream, [
-        [ctx.scene.farlight.uniforms.alphas, 804]
+
+        ctx.timeline.addon.binding(stream, [
+        [ctx.scene.farlight.uniforms.darklayer.alpha, 808]
         ], // return all part/nodes
             [
-            ['darklayer', 1500], // allow higher numbers for percision for longer durations
-            ['glare', 1000],
-            ['light', 1000]
-            ], // < Production [[793,0],[794,50],[795,0]],
-        [805, 806, 807], // < Production (Remove)
+            ['value', 1500],
+            ['need', 0],
+            ['to', 0]
+            ],
+        [809, 810, 811],
         false)
-        ctx.timeline.addon.buffer.eval(stream, [[ctx.scene.farlight.uniforms.alphas[0]], [['darklayer', -700]], [['linear', 500]]], false)
+
+        ctx.timeline.addon.binding(stream, [
+        [ctx.scene.farlight.uniforms.glare.alpha, 810],
+        [ctx.scene.farlight.uniforms.red.alpha, 811],
+        [ctx.scene.farlight.uniforms.green.alpha, 812]
+        ], // return all part/nodes
+            [
+            ['value', 500],
+            ['make', 0],
+            ['dynamic', 0]
+            ],
+        [809, 810, 811],
+        false)
+
+        ctx.timeline.addon.buffer.eval(stream, [[ctx.scene.farlight.uniforms.darklayer.alpha], [['value', -700]], [['linear', 1000]]], false, 200)
     }
 
     this.createGfxs = function () {
