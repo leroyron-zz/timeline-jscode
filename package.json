@@ -1,7 +1,7 @@
 {
-  "name": "three-timeline",
+  "name": "timeline-code",
   "version": "1.0.0",
-  "description": "",
+  "description": "Timeline for scalable storyboard application development.",
   "main": "index.js",
   "scripts": {
     "start": "node-simplehttpserver . 5000",

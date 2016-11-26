@@ -44,8 +44,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         }
 
         if (zmesh) {
-            if (ctx.camera.position.z - zmesh.position.z > 83379)
+            if (ctx.camera.position.z - zmesh.position.z > 83379) {
                 zmesh.position.z = ctx.camera.position.z
+            }
             if (ctx.camera.position.z < zmesh.position.z + zmesh.geometry.boundingSphere.radius / 2) {
                 controls.target = ctx.scene.farlight.position
                 zmesh.position.z -= (zmesh.geometry.boundingSphere.radius + 8000)
@@ -109,10 +110,10 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         ctx.scene.add(ctx.scene.farlight)
 
         ctx.scene.farlight.uniforms = {}
-        ctx.scene.farlight.uniforms.red = {texture: { type: 't', value: loader.load('assets/red.png') }, alpha: {type: 'f', value: 1.0}}
-        ctx.scene.farlight.uniforms.glare = {texture: { type: 't', value: loader.load('assets/glare.png') }, alpha: {type: 'f', value: 0.3}}
-        ctx.scene.farlight.uniforms.green = {texture: { type: 't', value: loader.load('assets/green.png') }, alpha: {type: 'f', value: 1.0}}
-        ctx.scene.farlight.uniforms.darklayer = {texture: { type: 't', value: loader.load('assets/darklayer.png') }, alpha: {type: 'f', value: 1.0}}
+        ctx.scene.farlight.uniforms.red = {texture: { type: 't', value: loader.load(app._fileLocal + 'assets/red.png') }, alpha: {type: 'f', value: 1.0}}
+        ctx.scene.farlight.uniforms.glare = {texture: { type: 't', value: loader.load(app._fileLocal + 'assets/glare.png') }, alpha: {type: 'f', value: 0.3}}
+        ctx.scene.farlight.uniforms.green = {texture: { type: 't', value: loader.load(app._fileLocal + 'assets/green.png') }, alpha: {type: 'f', value: 1.0}}
+        ctx.scene.farlight.uniforms.darklayer = {texture: { type: 't', value: loader.load(app._fileLocal + 'assets/darklayer.png') }, alpha: {type: 'f', value: 1.0}}
         ctx.scene.farlight.control = {}
 
         ctx.timeline.addon.binding(stream, [
@@ -236,8 +237,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
         // SCENE
         loader = new THREE.JSONLoader()
-        var callbackKey = function (geometry) { createScene(geometry, 0, 0, 12000, 15, 'assets/memoryplane.png') }
-        loader.load('assets/memoryplane.js', callbackKey)
+        var callbackKey = function (geometry) { createScene(geometry, 0, 0, 12000, 15, app._fileLocal + 'assets/memoryplane.png') }
+        loader.load(app._fileLocal + 'assets/memoryplane.js', callbackKey)
     }
 
     function createScene (geometry, x, y, z, scale, tmap) {
