@@ -265,7 +265,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                     ctx.timeline.addon.timeframe.keyPauseToggle(e)
                 }
                 )
-                ctx.timeline.addon.timeframe.run()
+                ctx.timeline.addon.timeframe.init() // timeframe ready has to be set to true for additional scripts to load
             },
             // Function called when download progresses
             function (xhr) {

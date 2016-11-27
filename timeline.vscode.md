@@ -48,13 +48,6 @@
         // GRAPHICS
         canvas.app.createGfxs();
     </script>
-    <script>
-        document.addEventListener("keydown", function (e) {
-            if (e.which === 70) {//f
-            } else if (e.which === 71) {//g
-            }
-        });
-    </script>
     <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.window.app.js"></script>
