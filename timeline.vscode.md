@@ -24,6 +24,10 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.binding.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.action.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.comment.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.segment.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
     <script type="text/javascript" >
