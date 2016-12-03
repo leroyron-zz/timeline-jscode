@@ -262,7 +262,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
                 zmesh.geometry.boundingSphere.radius *= 25
                 window.addEventListener('keyup', function (e) {
-                    ctx.timeline.addon.timeframe.keyPauseToggle(e)
+                    ctx.timeline.addon.timeframe.timeline.keyDestroy(e)
+                    // ctx.timeline.addon.timeframe.keyPauseToggle(e)
                 }
                 )
                 ctx.timeline.addon.timeframe.init() // timeframe ready has to be set to true for additional scripts to load
