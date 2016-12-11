@@ -24,31 +24,31 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.binding.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.action.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.comment.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.segment.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.action.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
-    <script type="text/javascript" >
-        context('app', 'fps');
+    <script type="text/javascript">
+        context('app', 'fps'); 
         var canvas = createCanvas('3d');
         var ctx = canvas.context;
-        // Get the Streaming class
-        var stream = new Streaming(1000); 
+        // Get the Streaming class 
+        var stream = new Streaming(1200); 
         // prepare stream and exploit access to context, addons, data and GUI
         // timeline context with Streaming
         ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
-        //parent.vscode.open('app.js')
     </script>
     <!--APP - MAIN-->
     <script type="text/javascript" src="app.js">// THREE scene and stream bindings//</script>
     <script type="text/javascript">
+        // user code/setting
+        app.codesetting = 'scene1'
         // setup binding data for Streaming for the canvas
         canvas.app.SetupContextBindsForStream('timeline');
         // build stream and prebuff from the binding data
         ctx.timeline.build();
-        // To-Do -  rebuild stream and prebuff from new bindling data eg, Todo - ctx.timeline.rebuild();
         // GRAPHICS
         canvas.app.createGfxs();
     </script>
@@ -66,5 +66,6 @@
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.sound.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.comment.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.segment.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.dialog.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.charts.js"></script>
 </markdown-html>
