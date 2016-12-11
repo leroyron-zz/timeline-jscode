@@ -7,3 +7,8 @@ src/**
 .gitignore
 tsconfig.json
 vsc-extension-quickstart.md
+**/bin
+**/*.obj*
+**/*.psd*
+**/*.mtl*
+**/*.blend*
