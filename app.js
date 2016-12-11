@@ -12,270 +12,247 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     }
 
     // Private
-    var controls, zmesh
-
-    init()
+    var controls
 
     function init () {
         // LIGHTS
         var ambient = new THREE.AmbientLight(0x666666)
         ctx.scene.add(ambient)
-        var directionalLight = new THREE.DirectionalLight(0xffeedd)
+        var directionalLight = new THREE.DirectionalLight(0xFFEEDD)
         directionalLight.position.set(0, 70, 100).normalize()
+        ctx.scene.add(directionalLight)
+
+        directionalLight = new THREE.DirectionalLight(0xBFA475)
+        directionalLight.position.set(0, -70, -100).normalize()
         ctx.scene.add(directionalLight)
 
         // CONTROLS
         controls = new THREE.OrbitControls(ctx.camera, canvas.renderer.domElement)
-        controls.addEventListener('change', render) // add this only if there is no animation loop (requestAnimationFrame)
+        controls.addEventListener('change', ctx.rendering) // add this only if there is no animation loop (requestAnimationFrame)
         controls.enableDamping = true
         controls.dampingFactor = 0.25
         controls.enableZoom = true
     }
 
     ctx.timeline.addon.timeframe.invoke = function () {
-        calc()
-        render()
-        compute()
+        ctx.calc()
+        ctx.rendering()
+        ctx.compute()
     }
 
-    var calc = function () {
-        if (ctx.scene.farlight) {
-            ctx.scene.farlight.position.z = ctx.camera.position.z - 18360
+    ctx.calc = function () {
+        if (ctx.scene.nodes.craft1) {
+            controls.target = ctx.scene.nodes.craft1.position
         }
-
-        if (zmesh) {
-            if (ctx.camera.position.z - zmesh.position.z > 83379) {
-                zmesh.position.z = ctx.camera.position.z
-            }
-            if (ctx.camera.position.z < zmesh.position.z + zmesh.geometry.boundingSphere.radius / 2) {
-                controls.target = ctx.scene.farlight.position
-                zmesh.position.z -= (zmesh.geometry.boundingSphere.radius + 8000)
-            }
+        if (ctx.scene.nodes.starwall) {
+            ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
         }
     }
 
-    var compute = function () {
-        // controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
+    ctx.compute = function () {
+        controls.update() // required if controls.enableDamping = true, or if controls.autoRotate = true
     }
 
-    function render () {
+    ctx.rendering = function () {
         canvas.renderer.render(ctx.scene, ctx.camera)
     }
 
     this.SetupContextBindsForStream = function () {
         // DATA
         // make a stream for buffing
+        app.codeLoc = 'user/' + app.codesetting
+        app.fileLocAssets = app._fileLocal + app.codeLoc + '/assets/'
         setupCameraBindings('timeline')
-        setupUniformBindings('timeline')
+        createParticles()
     }
+
+    init()
 
     function setupCameraBindings (stream) {
         ctx.timeline.addon.binding(stream, [
         [ctx.camera.position, 800]
         ],
             [
-            ['x', -4200, 4200],
-            ['y', 910, 1480],
-            ['z', 81572, -297114]
+            ['x', 0],
+            ['y', 0],
+            ['z', 10]
             ],
         [801, 802, 803],
         false)
 
-        ctx.timeline.addon.binding(stream, [
-        [ctx.camera.rotation, 804]
-        ],
+        ctx.timeline.addon.buffer.eval(stream,
             [
-            ['x', 0],
-            ['y', 0],
-            ['z', 0]
-            ],
-        [805, 806, 807],
-        false)
-
-        // update precision for easing to 1000 (default:100 = choppy rotations :/)
-        // Change all ease precision
-        // ctx.timeline.addon.buffer.ease.precisions = 200
-        // ctx.timeline.addon.buffer.ease.update()
-        ctx.timeline.addon.buffer.eval(stream, [[ctx.camera.rotation], [['z', 70], ['z', -140], ['z', 70]], [['easeInSine', 166], ['easeOutSine', 166]]], false, 166)
-                                                                    // To flood stream:
-                                                                    // duration/precision formula ( stream.length / (displacements * eases ) )
+                                                                    // even out formula ( stream.length / (displacements * eases ) )
                                                                     //                              1000 / (3 * 2) = 166
+                [[ctx.camera.position], [['y', 140], ['y', -280], ['y', 140]], [['easeInSine', 166], ['easeOutSine', 166]]], // remainder 6 added to ['easeOutSine', 100 + 6 = 106] >
+                [[ctx.camera.position], [['x', 200]], [['easeOutSine', 215]], -10]// *true/*1 will blend over ^ the last set (166) by offsetting
+                                                                                  // otherwise offset of *x (10)
+            ], false)
     }
-    // All stream lengths have to match <> !!!ctx.timeline.length!!! because of parallel stream
-    function setupUniformBindings (stream) {
-        var loader = new THREE.TextureLoader()
-        ctx.scene.farlight = new THREE.Group()
-        ctx.scene.farlight.position.set(-110, 0, ctx.camera.position.z - 18360)
-        ctx.scene.farlight.scale.set(100, 100, 100)
-        ctx.scene.add(ctx.scene.farlight)
 
-        ctx.scene.farlight.uniforms = {}
-        ctx.scene.farlight.uniforms.red = {texture: { type: 't', value: loader.load(app._fileLocal + 'assets/red.png') }, alpha: {type: 'f', value: 1.0}}
-        ctx.scene.farlight.uniforms.glare = {texture: { type: 't', value: loader.load(app._fileLocal + 'assets/glare.png') }, alpha: {type: 'f', value: 0.3}}
-        ctx.scene.farlight.uniforms.green = {texture: { type: 't', value: loader.load(app._fileLocal + 'assets/green.png') }, alpha: {type: 'f', value: 1.0}}
-        ctx.scene.farlight.uniforms.darklayer = {texture: { type: 't', value: loader.load(app._fileLocal + 'assets/darklayer.png') }, alpha: {type: 'f', value: 1.0}}
-        ctx.scene.farlight.control = {}
-
-        ctx.timeline.addon.binding(stream, [
-        [ctx.scene.farlight.uniforms.darklayer.alpha, 808]
-        ], // return all part/nodes
-            [
-            ['value', 1500],
-            ['need', 0],
-            ['to', 0]
-            ],
-        [809, 810, 811],
-        false)
-
-        ctx.timeline.addon.binding(stream, [
-        [ctx.scene.farlight.uniforms.glare.alpha, 810],
-        [ctx.scene.farlight.uniforms.red.alpha, 811],
-        [ctx.scene.farlight.uniforms.green.alpha, 812]
-        ], // return all part/nodes
-            [
-            ['value', 500],
-            ['make', 0],
-            ['dynamic', 0]
-            ],
-        [809, 810, 811],
-        false)
-
-        ctx.timeline.addon.buffer.eval(stream, [[ctx.scene.farlight.uniforms.darklayer.alpha], [['value', -700]], [['linear', 1000]]], false, 200)
-    }
 
     this.createGfxs = function () {
-        var shader = {
-            vertexToScreen: [
-                'varying vec2 vUv;' +
+        // SCENE
+        ctx.scene.nodes = {}
+        createScene('starwall',
+            {x: 0, y: 0, z: 0},
+            {x: 1, y: 1, z: 1},
+            app.fileLocAssets + 'starwall.json',
+            true,
+            false
+            )
 
-            'void main() {' +
-                'gl_Position = vec4(position, 1.0);' +
-                'vUv = uv;' +
-            '}'].join('\n'),
+        createScene('earth',
+            {x: 0, y: 0, z: 0},
+            {x: 1, y: 1, z: 1},
+            app.fileLocAssets + 'earth.json',
+            true,
+            false
+            )
 
-            vertexToDistance: [
-                'varying vec2 vUv;' +
+        createScene('moon',
+            {x: 0, y: 0, z: 0},
+            {x: 1, y: 1, z: 1},
+            app.fileLocAssets + 'moon.json',
+            true,
+            false
+            )
 
-            'void main() {' +
-                'gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);' +
-                'vUv = uv;' +
-            '}'].join('\n'),
+        createScene('craft1',
+            {x: 0, y: 0, z: -1},
+            {x: 1, y: 1, z: 1},
+            app.fileLocAssets + 'craft1.json',
+            false,
+            true
+            )
 
-            fragment: [
-                'varying vec2 vUv;' +
-            'uniform sampler2D texture;' +
-            'uniform float alpha;' +
+        createScene('craft2',
+            {x: 1, y: -1, z: -1},
+            {x: 1, y: 1, z: 1},
+            app.fileLocAssets + 'craft2.json',
+            true,
+            true
+            )
 
-            'void main() {' +
-                'gl_FragColor = texture2D(texture, vec2(vUv)) * alpha;' +
-            '}'].join('\n')}
+        createScene('craft3',
+            {x: -1, y: -1, z: -1},
+            {x: 1, y: 1, z: 1},
+            app.fileLocAssets + 'craft3.json',
+            true,
+            true
+            )
+    }
+
+    var nodeLoadCount = {entry: 0, finish: 0}
+    function createScene (node, position, scale, model, buff, doubleSide) {
+        // instantiate a loader
+        var loader = new THREE.JSONLoader()
+
+        var object
+
+        nodeLoadCount.entry++
+        // load a resource
+        loader.load(
+            // resource URL
+            model,
+            // Function when resource is loaded
+            function (geometry, materials) {
+                if (buff) {
+                    geometry = new THREE.BufferGeometry().fromGeometry(geometry)
+                }
+                var material = new THREE.MultiMaterial(materials)
+                object = new THREE.Mesh(geometry, material)
+                object.doubleSided = doubleSide
+                object.position.copy(position)
+                object.scale.copy(scale)
+
+                ctx.scene.add(object)
+
+                ctx.scene.nodes[node] = object
+
+                nodeLoadCount.finish++
+                if (nodeLoadCount.entry == nodeLoadCount.finish) {
+                    ctx.timeline.addon.timeframe._init() // timeframe init has to be set to true for additional scripts to load
+                }
+            },
+            // Function called when download progresses
+            function (xhr) {
+                // console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            // Function called when download errors
+            function (xhr) {
+                // console.log('An error happened')
+            }
+        )
+    }
+
+    function createParticles () {
+        var geometries = []
+        var textureLoader = new THREE.TextureLoader()
+
+        var sprite1 = textureLoader.load(app.fileLocAssets + 'sprites/star1.png')
+        geometries.push(randomVerticies(24))
+        var sprite2 = textureLoader.load(app.fileLocAssets + 'sprites/star2.png')
+        geometries.push(randomVerticies(36))
+        var sprite3 = textureLoader.load(app.fileLocAssets + 'sprites/star3.png')
+        geometries.push(randomVerticies(48))
+        var sprite4 = textureLoader.load(app.fileLocAssets + 'sprites/star4.png')
+        geometries.push(randomVerticies(60))
+        var sprite5 = textureLoader.load(app.fileLocAssets + 'sprites/star5.png')
+        geometries.push(randomVerticies(72))
+
+        function randomVerticies (reach) {
+            var geometry = new THREE.Geometry()
+            for (let i = 0; i < 100; i++) {
+                var vertex = new THREE.Vector3()
+                vertex.x = Math.random() * reach * 2 - reach
+                vertex.y = Math.random() * reach * 2 - reach
+                vertex.z = Math.random() * reach * 2 - reach
+
+                geometry.vertices.push(vertex)
+            }
+            return geometry
+        }
+
+        var parameters = [
+            [ [1.0, 0.2, 0.5], sprite2, Math.random() * 1 ],
+            [ [0.95, 0.1, 0.5], sprite3, Math.random() * 1 ],
+            [ [0.90, 0.05, 0.5], sprite1, Math.random() * 1 ],
+            [ [0.85, 0, 0.5], sprite5, Math.random() * 1 ],
+            [ [0.80, 0, 0.5], sprite4, Math.random() * 1 ]
+        ]
+
         var src = [ 'ZeroFactor', 'OneFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor', 'DstColorFactor', 'OneMinusDstColorFactor', 'SrcAlphaSaturateFactor' ]
         //          '200'         '201'        '204'             '205'                     '206'             '207'                     '208'             '209'                     '210'
         var dst = [ 'ZeroFactor', 'OneFactor', 'SrcColorFactor', 'OneMinusSrcColorFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor' ]
         //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
         var blending = 'CustomBlending'
 
-        var loader = new THREE.TextureLoader()
+        var materials = []
+        for (let i = 0; i < parameters.length; i++) {
+            let color = parameters[i][0]
+            let sprite = parameters[i][1]
+            let size = parameters[i][2]
+            materials[i] = new THREE.PointsMaterial({
+                size: size,
+                map: sprite,
+                blending: THREE[blending],
+                blendSrc: THREE[src[2]],
+                blendDst: THREE[dst[6]],
+                blendEquation: THREE.AddEquation,
+                depthTest: true,
+                depthWrite: false,
+                transparent: true
+            })
+            materials[i].color.setHSL(color[0], color[1], color[2])
 
-        var geometry = new THREE.PlaneGeometry(200, 200)
-        var red = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
-            uniforms: ctx.scene.farlight.uniforms.red,
-            vertexShader: shader.vertexToDistance,
-            fragmentShader: shader.fragment,
-            transparent: true,
-            blending: THREE[blending],
-            blendSrc: THREE[src[2]],
-            blendDst: THREE[dst[6]],
-            blendEquation: THREE.AddEquation,
-            depthTest: false
-        })
-            )
-        ctx.scene.farlight.add(red)
+            var particles = new THREE.Points(geometries[i], materials[i])
+            particles.rotation.x = Math.random() * 6
+            particles.rotation.y = Math.random() * 6
+            particles.rotation.z = Math.random() * 6
+            particles.sortParticles = true
 
-        geometry = new THREE.PlaneGeometry(200, 200)
-        ctx.scene.farlight.control.glare = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
-            uniforms: ctx.scene.farlight.uniforms.glare,
-            vertexShader: shader.vertexToDistance,
-            fragmentShader: shader.fragment,
-            transparent: true,
-            blending: THREE[blending],
-            blendSrc: THREE[src[2]],
-            blendDst: THREE[dst[3]],
-            blendEquation: THREE.AddEquation,
-            depthTest: false
-        })
-            )
-        ctx.scene.farlight.control.glare.position.set(-25, 25, 0)
-        ctx.scene.farlight.add(ctx.scene.farlight.control.glare)
-
-        geometry = new THREE.PlaneGeometry(200, 200)
-        var green = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
-            uniforms: ctx.scene.farlight.uniforms.green,
-            vertexShader: shader.vertexToDistance,
-            fragmentShader: shader.fragment,
-            transparent: true,
-            blending: THREE[blending],
-            blendSrc: THREE[src[2]],
-            blendDst: THREE[dst[6]],
-            blendEquation: THREE.AddEquation,
-            depthTest: false
-        })
-            )
-        ctx.scene.farlight.add(green)
-
-        // Dark Layer
-        geometry = new THREE.PlaneGeometry(2, 2)
-        var darklayer = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
-            uniforms: ctx.scene.farlight.uniforms.darklayer,
-            vertexShader: shader.vertexToScreen,
-            fragmentShader: shader.fragment,
-            transparent: true,
-            depthTest: false
-        })
-            )
-        ctx.scene.farlight.add(darklayer)
-
-        // SCENE
-        loader = new THREE.JSONLoader()
-        var callbackKey = function (geometry) { createScene(geometry, 0, 0, 12000, 15, app._fileLocal + 'assets/memoryplane.png') }
-        loader.load(app._fileLocal + 'assets/memoryplane.js', callbackKey)
-    }
-
-    function createScene (geometry, x, y, z, scale, tmap) {
-        var loader = new THREE.TextureLoader()
-        // load a resource
-        loader.load(
-            // resource URL
-            tmap,
-            // Function when resource is loaded
-            function (texture) {
-                // do something with the texture
-                var material = new THREE.MeshLambertMaterial({
-                    map: texture,
-                    depthTest: false
-                })
-
-                zmesh = new THREE.Mesh(geometry, material)
-                zmesh.position.set(x, y, z)
-                zmesh.scale.set(25, scale, 25)
-                ctx.scene.add(zmesh)
-
-                zmesh.geometry.boundingSphere.radius *= 25
-                window.addEventListener('keyup', function (e) {
-                    ctx.timeline.addon.timeframe.timeline.keyDestroy(e)
-                    // ctx.timeline.addon.timeframe.keyPauseToggle(e)
-                }
-                )
-                ctx.timeline.addon.timeframe.init() // timeframe ready has to be set to true for additional scripts to load
-            },
-            // Function called when download progresses
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
-            },
-            // Function called when download errors
-            function (xhr) {
-                console.log('An error happened')
-            }
-        )
+            ctx.scene.add(particles)
+        }
     }
 }(this.app, this.THREE, this.canvas, this.ctx)
