@@ -18,6 +18,7 @@
     <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
     <script type="text/javascript" src="lib/math.addon.js"></script>
     <script type="text/javascript" src="lib/math.addon.type.js"></script>
+    <script type="text/javascript" src="lib/math.addon.cache.js"></script>
     <script type="text/javascript" src="lib/window.app.js"></script>
     <script type="text/javascript" src="lib/Streaming.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.js"></script>
@@ -34,8 +35,8 @@
         context('app', 'fps'); 
         var canvas = createCanvas('3d');
         var ctx = canvas.context;
-        // Get the Streaming class 
-        var stream = new Streaming(1200); 
+        // Get the Streaming class
+        var stream = new Streaming(2200); 
         // prepare stream and exploit access to context, addons, data and GUI
         // timeline context with Streaming
         ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
@@ -44,7 +45,7 @@
     <script type="text/javascript" src="app.js">// THREE scene and stream bindings//</script>
     <script type="text/javascript">
         // user code/setting
-        app.codesetting = 'scene1'
+        app.codesetting = 'game1'
         // setup binding data for Streaming for the canvas
         canvas.app.SetupContextBindsForStream('timeline');
         // build stream and prebuff from the binding data

@@ -11,9 +11,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         this.height = app.resolution.height
     }
 
-    // Private
-    var controls
-
     function init () {
         // LIGHTS
         var ambient = new THREE.AmbientLight(0x666666)
@@ -27,11 +24,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         ctx.scene.add(directionalLight)
 
         // CONTROLS
-        controls = new THREE.OrbitControls(ctx.camera, canvas.renderer.domElement)
-        controls.addEventListener('change', ctx.rendering) // add this only if there is no animation loop (requestAnimationFrame)
-        controls.enableDamping = true
-        controls.dampingFactor = 0.25
-        controls.enableZoom = true
+        ctx.camera.controls = new THREE.OrbitControls(ctx.camera, canvas.renderer.domElement)
+        ctx.camera.controls.addEventListener('change', ctx.rendering) // add this only if there is no animation loop (requestAnimationFrame)
+        ctx.camera.controls.enableDamping = true
+        ctx.camera.controls.dampingFactor = 0.25
+        ctx.camera.controls.enableZoom = true
     }
 
     ctx.timeline.addon.timeframe.invoke = function () {
@@ -42,7 +39,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
     ctx.calc = function () {
         if (ctx.scene.nodes.craft1) {
-            controls.target = ctx.scene.nodes.craft1.position
+            ctx.camera.controls.target = ctx.scene.nodes.craft1.position
         }
         if (ctx.scene.nodes.starwall) {
             ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
@@ -50,27 +47,29 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     }
 
     ctx.compute = function () {
-        controls.update() // required if controls.enableDamping = true, or if controls.autoRotate = true
+        ctx.camera.controls.update() // required if ctx.camera.controls.enableDamping = true, or if ctx.camera.controls.autoRotate = true
     }
 
     ctx.rendering = function () {
         canvas.renderer.render(ctx.scene, ctx.camera)
     }
 
-    this.SetupContextBindsForStream = function () {
+    this.SetupContextBindsForStreamAndBuildAfterLoad = function () {
         // DATA
         // make a stream for buffing
         app.codeLoc = 'user/' + app.codesetting
         app.fileLocAssets = app._fileLocal + app.codeLoc + '/assets/'
+        ctx.scene.nodes = {}// put all scene object/nodes in here during loadtime
+        createParticlesAndBind()
         setupCameraBindings('timeline')
-        createParticles()
+        createGfxsAndBind('timeline')
     }
 
     init()
 
     function setupCameraBindings (stream) {
         ctx.timeline.addon.binding(stream, [
-        [ctx.camera.position, 800]
+        [ctx.camera.position, 884]// unique
         ],
             [
             ['x', 0],
@@ -80,71 +79,74 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         [801, 802, 803],
         false)
 
-        ctx.timeline.addon.buffer.eval(stream,
-            [
-                                                                    // even out formula ( stream.length / (displacements * eases ) )
-                                                                    //                              1000 / (3 * 2) = 166
-                [[ctx.camera.position], [['y', 140], ['y', -280], ['y', 140]], [['easeInSine', 166], ['easeOutSine', 166]]], // remainder 6 added to ['easeOutSine', 100 + 6 = 106] >
-                [[ctx.camera.position], [['x', 200]], [['easeOutSine', 215]], -10]// *true/*1 will blend over ^ the last set (166) by offsetting
-                                                                                  // otherwise offset of *x (10)
-            ], false)
+        // Buffing is done during runtime user/game1/segment0.js
     }
 
-
-    this.createGfxs = function () {
+    function createGfxsAndBind (stream) {
         // SCENE
-        ctx.scene.nodes = {}
         createScene('starwall',
             {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'starwall.json',
+            app.fileLocAssets + 'starwallscale.json',
             true,
-            false
+            false,
+            stream,
+            885// unique
             )
 
         createScene('earth',
-            {x: 0, y: 0, z: 0},
+            {x: -20, y: 25, z: -67},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'earth.json',
+            app.fileLocAssets + 'earthscale.json',
             true,
-            false
+            false,
+            stream,
+            886// unique
             )
 
         createScene('moon',
-            {x: 0, y: 0, z: 0},
+            {x: 14, y: 45, z: 60},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'moon.json',
+            app.fileLocAssets + 'moonscale.json',
             true,
-            false
+            false,
+            stream,
+            887// unique
             )
 
         createScene('craft1',
-            {x: 0, y: 0, z: -1},
+            {x: 0, y: 0, z: -10},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'craft1.json',
+            app.fileLocAssets + 'craftscale1.json',
             false,
-            true
+            true,
+            stream,
+            888// unique
             )
 
         createScene('craft2',
-            {x: 1, y: -1, z: -1},
+            {x: 10, y: -10, z: -10},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'craft2.json',
+            app.fileLocAssets + 'craftscale2.json',
             true,
-            true
+            true,
+            stream,
+            889// unique
             )
 
         createScene('craft3',
-            {x: -1, y: -1, z: -1},
+            {x: -10, y: -10, z: -10},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'craft3.json',
+            app.fileLocAssets + 'craftscale3.json',
             true,
-            true
+            true,
+            stream,
+            890// unique
             )
     }
 
     var nodeLoadCount = {entry: 0, finish: 0}
-    function createScene (node, position, scale, model, buff, doubleSide) {
+    function createScene (node, position, scale, model, buff, doubleSide, stream, bindId) {
         // instantiate a loader
         var loader = new THREE.JSONLoader()
 
@@ -170,9 +172,34 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
                 ctx.scene.nodes[node] = object
 
+                ctx.timeline.addon.binding(stream, [
+                [ctx.scene.nodes[node].position, bindId]
+                ],
+                    [
+                    ['x', position.x],
+                    ['y', position.y],
+                    ['z', position.z]
+                    ],
+                [801, 802, 803],
+                false)
+
+                ctx.timeline.addon.binding(stream, [
+                [ctx.scene.nodes[node].rotation, bindId + nodeLoadCount.entry]
+                ],
+                    [
+                    ['x', 0],
+                    ['y', 0],
+                    ['z', 0]
+                    ],
+                [804, 805, 806],
+                false)
+
                 nodeLoadCount.finish++
                 if (nodeLoadCount.entry == nodeLoadCount.finish) {
-                    ctx.timeline.addon.timeframe._init() // timeframe init has to be set to true for additional scripts to load
+                    // build stream and prebuff from the binding data
+                    ctx.timeline.build(function () {
+                        ctx.timeline.addon.timeframe._init() // timeframe init has to be set to true for additional scripts to load
+                    })
                 }
             },
             // Function called when download progresses
@@ -186,20 +213,22 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         )
     }
 
-    function createParticles () {
+    function createParticlesAndBind () {
         var geometries = []
         var textureLoader = new THREE.TextureLoader()
 
         var sprite1 = textureLoader.load(app.fileLocAssets + 'sprites/star1.png')
-        geometries.push(randomVerticies(24))
+        geometries.push(randomVerticies(240))
         var sprite2 = textureLoader.load(app.fileLocAssets + 'sprites/star2.png')
-        geometries.push(randomVerticies(36))
+        geometries.push(randomVerticies(360))
         var sprite3 = textureLoader.load(app.fileLocAssets + 'sprites/star3.png')
-        geometries.push(randomVerticies(48))
+        geometries.push(randomVerticies(480))
         var sprite4 = textureLoader.load(app.fileLocAssets + 'sprites/star4.png')
-        geometries.push(randomVerticies(60))
+        geometries.push(randomVerticies(600))
         var sprite5 = textureLoader.load(app.fileLocAssets + 'sprites/star5.png')
-        geometries.push(randomVerticies(72))
+        geometries.push(randomVerticies(720))
+
+        ctx.scene.nodes['starcluster'] = geometries
 
         function randomVerticies (reach) {
             var geometry = new THREE.Geometry()
@@ -215,11 +244,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         }
 
         var parameters = [
-            [ [1.0, 0.2, 0.5], sprite2, Math.random() * 1 ],
-            [ [0.95, 0.1, 0.5], sprite3, Math.random() * 1 ],
-            [ [0.90, 0.05, 0.5], sprite1, Math.random() * 1 ],
-            [ [0.85, 0, 0.5], sprite5, Math.random() * 1 ],
-            [ [0.80, 0, 0.5], sprite4, Math.random() * 1 ]
+            [ [1.0, 0.2, 0.5], sprite2, Math.random() * 10 ],
+            [ [0.95, 0.1, 0.5], sprite3, Math.random() * 10 ],
+            [ [0.90, 0.05, 0.5], sprite1, Math.random() * 10 ],
+            [ [0.85, 0, 0.5], sprite5, Math.random() * 10 ],
+            [ [0.80, 0, 0.5], sprite4, Math.random() * 10 ]
         ]
 
         var src = [ 'ZeroFactor', 'OneFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor', 'DstColorFactor', 'OneMinusDstColorFactor', 'SrcAlphaSaturateFactor' ]

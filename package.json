@@ -2,7 +2,7 @@
   "name": "timeline-code",
   "version": "1.0.0",
   "description": "Timeline for scalable storyboard application development.",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start": "node-simplehttpserver . 5000",
     "test": "echo \"Error: no test specified\" && exit 1"
