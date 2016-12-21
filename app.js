@@ -32,22 +32,30 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     }
 
     ctx.timeline.addon.timeframe.invoke = function () {
-        ctx.calc()
+        ctx.calc()// before render
         ctx.rendering()
-        ctx.compute()
+        ctx.compute()// after render
     }
 
     ctx.calc = function () {
-        if (ctx.scene.nodes.craft1) {
-            ctx.camera.controls.target = ctx.scene.nodes.craft1.position
-        }
         if (ctx.scene.nodes.starwall) {
             ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
+        }
+        if (ctx.camera.controls.enabled) {
+            ctx.camera.controls.target = ctx.scene.nodes.craft1.position
+            ctx.camera.controls.update() // required if ctx.camera.controls.enableDamping = true, or if ctx.camera.controls.autoRotate = true
+        } else {
+            // Ref: action978.js
+
+            /*
+
+             */
+            ctx.camera.lookAt(ctx.scene.nodes.craft1.position)
         }
     }
 
     ctx.compute = function () {
-        ctx.camera.controls.update() // required if ctx.camera.controls.enableDamping = true, or if ctx.camera.controls.autoRotate = true
+        
     }
 
     ctx.rendering = function () {
@@ -74,10 +82,21 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             [
             ['x', 0],
             ['y', 0],
-            ['z', 10]
+            ['z', 5]
             ],
         [801, 802, 803],
         false)
+
+        /*ctx.timeline.addon.binding(stream, [
+        [ctx.camera.rotation, 885]// unique
+        ],
+            [
+            ['x', 0],
+            ['y', 0],
+            ['z', 0]
+            ],
+        [804, 805, 806],
+        false)*/
 
         // Buffing is done during runtime user/game1/segment0.js
     }
@@ -86,67 +105,73 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         // SCENE
         createScene('starwall',
             {x: 0, y: 0, z: 0},
+            {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'starwallscale.json',
-            true,
-            false,
-            stream,
-            885// unique
-            )
-
-        createScene('earth',
-            {x: -20, y: 25, z: -67},
-            {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'earthscale.json',
+            app.fileLocAssets + 'starwall.json',
             true,
             false,
             stream,
             886// unique
             )
 
-        createScene('moon',
-            {x: 14, y: 45, z: 60},
+        createScene('earth',
+            {x: -20, y: 25, z: -67},
+            {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'moonscale.json',
+            app.fileLocAssets + 'earth.json',
             true,
             false,
             stream,
             887// unique
             )
 
-        createScene('craft1',
-            {x: 0, y: 0, z: -10},
+        createScene('moon',
+            {x: 14, y: 45, z: 60},
+            {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'craftscale1.json',
-            false,
+            app.fileLocAssets + 'moon.json',
             true,
+            false,
             stream,
             888// unique
             )
 
-        createScene('craft2',
-            {x: 10, y: -10, z: -10},
+        createScene('craft1',
+            {x: 0, y: 0, z: -10},
+            {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'craftscale2.json',
-            true,
+            app.fileLocAssets + 'craft1.json',
+            false,
             true,
             stream,
             889// unique
             )
 
-        createScene('craft3',
-            {x: -10, y: -10, z: -10},
+        createScene('craft2',
+            {x: 10, y: -10, z: -10},
+            {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'craftscale3.json',
+            app.fileLocAssets + 'craft2.json',
             true,
             true,
             stream,
             890// unique
             )
+
+        createScene('craft3',
+            {x: -10, y: -10, z: -10},
+            {x: 0, y: 0, z: 0},
+            {x: 1, y: 1, z: 1},
+            app.fileLocAssets + 'craft3.json',
+            true,
+            true,
+            stream,
+            891// unique
+            )
     }
 
     var nodeLoadCount = {entry: 0, finish: 0}
-    function createScene (node, position, scale, model, buff, doubleSide, stream, bindId) {
+    function createScene (node, position, rotation, scale, model, buff, doubleSide, stream, bindId) {
         // instantiate a loader
         var loader = new THREE.JSONLoader()
 
@@ -165,7 +190,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 var material = new THREE.MultiMaterial(materials)
                 object = new THREE.Mesh(geometry, material)
                 object.doubleSided = doubleSide
-                object.position.copy(position)
                 object.scale.copy(scale)
 
                 ctx.scene.add(object)
@@ -187,12 +211,20 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 [ctx.scene.nodes[node].rotation, bindId + nodeLoadCount.entry]
                 ],
                     [
-                    ['x', 0],
-                    ['y', 0],
-                    ['z', 0]
+                    ['x', doubleSide ? Math.random() * 360 : rotation.x],
+                    ['y', doubleSide ? Math.random() * 360 : rotation.y],
+                    ['z', doubleSide ? Math.random() * 360 : rotation.z]
                     ],
                 [804, 805, 806],
                 false)
+
+                // Optimize rotation callbacks for THREE - bindId releasing 806 (streaming.addon.runtime.timeframe.js)
+                ctx.scene.nodes[node].rotation.onChange(function () {
+                    if (!this.blockCallback) {
+                        this.blockCallback = true
+                        ctx.scene.nodes[node].quaternion.setFromEuler(this, false)
+                    }
+                })
 
                 nodeLoadCount.finish++
                 if (nodeLoadCount.entry == nodeLoadCount.finish) {
