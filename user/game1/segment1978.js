@@ -10,7 +10,7 @@ var Authority = function (timeframe = window.ctx.timeline.addon.timeframe || {},
             buffer.eval('timeline',
                 [
                     [
-                        [camera.position], [['x', 200]], [['easeOutSine', 222]], this.segmentID// start from current frame
+                        [camera.position], [[['x', 200]]], [['easeOutSine', 222]], this.segmentID// start from current frame
                     ]
                 ],
             true)// true for relative values for timeframe thursting

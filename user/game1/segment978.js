@@ -15,7 +15,7 @@ var Authority = function (timeline = window.ctx.timeline || {}, timeframe = wind
         buffer.eval('timeline',
             [
                 [
-                    [nodes.earth.rotation], [['y', 360]], [['linear', 1000]]// buff from current frame this.segmentID
+                    [nodes.earth.rotation], [[['y', 360]]], [['linear', 1000]]// buff from current frame this.segmentID
                 ]
             ],
         true)
@@ -23,7 +23,7 @@ var Authority = function (timeline = window.ctx.timeline || {}, timeframe = wind
         buffer.eval('timeline',
             [
                 [
-                    [nodes.moon.rotation], [['y', -360]], [['linear', 1000]]
+                    [nodes.moon.rotation], [[['y', -360]]], [['linear', 1000]]
                 ]
             ],
         true)

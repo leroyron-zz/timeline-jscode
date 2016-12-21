@@ -1,22 +1,38 @@
 var Authority = function (app = window.app || {}, THREE = window.THREE || {}, camera = window.ctx.camera || {}, canvas = window.canvas || {}, ctx = window.ctx || {}) {
     this.actionID = 978
+    var timeframe = ctx.timeline.addon.timeframe || {}
+    var duration = 1000 // move to segment Authority duration// have access to current segment authorty in action
+                        // segment = segment.Authority
+
+    var buffer = ctx.timeline.addon.buffer
+    camera.targetOffset = new THREE.Vector3(0, 0, 0)
+    camera.move = new THREE.Vector3(0, 0, 0)
 
     var heroCraft = ctx.scene.nodes.craft1
+    heroCraft.move = new THREE.Vector3(0, 0, 0)
+    heroCraft.direction = new THREE.Vector3(0, 0, -1).applyQuaternion(heroCraft.quaternion)
+    heroCraft.hover = new THREE.Vector3(0, 1, -1).applyQuaternion(heroCraft.quaternion)
     heroCraft.ctrl = {
         velocity:
         {
-            vector: {x: -1, y: 1, z: 0},
-            rotation: {x: 1, y: -1, z: 1}
+            vector:
+            {
+                position: {x: 0, y: 0, z: 0},
+                rotation: {x: 0, y: 0, z: 0}
+            }
         },
         speed:
         {
-            vector: {x: 1, y: 1, z: 0},
-            rotation: {x: 10, y: 5, z: 22}
+            vector:
+            {
+                position: {x: 0, y: 0, z: 0},
+                rotation: {x: 0, y: 0, z: 0}
+            }
         },
         thrusts:
         {
-            forwardthrust: {vector: {x: 1, y: 1, z: 0}, thurst: function () { thrust(this.velocity) }},
-            backwardsthrust: {vector: {x: 1, y: 1, z: 0}, thurst: function () { thrust(this.velocity) }}
+            forwardthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }},
+            backwardsthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }}
         },
         state:
         {
@@ -28,9 +44,9 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
             shooting: 'no', // no, guns(1), missiles(2), combine(3)
             targeting: 'no', // no, yes
             targeted: 'no', // no, yes
-            key: '',
-            buff: 10000000
-            // ^10000000 8 digits
+            key: 0, // 0 // up(1) - right(3) - down(5) - left(7)
+            buff: 1000000000 // max ArrayBuffer integer digit limit for 32Bit
+            // ^https://en.wikipedia.org/wiki/2147483647_(number) 10 digits max javascript could take in 32 Int ArrayBuffer
         }
     }
 
@@ -39,7 +55,7 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
     // the states for heroCraft will br recorded and sent to the stream
     // for accurate playback
     // it's is best to cache reoccuring values for performance
-    // Math.Cache.nines*Array* is used to eval states digit by digit (10000000)
+    // Math.Cache.nines*Array* is used to eval states digit by digit (1000000000)
     var cacheNines = function (digits) {
         var elevens = 0
         var bufferArray = new Int32Array(new ArrayBuffer(digits * 4))
@@ -49,9 +65,32 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
         }
         return bufferArray
     }
-    Math.Cache.store('nines', cacheNines, playBuffLen)
+    Math.Cache.store('nines', cacheNines, playBuffLen)// optimizing runtime Math
     cacheNines = null
 
+    function driveLow (node) {
+        // get direction vector of craft
+        // buff stream for a duration between segments (978 - 1978 = 1000) from the current timeframe position
+        // allow reverting
+        // buff x, y, z in that direction depending on speed
+        node.move.fromArray([200, 200, 200])
+        node.direction.fromArray([0, 0, -1])
+        node.direction.applyQuaternion(node.quaternion)
+        node.move.multiply(node.direction)
+
+        camera.disposition = {in: 0.20, out: 0.80} // determine distance from camera percent to fillin ease frames
+        camera.disposition.position = buffer.eval('timeline',
+            [
+                [
+                    [node.position], [
+                        [['x', node.move.x]],
+                        [['y', node.move.y]],
+                        [['z', node.move.z]]],
+                        [['linear', duration]]// start from current frame
+                ]
+            ],
+        true, undefined, duration * camera.disposition.in)// get values
+    }
     var playBuffer = function (node) {
         for (let p = 0; p < playBuffLen; ++p) {
             let a = node.ctrl.state.buff
@@ -64,9 +103,9 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
                 switch (p) {
                 case 0:// drive
                     switch (a) { // low(1), high(2), hyper(3), zero(4)
-                    case 1:
-                    case 2:
-                    case 3:
+                    case 1: driveLow(node); break
+                    case 2: break
+                    case 3: break
                     case 4:
                     default:
                         break
@@ -147,10 +186,72 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
             }
         }
     }
-    playBuffer(heroCraft)
 
     this.main = function () {
         camera.controls.enabled = false
+
+        heroCraft.rotation.onChange(function () {
+            if (!camera.controls.enabled && !this.blockCallback) {
+                this.blockCallback = true
+                heroCraft.quaternion.setFromEuler(this, false)
+
+                camera.move.copy(heroCraft.position)
+                camera.move.sub(camera.position)// move camera to craft position
+                camera.move.add(camera.disposition.position)// move camera to craft position
+
+                heroCraft.hover.fromArray([0, 0.25, -1])
+                heroCraft.hover.applyQuaternion(heroCraft.quaternion)
+
+                camera.targetOffset.fromArray([-15, -15, -15])
+                //camera.targetOffset.multiply(heroCraft.direction)// then offset directly at the back
+                camera.targetOffset.multiply(heroCraft.hover)// then offset directly over top
+
+                camera.move.add(camera.targetOffset)// move camera to craft end position
+
+                buffer.eval('timeline',
+                    [
+                        [
+                            [camera.position], [
+                                [['x', camera.move.x]],
+                                [['y', camera.move.y]],
+                                [['z', camera.move.z]]],
+                                [['easeInQuint', duration * camera.disposition.in]]
+                        ]
+                    ],
+                true)
+
+                camera.move.copy(heroCraft.move)// copy end position then subtract
+                camera.move.sub(camera.disposition.position)// relative values
+                buffer.eval('timeline',
+                    [
+                        [
+                            [camera.position], [
+                                [['x', camera.move.x]],
+                                [['y', camera.move.y]],
+                                [['z', camera.move.z]]],
+                                [['linear', duration * camera.disposition.out]],
+                            duration * camera.disposition.in
+                        ]
+                    ],
+                true)
+
+                /*buffer.eval('timeline',
+                    [
+                        [
+                            [camera.position], [
+                                [['x', heroCraft.move.x]],
+                                [['y', heroCraft.move.y]],
+                                [['z', heroCraft.move.z]]],
+                                [['linear', duration * camera.disposition.out]],
+                            duration * camera.disposition.in// start end position in
+                        ]
+                    ],
+                true)*/// true for relative values for timeframe thursting// true for relative values for timeframe thursting
+                camera.lookAt(heroCraft.position)
+            }
+        })
+
+        playBuffer(heroCraft)
 
         canvas.node.onmousemove = canvas.node.ontouchmove = function (e) {
             e.preventDefault()
@@ -233,8 +334,8 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
                 }
             }
             // console.log(JSON.stringify(app.pointers))
+            playBuffer(heroCraft)
         }
-        playBuffer(heroCraft)
     }
 
     var touch = function (e) {

@@ -6,7 +6,7 @@ var Authority = function (timeframe = window.ctx.timeline.addon.timeframe || {},
         [
                                                                 // even out formula ( stream.length / (displacements * eases ) )
             [                                                   //                                 1000 / (3 * 2) = 166
-                [camera.position], [['y', 140], ['y', -280], ['y', 140]], [['easeInSine', 166], ['easeOutSine', 166]]//, *offset
+                [camera.position], [[['y', 140], ['y', -280], ['y', 140]]], [['easeInSine', 1000 / (3 * 2)], ['easeOutSine', 1000 / (3 * 2)]]//, *offset
             ]
         ],
     false)// false for non-relative values for timeframe reading
@@ -14,7 +14,7 @@ var Authority = function (timeframe = window.ctx.timeline.addon.timeframe || {},
     buffer.eval('timeline',
         [
             [
-                [nodes.earth.rotation], [['y', 360]], [['linear', 978]]
+                [nodes.earth.rotation], [[['y', 360]]], [['linear', 978]]
             ]
         ],
     false)
@@ -22,7 +22,7 @@ var Authority = function (timeframe = window.ctx.timeline.addon.timeframe || {},
     buffer.eval('timeline',
         [
             [
-                [nodes.moon.rotation], [['y', 360]], [['linear', 978]]
+                [nodes.moon.rotation], [[['y', 360]]], [['linear', 978]]
             ]
         ],
     false)
