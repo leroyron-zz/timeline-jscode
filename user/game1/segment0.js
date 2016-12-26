@@ -1,6 +1,5 @@
-var Authority = function (timeframe = window.ctx.timeline.addon.timeframe || {}, buffer = window.ctx.timeline.addon.buffer || {}, binding = window.ctx.timeline.addon.binding || {}, nodes = window.ctx.scene.nodes || {}) {
+var Authority = new function (camera, timeframe, buffer, binding, nodes) {
     this.segmentID = 0
-    var camera = window.ctx.camera
 
     buffer.eval('timeline',
         [
@@ -32,4 +31,4 @@ var Authority = function (timeframe = window.ctx.timeline.addon.timeframe || {},
         timeframe.stop(0)// stop at frame 0
     }
     return this
-}
+}(this.ctx.camera, this.ctx.timeline.addon.timeframe, this.ctx.timeline.addon.buffer, this.ctx.timeline.addon.binding, this.ctx.scene.nodes)

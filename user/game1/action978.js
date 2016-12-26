@@ -1,6 +1,5 @@
-var Authority = function (app = window.app || {}, THREE = window.THREE || {}, camera = window.ctx.camera || {}, canvas = window.canvas || {}, ctx = window.ctx || {}) {
+var Authority = new function (app, THREE, camera, canvas, ctx) {
     this.actionID = 978
-    var timeframe = ctx.timeline.addon.timeframe || {}
     var duration = 1000 // move to segment Authority duration// have access to current segment authorty in action
                         // segment = segment.Authority
 
@@ -34,7 +33,7 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
             forwardthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }},
             backwardsthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }}
         },
-        state:
+        playstate:
         {
             drive: 'low', // low(1), high(2), hyper(3), zero(4)
             turning: 'no', // no(0), yes(1)
@@ -45,17 +44,17 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
             targeting: 'no', // no, yes
             targeted: 'no', // no, yes
             key: 0, // 0 // up(1) - right(3) - down(5) - left(7)
-            buff: 1000000000 // max ArrayBuffer integer digit limit for 32Bit
+            code: 1000000000 // max ArrayBuffer integer digit limit for 32Bit
             // ^https://en.wikipedia.org/wiki/2147483647_(number) 10 digits max javascript could take in 32 Int ArrayBuffer
         }
     }
 
-    var playBuffLen = heroCraft.ctrl.state.buff.toString().length
+    var playcodeLen = heroCraft.ctrl.playstate.code.toString().length
 
-    // the states for heroCraft will br recorded and sent to the stream
+    // the playstates for heroCraft will br recorded and sent to the stream
     // for accurate playback
     // it's is best to cache reoccuring values for performance
-    // Math.Cache.nines*Array* is used to eval states digit by digit (1000000000)
+    // Math.Cache.nines*Array* is used to eval playstates digit by digit (1000000000)
     var cacheNines = function (digits) {
         var elevens = 0
         var bufferArray = new Int32Array(new ArrayBuffer(digits * 4))
@@ -65,7 +64,7 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
         }
         return bufferArray
     }
-    Math.Cache.store('nines', cacheNines, playBuffLen)// optimizing runtime Math
+    Math.Cache.store('nines', cacheNines, playcodeLen)// optimizing runtime Math
     cacheNines = null
 
     function driveLow (node) {
@@ -74,12 +73,13 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
         // allow reverting
         // buff x, y, z in that direction depending on speed
         node.move.fromArray([200, 200, 200])
+        // node.move.copy(heroCraft.reticle.far)
         node.direction.fromArray([0, 0, -1])
         node.direction.applyQuaternion(node.quaternion)
         node.move.multiply(node.direction)
 
-        camera.disposition = {in: 0.20, out: 0.80} // determine distance from camera percent to fillin ease frames
-        camera.disposition.position = buffer.eval('timeline',
+        camera.easing = {in: 0.15, out: 0.85} // determine distance from camera percent to fillin easing frames
+        camera.easing.position = buffer.eval('timeline',
             [
                 [
                     [node.position], [
@@ -89,11 +89,11 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
                         [['linear', duration]]// start from current frame
                 ]
             ],
-        true, undefined, duration * camera.disposition.in)// get values
+        true, undefined, duration * camera.easing.in)// get values
     }
-    var playBuffer = function (node) {
-        for (let p = 0; p < playBuffLen; ++p) {
-            let a = node.ctrl.state.buff
+    var playCode = function (node) {
+        for (let p = 0; p < playcodeLen; ++p) {
+            let a = node.ctrl.playstate.code
             if (a > Math.Cache.nines[p]) {
                 while (a > Math.Cache.nines[p + 1]) {
                     a = (a / 10) << 0 // Use bitwise '<<' operator to force integer result.
@@ -194,16 +194,18 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
             if (!camera.controls.enabled && !this.blockCallback) {
                 this.blockCallback = true
                 heroCraft.quaternion.setFromEuler(this, false)
-
+                // return
+                if (!camera.easing)
+                    return
                 camera.move.copy(heroCraft.position)
                 camera.move.sub(camera.position)// move camera to craft position
-                camera.move.add(camera.disposition.position)// move camera to craft position
+                camera.move.add(camera.easing.position)// move camera to craft position
 
-                heroCraft.hover.fromArray([0, 0.25, -1])
+                heroCraft.hover.fromArray([0, -0.25, -1])
                 heroCraft.hover.applyQuaternion(heroCraft.quaternion)
 
                 camera.targetOffset.fromArray([-15, -15, -15])
-                //camera.targetOffset.multiply(heroCraft.direction)// then offset directly at the back
+                // camera.targetOffset.multiply(heroCraft.direction)// then offset directly at the back
                 camera.targetOffset.multiply(heroCraft.hover)// then offset directly over top
 
                 camera.move.add(camera.targetOffset)// move camera to craft end position
@@ -215,13 +217,13 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
                                 [['x', camera.move.x]],
                                 [['y', camera.move.y]],
                                 [['z', camera.move.z]]],
-                                [['easeInQuint', duration * camera.disposition.in]]
+                                [['easeInQuint', duration * camera.easing.in]]
                         ]
                     ],
                 true)
 
                 camera.move.copy(heroCraft.move)// copy end position then subtract
-                camera.move.sub(camera.disposition.position)// relative values
+                camera.move.sub(camera.easing.position)// relative values
                 buffer.eval('timeline',
                     [
                         [
@@ -229,33 +231,35 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
                                 [['x', camera.move.x]],
                                 [['y', camera.move.y]],
                                 [['z', camera.move.z]]],
-                                [['linear', duration * camera.disposition.out]],
-                            duration * camera.disposition.in
+                                [['linear', duration * camera.easing.out]],
+                            duration * camera.easing.in
                         ]
                     ],
                 true)
 
-                /*buffer.eval('timeline',
-                    [
-                        [
-                            [camera.position], [
-                                [['x', heroCraft.move.x]],
-                                [['y', heroCraft.move.y]],
-                                [['z', heroCraft.move.z]]],
-                                [['linear', duration * camera.disposition.out]],
-                            duration * camera.disposition.in// start end position in
-                        ]
-                    ],
-                true)*/// true for relative values for timeframe thursting// true for relative values for timeframe thursting
-                camera.lookAt(heroCraft.position)
+                camera.lookAt(heroCraft.reticle.position)
             }
         })
-
-        playBuffer(heroCraft)
+        playCode(heroCraft)
 
         canvas.node.onmousemove = canvas.node.ontouchmove = function (e) {
             e.preventDefault()
             if (!app.pointers.inUse) {
+                if (typeof e.changedTouches == 'undefined') {
+                    app.pointers[0] = touch(e)
+                    let x = app.pointers[0].pageX - this.offsetLeft
+                    let y = app.pointers[0].pageY - this.offsetTop
+                    raycaster.setFromCamera(new THREE.Vector2(((x / this.clientWidth) * 2 - 1), (-(y / this.clientHeight) * 2 + 1)), ctx.camera)
+                    heroCraft.reticle.mid.fromArray([500, 500, 500])
+                    heroCraft.reticle.mid.multiply(raycaster.ray.direction)
+                    heroCraft.reticle.mid.add(camera.position)
+                    heroCraft.reticle.position.copy(heroCraft.reticle.mid)
+                } else {
+                    for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
+                        let id = e.changedTouches[tm].identifier
+                        app.pointers[id] = touch(e.changedTouches[tm])
+                    }
+                }
                 return
             }
 
@@ -263,15 +267,17 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
                 app.pointers[0] = touch(e)
                 console.log('press move: mouse' + app.pointers[0].pageX)
             } else {
-                for (var tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
+                for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
                     let id = e.changedTouches[tm].identifier
                     app.pointers[id] = touch(e.changedTouches[tm])
                     console.log('press move: touch ' + app.pointers[id].pageX)
                 }
             }
-            playBuffer(heroCraft)
+            // playCode(heroCraft)
         }
 
+
+        var raycaster = new THREE.Raycaster()
         canvas.node.onmousedown = canvas.node.ontouchstart = function (e) {
             e.preventDefault()
             if (!app.pointers.enabled) {
@@ -283,6 +289,9 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
             if (typeof e.changedTouches == 'undefined') {
                 app.pointers[0] = touch(e)
                 console.log('press down: mouse' + app.pointers[0].pageX)
+                // debugger
+                heroCraft.reticle.mid.multiply({x: -1, y: -1, z: -1})
+                heroCraft.lookAt(heroCraft.reticle.mid)
             } else {
                 for (let ts = 0, dlen = e.changedTouches.length; ts < dlen; ts++) {
                     let id = e.changedTouches[ts].identifier
@@ -296,7 +305,7 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
                     }
                 }
             }
-            playBuffer(heroCraft)
+            // playCode(heroCraft)
             // console.log(JSON.stringify(app.pointers))
         }
 
@@ -334,7 +343,28 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
                 }
             }
             // console.log(JSON.stringify(app.pointers))
-            playBuffer(heroCraft)
+            // playCode(heroCraft)
+        }
+
+        ctx.camera.controls.target = heroCraft.position
+        heroCraft.reticle = createSprite(1, 0, 0, 0, app.fileLocAssets + 'sprites/reticle.png')[0]
+        heroCraft.reticle.move = new THREE.Vector3(0, 0, 0)
+        heroCraft.reticle.near = new THREE.Vector3(100, 100, 100)
+        heroCraft.reticle.mid = new THREE.Vector3(500, 500, 500)
+        heroCraft.reticle.far = new THREE.Vector3(1000, 1000, 1000)
+        ctx.calc = function () {
+            if (ctx.scene.nodes.starwall) {
+                ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
+            }
+            if (ctx.camera.controls.enabled) {
+                ctx.camera.controls.update() // required if ctx.camera.controls.enableDamping = true, or if ctx.camera.controls.autoRotate = true
+            } else {
+                ctx.camera.lookAt(heroCraft.position)
+            }
+        }
+
+        ctx.compute = function () {
+
         }
     }
 
@@ -355,5 +385,62 @@ var Authority = function (app = window.app || {}, THREE = window.THREE || {}, ca
         return false
     }
 
+    function createSprite (num, x, y, z, url) {
+        var geometries = []
+        var textureLoader = new THREE.TextureLoader()
+
+        var sprite1 = textureLoader.load(url)
+        geometries.push(vertices(num, x, y, z))
+
+        function vertices (num, x, y, z) {
+            var geometry = new THREE.Geometry()
+            for (let i = 0; i < num; i++) {
+                var vertex = new THREE.Vector3()
+                vertex.x = x
+                vertex.y = y
+                vertex.z = z
+
+                geometry.vertices.push(vertex)
+            }
+            return geometry
+        }
+
+        var parameters = [
+            [ [1.0, 1.0, 1.0], sprite1, 100 ]
+        ]
+
+        var src = [ 'ZeroFactor', 'OneFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor', 'DstColorFactor', 'OneMinusDstColorFactor', 'SrcAlphaSaturateFactor' ]
+        //          '200'         '201'        '204'             '205'                     '206'             '207'                     '208'             '209'                     '210'
+        var dst = [ 'ZeroFactor', 'OneFactor', 'SrcColorFactor', 'OneMinusSrcColorFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor' ]
+        //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
+        var blending = 'CustomBlending'
+
+        var materials = []
+        for (let i = 0; i < parameters.length; i++) {
+            let color = parameters[i][0]
+            let sprite = parameters[i][1]
+            let size = parameters[i][2]
+            materials[i] = new THREE.PointsMaterial({
+                size: size,
+                map: sprite,
+                blending: THREE[blending],
+                blendSrc: THREE[src[2]],
+                blendDst: THREE[dst[6]],
+                blendEquation: THREE.AddEquation,
+                depthTest: false,
+                depthWrite: false,
+                transparent: true
+            })
+            materials[i].color.setHSL(color[0], color[1], color[2])
+
+            var gfx = new THREE.Points(geometries[i], materials[i])
+            gfx.sortParticles = true
+            geometries[i] = gfx
+            ctx.scene.add(gfx)
+        }
+
+        return geometries
+    }
+
     return this
-}
+}(this.app, this.THREE, this.ctx.camera, this.canvas, this.ctx)

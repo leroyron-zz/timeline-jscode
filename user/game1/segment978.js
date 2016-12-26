@@ -1,6 +1,6 @@
-var Authority = function (timeline = window.ctx.timeline || {}, timeframe = window.ctx.timeline.addon.timeframe || {}, buffer = window.ctx.timeline.addon.buffer || {}, binding = window.ctx.timeline.addon.binding || {}, ctx = window.ctx || {}) {
+var Authority = new function (timeline, timeframe, buffer, binding, nodes, ctx) {
+    // segment
     this.segmentID = 978
-    var nodes = ctx.scene.nodes || {}
 
     this.main = function (pos) {
         timeframe.switchToTimeFrameThrusting(this.segmentID)
@@ -29,4 +29,4 @@ var Authority = function (timeline = window.ctx.timeline || {}, timeframe = wind
         true)
     }
     return this
-}
+}(this.ctx.timeline, this.ctx.timeline.addon.timeframe, this.ctx.timeline.addon.buffer, this.ctx.timeline.addon.binding, this.ctx.scene.nodes, this.ctx)

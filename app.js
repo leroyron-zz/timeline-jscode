@@ -42,20 +42,23 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
         }
         if (ctx.camera.controls.enabled) {
-            ctx.camera.controls.target = ctx.scene.nodes.craft1.position
             ctx.camera.controls.update() // required if ctx.camera.controls.enableDamping = true, or if ctx.camera.controls.autoRotate = true
         } else {
-            // Ref: action978.js
-
-            /*
-
-             */
             ctx.camera.lookAt(ctx.scene.nodes.craft1.position)
         }
+        // calculations taken into action insert
+        // Ref: action978.js
+        /*
+
+        */
     }
 
     ctx.compute = function () {
-        
+        // compute taken into action insert
+        // Ref: action978.js
+        /*
+
+        */
     }
 
     ctx.rendering = function () {
@@ -68,9 +71,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         app.codeLoc = 'user/' + app.codesetting
         app.fileLocAssets = app._fileLocal + app.codeLoc + '/assets/'
         ctx.scene.nodes = {}// put all scene object/nodes in here during loadtime
-        createParticlesAndBind()
         setupCameraBindings('timeline')
         createGfxsAndBind('timeline')
+        createParticles()
     }
 
     init()
@@ -138,7 +141,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
         createScene('craft1',
             {x: 0, y: 0, z: -10},
-            {x: 0, y: 0, z: 0},
+            {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
             app.fileLocAssets + 'craft1.json',
             false,
@@ -149,7 +152,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
         createScene('craft2',
             {x: 10, y: -10, z: -10},
-            {x: 0, y: 0, z: 0},
+            {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
             app.fileLocAssets + 'craft2.json',
             true,
@@ -160,7 +163,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
         createScene('craft3',
             {x: -10, y: -10, z: -10},
-            {x: 0, y: 0, z: 0},
+            {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
             app.fileLocAssets + 'craft3.json',
             true,
@@ -168,6 +171,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             stream,
             891// unique
             )
+            function random360 () {
+             return Math.random() * 360
+            }
     }
 
     var nodeLoadCount = {entry: 0, finish: 0}
@@ -211,9 +217,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 [ctx.scene.nodes[node].rotation, bindId + nodeLoadCount.entry]
                 ],
                     [
-                    ['x', doubleSide ? Math.random() * 360 : rotation.x],
-                    ['y', doubleSide ? Math.random() * 360 : rotation.y],
-                    ['z', doubleSide ? Math.random() * 360 : rotation.z]
+                    ['x', rotation.x],
+                    ['y', rotation.y],
+                    ['z', rotation.z]
                     ],
                 [804, 805, 806],
                 false)
@@ -245,7 +251,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         )
     }
 
-    function createParticlesAndBind () {
+    function createParticles () {
         var geometries = []
         var textureLoader = new THREE.TextureLoader()
 

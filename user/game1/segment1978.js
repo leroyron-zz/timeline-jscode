@@ -1,9 +1,8 @@
-var Authority = function (timeframe = window.ctx.timeline.addon.timeframe || {}, buffer = window.ctx.timeline.addon.buffer || {}, binding = window.ctx.timeline.addon.binding || {}) {
+var Authority = new function (camera, timeframe, buffer, binding, nodes) {
     this.segmentID = 1978
-    var camera = window.ctx.camera
 
     this.main = function () {
-        var isGameDone = window.ctx.isGameDone
+        var isGameDone = this.ctx.isGameDone
         if (isGameDone) {
             camera.controls.enabled = true
             timeframe.clearRuntimeAuthority('action', 978)
@@ -17,4 +16,4 @@ var Authority = function (timeframe = window.ctx.timeline.addon.timeframe || {},
         }
     }
     return this
-}
+}(this.ctx.camera, this.ctx.timeline.addon.timeframe, this.ctx.timeline.addon.buffer, this.ctx.timeline.addon.binding, this.ctx.scene.nodes)
