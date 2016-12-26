@@ -32,7 +32,7 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
     <script type="text/javascript">
-        context('app', 'fps'); 
+        context('app', 'fps');
         var canvas = createCanvas('3d');
         var ctx = canvas.context;
         // Get the Streaming class
@@ -47,11 +47,7 @@
         // user code/setting
         app.codesetting = 'game1'
         // setup binding data for Streaming for the canvas
-        canvas.app.SetupContextBindsForStream('timeline');
-        // build stream and prebuff from the binding data
-        ctx.timeline.build();
-        // GRAPHICS
-        canvas.app.createGfxs();
+        canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');        
     </script>
     <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.js"></script>
@@ -63,10 +59,10 @@
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.bar.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.action.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.sound.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.comment.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.segment.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.action.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.sound.js"></script>    
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.dialog.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.charts.js"></script>
 </markdown-html>
