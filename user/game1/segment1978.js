@@ -2,7 +2,7 @@ var Authority = new function (camera, timeframe, buffer, binding, nodes) {
     this.segmentID = 1978
 
     this.main = function () {
-        var isGameDone = this.ctx.isGameDone
+        var isGameDone = window.ctx.isGameDone
         if (isGameDone) {
             camera.controls.enabled = true
             timeframe.clearRuntimeAuthority('action', 978)
