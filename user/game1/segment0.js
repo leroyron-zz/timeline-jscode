@@ -1,11 +1,11 @@
 var Authority = new function (camera, timeframe, buffer, binding, nodes) {
     this.segmentID = 0
-
+    var last = camera.position.y + 140 - 280
     buffer.eval('timeline',
         [
                                                                 // even out formula ( stream.length / (displacements * eases ) )
             [                                                   //                                 1000 / (3 * 2) = 166
-                [camera.position], [[['y', 140], ['y', -280], ['y', 140]]], [['easeInSine', 1000 / (3 * 2)], ['easeOutSine', 1000 / (3 * 2)]]//, *offset
+                [camera.position], [[['y', 140], ['y', -280], ['y', camera.position.y - last]]], [['easeInSine', 1000 / (3 * 2)], ['easeOutSine', 1000 / (3 * 2)]]//, *offset
             ]
         ],
     false)// false for non-relative values for timeframe reading
@@ -27,7 +27,6 @@ var Authority = new function (camera, timeframe, buffer, binding, nodes) {
     false)
 
     this.main = function () {
-        camera.controls.enabled = true
         timeframe.stop(0)// stop at frame 0
     }
     return this

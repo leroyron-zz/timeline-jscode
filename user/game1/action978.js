@@ -2,16 +2,11 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
     this.actionID = 978
     var duration = 1000 // move to segment Authority duration// have access to current segment authorty in action
                         // segment = segment.Authority
-
     var buffer = ctx.timeline.addon.buffer
-    camera.targetOffset = new THREE.Vector3(0, 0, 0)
-    camera.move = new THREE.Vector3(0, 0, 0)
 
-    var heroCraft = ctx.scene.nodes.craft1
-    heroCraft.move = new THREE.Vector3(0, 0, 0)
-    heroCraft.direction = new THREE.Vector3(0, 0, -1).applyQuaternion(heroCraft.quaternion)
-    heroCraft.hover = new THREE.Vector3(0, 1, -1).applyQuaternion(heroCraft.quaternion)
-    heroCraft.ctrl = {
+    var craft = ctx.scene.nodes.craft1
+
+    craft.ctrl = {
         velocity:
         {
             vector:
@@ -43,15 +38,14 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             shooting: 'no', // no, guns(1), missiles(2), combine(3)
             targeting: 'no', // no, yes
             targeted: 'no', // no, yes
-            key: 0, // 0 // up(1) - right(3) - down(5) - left(7)
-            code: 1000000000 // max ArrayBuffer integer digit limit for 32Bit
+            vertical: 50, // 50 center  right/left(*99)
+            horizontal: 50, // up/down(*99) -
+            code: 1000005050, // max ArrayBuffer integer digit limit for 32Bit
+            codeLength: 10
             // ^https://en.wikipedia.org/wiki/2147483647_(number) 10 digits max javascript could take in 32 Int ArrayBuffer
         }
     }
-
-    var playcodeLen = heroCraft.ctrl.playstate.code.toString().length
-
-    // the playstates for heroCraft will br recorded and sent to the stream
+    // the playstates for craft will br recorded and sent to the stream
     // for accurate playback
     // it's is best to cache reoccuring values for performance
     // Math.Cache.nines*Array* is used to eval playstates digit by digit (1000000000)
@@ -64,35 +58,10 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         }
         return bufferArray
     }
-    Math.Cache.store('nines', cacheNines, playcodeLen)// optimizing runtime Math
+    Math.Cache.store('nines', cacheNines, craft.ctrl.playstate.codeLength)// optimizing runtime Math
     cacheNines = null
-
-    function driveLow (node) {
-        // get direction vector of craft
-        // buff stream for a duration between segments (978 - 1978 = 1000) from the current timeframe position
-        // allow reverting
-        // buff x, y, z in that direction depending on speed
-        node.move.fromArray([200, 200, 200])
-        // node.move.copy(heroCraft.reticle.far)
-        node.direction.fromArray([0, 0, -1])
-        node.direction.applyQuaternion(node.quaternion)
-        node.move.multiply(node.direction)
-
-        camera.easing = {in: 0.15, out: 0.85} // determine distance from camera percent to fillin easing frames
-        camera.easing.position = buffer.eval('timeline',
-            [
-                [
-                    [node.position], [
-                        [['x', node.move.x]],
-                        [['y', node.move.y]],
-                        [['z', node.move.z]]],
-                        [['linear', duration]]// start from current frame
-                ]
-            ],
-        true, undefined, duration * camera.easing.in)// get values
-    }
     var playCode = function (node) {
-        for (let p = 0; p < playcodeLen; ++p) {
+        for (let p = 0; p < craft.ctrl.playstate.codeLength; ++p) {
             let a = node.ctrl.playstate.code
             if (a > Math.Cache.nines[p]) {
                 while (a > Math.Cache.nines[p + 1]) {
@@ -187,73 +156,174 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         }
     }
 
-    this.main = function () {
-        camera.controls.enabled = false
+    camera.orbital.reticle.tee.persision = function (x, y) {
+        craft.ctrl.playstate.vertical = x = 50 - 50 * x << 0
+        craft.ctrl.playstate.horizontal = y = 50 - 50 * y << 0
 
-        heroCraft.rotation.onChange(function () {
-            if (!camera.controls.enabled && !this.blockCallback) {
-                this.blockCallback = true
-                heroCraft.quaternion.setFromEuler(this, false)
-                // return
-                if (!camera.easing)
-                    return
-                camera.move.copy(heroCraft.position)
-                camera.move.sub(camera.position)// move camera to craft position
-                camera.move.add(camera.easing.position)// move camera to craft position
-
-                heroCraft.hover.fromArray([0, -0.25, -1])
-                heroCraft.hover.applyQuaternion(heroCraft.quaternion)
-
-                camera.targetOffset.fromArray([-15, -15, -15])
-                // camera.targetOffset.multiply(heroCraft.direction)// then offset directly at the back
-                camera.targetOffset.multiply(heroCraft.hover)// then offset directly over top
-
-                camera.move.add(camera.targetOffset)// move camera to craft end position
-
-                buffer.eval('timeline',
-                    [
-                        [
-                            [camera.position], [
-                                [['x', camera.move.x]],
-                                [['y', camera.move.y]],
-                                [['z', camera.move.z]]],
-                                [['easeInQuint', duration * camera.easing.in]]
-                        ]
-                    ],
-                true)
-
-                camera.move.copy(heroCraft.move)// copy end position then subtract
-                camera.move.sub(camera.easing.position)// relative values
-                buffer.eval('timeline',
-                    [
-                        [
-                            [camera.position], [
-                                [['x', camera.move.x]],
-                                [['y', camera.move.y]],
-                                [['z', camera.move.z]]],
-                                [['linear', duration * camera.easing.out]],
-                            duration * camera.easing.in
-                        ]
-                    ],
-                true)
-
-                camera.lookAt(heroCraft.reticle.position)
+        x = ((x - 50) / -50)
+        y = ((y - 50) / -50)
+        // Joy mode
+        let d = Math.sqrt(x * x + y * y)
+        if (d > 0.25) {
+            this.position.fromArray([
+                x * (d - 0.2),
+                y * (d - 0.2),
+                0
+            ])
+            var s = Math.atan2(y, x)
+            this.rotation.z = s
+            if (!camera.orbital.reticle.tee.dir) {
+                camera.orbital.reticle.tee.material.uniforms.texture.value = camera.orbital.reticle.tee.sprites[1]
+                camera.orbital.reticle.tee.dir = true
             }
-        })
-        playCode(heroCraft)
+        } else {
+            if (camera.orbital.reticle.tee.dir) {
+                camera.orbital.reticle.tee.material.uniforms.texture.value = camera.orbital.reticle.tee.sprites[0]
+                camera.orbital.reticle.tee.dir = false
+            }
+
+            this.position.fromArray([
+                0,
+                0,
+                0
+            ])
+        }
+
+        // Persision mode
+        /* this.position.fromArray([
+            x > 0.25 ? x - 0.25 : x < -0.25 ? x + 0.25 : 0,
+            y > 0.25 ? y - 0.25 : y < -0.25 ? y + 0.25 : 0,
+            0
+        ]) */
+    }
+    craft.rotation.onChange(function () {
+        if (!this.blockCallback) {
+            this.blockCallback = true
+            craft.quaternion.setFromEuler(this, false)
+        }
+    })
+
+    camera.controls = (function (camera, target, node) {
+        // var staticMoving = false
+        var rotateSpeed = 0.05
+
+        var axis = new THREE.Vector3()
+        var quaternion = new THREE.Quaternion()
+        var eyeDirection = new THREE.Vector3()
+        var objectUpDirection = new THREE.Vector3()
+        var objectSidewaysDirection = new THREE.Vector3()
+        var moveDirection = new THREE.Vector3()
+        var angle
+
+        var _eye = new THREE.Vector3()
+
+        return new function (camera, target, node) {
+            this.active = node
+            this.rotateCamera = function (screenVector, node) {
+                _eye.subVectors(this.active, target)
+
+                moveDirection.set(screenVector.x, screenVector.y, 0)
+                angle = moveDirection.length()
+
+                if (angle) {
+                    _eye.copy(this.active).sub(target)
+
+                    eyeDirection.copy(_eye).normalize()
+                    objectUpDirection.copy(camera.up).normalize()
+                    objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize()
+
+                    objectUpDirection.setLength(screenVector.y)
+                    objectSidewaysDirection.setLength(screenVector.x)
+
+                    moveDirection.copy(objectUpDirection.add(objectSidewaysDirection))
+
+                    axis.crossVectors(moveDirection, _eye).normalize()
+
+                    angle *= rotateSpeed
+                    quaternion.setFromAxisAngle(axis, angle)
+
+                    _eye.applyQuaternion(quaternion)
+                    camera.up.applyQuaternion(quaternion)
+                }
+
+                this.active.addVectors(target, _eye)
+
+                camera.lookAt(target)
+            }
+        }(camera, target, node)
+    }(camera, camera.orbital.position, camera.move))
+
+    // // MAIN
+    this.main = function () {
+        camera.ease = 0.005
+        // before render
+        ctx.calc = function () {
+            ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
+            craft.nodes.LTorch.material.materials[0].map.offset.x =
+            craft.nodes.RTorch.material.materials[0].map.offset.x =
+            craft.nodes.CTorch.material.materials[0].map.offset.x -= 0.11
+            craft.nodes.CTorch.scale.z = craft.nodes.CTorch.scale.z == 0.90 ? 1 : 0.90
+            // craft.nodes.LTorch.material.materials[0].map.offset.y = camera.orbital.reticle.tee.position.x * 0.90
+            // craft.nodes.RTorch.material.materials[0].map.offset.y = camera.orbital.reticle.tee.position.x * 0.90
+
+            camera.direction.fromArray([0, 0, -1]).applyQuaternion(camera.quaternion)
+            camera.offset.fromArray(camera.orbital.offset).multiply(camera.direction)
+            if (camera.ease == 1) {
+                camera.position.copy(camera.orbital.position)
+                camera.position.add(camera.offset)
+                camera.controls.rotateCamera(camera.orbital.reticle.tee.position)
+
+                let thrustSide = (camera.orbital.reticle.tee.position.x + (camera.orbital.reticle.position.x * 0.1))
+                let thrustTop = (camera.orbital.reticle.tee.position.y + (camera.orbital.reticle.position.y * 0.1)) + 0.25
+                craft.direction.fromArray([
+                    -1 * thrustSide,
+                    -1 * thrustTop,
+                    -1]).applyQuaternion(camera.quaternion)
+                craft.nodes.LTorch.scale.x = thrustSide * 5
+                craft.nodes.RTorch.scale.x = thrustSide * -5
+                craft.offset.fromArray(craft.orbital.offset).multiply(craft.direction)
+                craft.position.copy(camera.position)
+                craft.move.add(craft.offset.sub(craft.move).multiplyScalar(0.05))
+                craft.position.sub(craft.move)
+                craft.quaternion.copy(camera.quaternion)
+                craft.rotation.z -= 1.1 * camera.orbital.reticle.position.x //* camera.ease
+                craft.rotation.blockCallback = false
+            } else {
+                camera.ease += 0.01
+                camera.move.copy(camera.orbital.position)
+                camera.move.add(camera.offset)
+                camera.move.sub(camera.position)
+                camera.move.multiplyScalar(camera.ease)
+                camera.position.add(camera.move)
+
+                camera.orbital.reticle.material.uniforms.alpha.value = camera.ease
+                camera.orbital.reticle.tee.material.uniforms.alpha.value = camera.ease
+
+                if (camera.ease >= 1) {
+                    camera.ease = 1
+                    camera.controls.active = camera.position
+                    camera.controls.rotateCamera(camera.orbital.reticle.tee.position)
+                } else {
+                    camera.controls.rotateCamera(camera.orbital.reticle.tee.position)
+                }
+            }
+        }
+
+         // after render
+        ctx.compute = function () {
+
+        }
+        playCode(craft)
 
         canvas.node.onmousemove = canvas.node.ontouchmove = function (e) {
             e.preventDefault()
             if (!app.pointers.inUse) {
                 if (typeof e.changedTouches == 'undefined') {
                     app.pointers[0] = touch(e)
-                    let x = app.pointers[0].pageX - this.offsetLeft
-                    let y = app.pointers[0].pageY - this.offsetTop
-                    raycaster.setFromCamera(new THREE.Vector2(((x / this.clientWidth) * 2 - 1), (-(y / this.clientHeight) * 2 + 1)), ctx.camera)
-                    heroCraft.reticle.mid.fromArray([500, 500, 500])
-                    heroCraft.reticle.mid.multiply(raycaster.ray.direction)
-                    heroCraft.reticle.mid.add(camera.position)
-                    heroCraft.reticle.position.copy(heroCraft.reticle.mid)
+                    let x = (((app.pointers[0].pageX - this.offsetLeft) / this.clientWidth) * 2 - 1)
+                    let y = (-((app.pointers[0].pageY - this.offsetTop) / this.clientHeight) * 2 + 1)
+                    camera.orbital.reticle.position.fromArray([x, y, 0])
+                    camera.orbital.reticle.tee.persision(x, y)
                 } else {
                     for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
                         let id = e.changedTouches[tm].identifier
@@ -273,11 +343,9 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                     console.log('press move: touch ' + app.pointers[id].pageX)
                 }
             }
-            // playCode(heroCraft)
+            // playCode(craft)
         }
 
-
-        var raycaster = new THREE.Raycaster()
         canvas.node.onmousedown = canvas.node.ontouchstart = function (e) {
             e.preventDefault()
             if (!app.pointers.enabled) {
@@ -290,8 +358,8 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 app.pointers[0] = touch(e)
                 console.log('press down: mouse' + app.pointers[0].pageX)
                 // debugger
-                heroCraft.reticle.mid.multiply({x: -1, y: -1, z: -1})
-                heroCraft.lookAt(heroCraft.reticle.mid)
+                craft.reticle.mid.multiply({x: -1, y: -1, z: -1})
+                craft.lookAt(craft.reticle.mid)
             } else {
                 for (let ts = 0, dlen = e.changedTouches.length; ts < dlen; ts++) {
                     let id = e.changedTouches[ts].identifier
@@ -305,7 +373,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                     }
                 }
             }
-            // playCode(heroCraft)
+            // playCode(craft)
             // console.log(JSON.stringify(app.pointers))
         }
 
@@ -343,28 +411,21 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 }
             }
             // console.log(JSON.stringify(app.pointers))
-            // playCode(heroCraft)
+            // playCode(craft)
         }
 
-        ctx.camera.controls.target = heroCraft.position
-        heroCraft.reticle = createSprite(1, 0, 0, 0, app.fileLocAssets + 'sprites/reticle.png')[0]
-        heroCraft.reticle.move = new THREE.Vector3(0, 0, 0)
-        heroCraft.reticle.near = new THREE.Vector3(100, 100, 100)
-        heroCraft.reticle.mid = new THREE.Vector3(500, 500, 500)
-        heroCraft.reticle.far = new THREE.Vector3(1000, 1000, 1000)
-        ctx.calc = function () {
-            if (ctx.scene.nodes.starwall) {
-                ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
+        function optimizeConstruct (o) {
+            for (let p in o) {
+                if (p != 'position' && p != 'rotation' && p != 'quaternion' && p != 'up' && p != 'lookAt') {
+                    o[p] = null
+                    delete o[p]
+                }
             }
-            if (ctx.camera.controls.enabled) {
-                ctx.camera.controls.update() // required if ctx.camera.controls.enableDamping = true, or if ctx.camera.controls.autoRotate = true
-            } else {
-                ctx.camera.lookAt(heroCraft.position)
-            }
+            return o
         }
-
-        ctx.compute = function () {
-
+        function cameraRotationToReticle () {
+            var view = craft.reticle.looking.view.rotation
+            return {x: (view.x - camera.rotation.x) * 0.15, y: (view.y - camera.rotation.y) * 0.15, z: (view.z - camera.rotation.z) * 0.15}
         }
     }
 
@@ -385,61 +446,30 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         return false
     }
 
-    function createSprite (num, x, y, z, url) {
-        var geometries = []
-        var textureLoader = new THREE.TextureLoader()
+    var drive = new THREE.Vector3()
+    function driveLow (node) {
+        // get direction vector of craft
+        // buff stream for a duration between segments (978 - 1978 = 1000) from the current timeframe position
+        // allow reverting
+        // buff x, y, z in that direction depending on speed
+        drive.fromArray([200, 200, 200])
+        // node.move.copy(craft.reticle.far)
+        node.direction.fromArray([0, 0, -1])
+        node.direction.applyQuaternion(node.quaternion)
+        drive.multiply(node.direction)
 
-        var sprite1 = textureLoader.load(url)
-        geometries.push(vertices(num, x, y, z))
-
-        function vertices (num, x, y, z) {
-            var geometry = new THREE.Geometry()
-            for (let i = 0; i < num; i++) {
-                var vertex = new THREE.Vector3()
-                vertex.x = x
-                vertex.y = y
-                vertex.z = z
-
-                geometry.vertices.push(vertex)
-            }
-            return geometry
-        }
-
-        var parameters = [
-            [ [1.0, 1.0, 1.0], sprite1, 100 ]
-        ]
-
-        var src = [ 'ZeroFactor', 'OneFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor', 'DstColorFactor', 'OneMinusDstColorFactor', 'SrcAlphaSaturateFactor' ]
-        //          '200'         '201'        '204'             '205'                     '206'             '207'                     '208'             '209'                     '210'
-        var dst = [ 'ZeroFactor', 'OneFactor', 'SrcColorFactor', 'OneMinusSrcColorFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor' ]
-        //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
-        var blending = 'CustomBlending'
-
-        var materials = []
-        for (let i = 0; i < parameters.length; i++) {
-            let color = parameters[i][0]
-            let sprite = parameters[i][1]
-            let size = parameters[i][2]
-            materials[i] = new THREE.PointsMaterial({
-                size: size,
-                map: sprite,
-                blending: THREE[blending],
-                blendSrc: THREE[src[2]],
-                blendDst: THREE[dst[6]],
-                blendEquation: THREE.AddEquation,
-                depthTest: false,
-                depthWrite: false,
-                transparent: true
-            })
-            materials[i].color.setHSL(color[0], color[1], color[2])
-
-            var gfx = new THREE.Points(geometries[i], materials[i])
-            gfx.sortParticles = true
-            geometries[i] = gfx
-            ctx.scene.add(gfx)
-        }
-
-        return geometries
+        camera.easing = {in: 0.15, out: 0.85} // determine distance from camera percent to fillin easing frames
+        camera.easing.position = buffer.eval('timeline',
+            [
+                [
+                    [camera.orbital.position], [
+                        [['x', drive.x]],
+                        [['y', drive.y]],
+                        [['z', drive.z]]],
+                        [['linear', duration]]// start from current frame
+                ]
+            ],
+        true, undefined, duration * camera.easing.in)// get values
     }
 
     return this

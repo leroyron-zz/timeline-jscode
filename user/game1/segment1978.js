@@ -4,7 +4,6 @@ var Authority = new function (camera, timeframe, buffer, binding, nodes) {
     this.main = function () {
         var isGameDone = window.ctx.isGameDone
         if (isGameDone) {
-            camera.controls.enabled = true
             timeframe.clearRuntimeAuthority('action', 978)
             buffer.eval('timeline',
                 [
