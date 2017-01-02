@@ -22,13 +22,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         directionalLight = new THREE.DirectionalLight(0xBFA475)
         directionalLight.position.set(0, -70, -100).normalize()
         ctx.scene.add(directionalLight)
-
-        // CONTROLS
-        ctx.camera.controls = new THREE.OrbitControls(ctx.camera, canvas.renderer.domElement)
-        ctx.camera.controls.addEventListener('change', ctx.rendering) // add this only if there is no animation loop (requestAnimationFrame)
-        ctx.camera.controls.enableDamping = true
-        ctx.camera.controls.dampingFactor = 0.25
-        ctx.camera.controls.enableZoom = true
     }
 
     ctx.timeline.addon.timeframe.invoke = function () {
@@ -41,11 +34,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         if (ctx.scene.nodes.starwall) {
             ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
         }
-        if (ctx.camera.controls.enabled) {
-            ctx.camera.controls.update() // required if ctx.camera.controls.enableDamping = true, or if ctx.camera.controls.autoRotate = true
-        } else {
-            ctx.camera.lookAt(ctx.scene.nodes.craft1.position)
-        }
+
+        ctx.camera.lookAt(ctx.camera.orbital.position)
         // calculations taken into action insert
         // Ref: action978.js
         /*
@@ -70,28 +60,68 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         // make a stream for buffing
         app.codeLoc = 'user/' + app.codesetting
         app.fileLocAssets = app._fileLocal + app.codeLoc + '/assets/'
-        ctx.scene.nodes = {}// put all scene object/nodes in here during loadtime
-        setupCameraBindings('timeline')
         createGfxsAndBind('timeline')
-        createParticles()
+        this.createParticles()
     }
 
     init()
 
-    function setupCameraBindings (stream) {
+    function setupCameraPropertiesAndBindings (stream) {
+        var craft = ctx.scene.nodes.craft1
+        var camera = ctx.camera
+        camera.orbital = canvas.app.sceneSprite(1, 0, 0, 0, 'sprites/orbital.png')
+        camera.orbital.reticle = canvas.app.screenSprite(0.2, 0.2, 0, 0, 0, ['sprites/reticle.png'])
+        camera.orbital.reticle.material.uniforms.alpha.value = 0
+        camera.orbital.reticle.tee = canvas.app.screenSprite(0.2, 0.2, 0, 0, 0, ['sprites/tee.png', 'sprites/teedir.png'])
+        camera.orbital.reticle.tee.material.uniforms.alpha.value = 0
+
+        camera.direction = new THREE.Vector3(0, 0, -1).applyQuaternion(craft.quaternion)
+        camera.orbital.offset = [-25, -25, -25]
+        camera.offset = new THREE.Vector3().fromArray(camera.orbital.offset).multiply(camera.direction)
+        // camera.direction.fromArray([0, 0, -1]).applyQuaternion(camera.quaternion)
+        // camera.offset.fromArray(camera.orbital.offset).multiply(camera.direction)
+
+        camera.move = new THREE.Vector3()
+        camera.move.copy(camera.orbital.position)
+        camera.move.add(camera.offset)
+        camera.position.copy(camera.move)
+        camera.lookAt(camera.orbital.position)
+
         ctx.timeline.addon.binding(stream, [
-        [ctx.camera.position, 884]// unique
+        [camera.position, 884]// unique
         ],
             [
-            ['x', 0],
-            ['y', 0],
-            ['z', 5]
+            ['x', camera.move.x],
+            ['y', camera.move.y],
+            ['z', camera.move.z]
             ],
         [801, 802, 803],
         false)
 
-        /*ctx.timeline.addon.binding(stream, [
-        [ctx.camera.rotation, 885]// unique
+        ctx.timeline.addon.binding(stream, [
+        [camera.rotation, 885]// unique
+        ],
+            [
+            ['x', Math.degrees(camera.rotation.x)],
+            ['y', Math.degrees(camera.rotation.y)],
+            ['z', Math.degrees(camera.rotation.z)]
+            ],
+        [804, 805, 806],
+        false)
+
+        ctx.timeline.addon.binding(stream, [
+        [camera.orbital.position, 886]
+        ],
+            [
+            ['x', 0],
+            ['y', 0],
+            ['z', 0]
+            ],
+        [801, 802, 803],
+        false)
+
+        ctx.timeline.addon.binding(stream, [
+        [camera.orbital.rotation, 887]
         ],
             [
             ['x', 0],
@@ -99,14 +129,14 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             ['z', 0]
             ],
         [804, 805, 806],
-        false)*/
+        false)
 
         // Buffing is done during runtime user/game1/segment0.js
     }
 
     function createGfxsAndBind (stream) {
         // SCENE
-        createScene('starwall',
+        createScene(ctx.scene, 'starwall',
             {x: 0, y: 0, z: 0},
             {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
@@ -114,10 +144,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            886// unique
+            888, // position
+            989// rotation
             )
 
-        createScene('earth',
+        createScene(ctx.scene, 'earth',
             {x: -20, y: 25, z: -67},
             {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
@@ -125,10 +156,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            887// unique
+            890,
+            891// unique
             )
 
-        createScene('moon',
+        createScene(ctx.scene, 'moon',
             {x: 14, y: 45, z: 60},
             {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
@@ -136,21 +168,116 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            888// unique
+            892,
+            893// unique
             )
 
-        createScene('craft1',
-            {x: 0, y: 0, z: -10},
+        createScene(ctx.scene, 'craft1',
+            {x: 0, y: 0, z: -10}, // don't buff position
             {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
             app.fileLocAssets + 'craft1.json',
             false,
             true,
             stream,
-            889// unique
+            undefined,
+            undefined,
+            function (craft) {
+                setupCameraPropertiesAndBindings('timeline')
+                var camera = ctx.camera
+
+                craft.quaternion.copy(camera.quaternion)
+                craft.direction = new THREE.Vector3(0, 0, -1).applyQuaternion(craft.quaternion)
+                craft.orbital = {offset: [-15, -15, -15]}
+                craft.offset = new THREE.Vector3().fromArray(craft.orbital.offset).multiply(craft.direction)
+                // craft.direction.fromArray([0, 0, -1]).applyQuaternion(craft.quaternion)
+                // craft.offset.fromArray(craft.orbital.offset).multiply(craft.direction)
+                craft.move = new THREE.Vector3()
+                craft.move.copy(camera.position)
+                craft.move.sub(craft.offset)
+                craft.position.copy(craft.move)
+
+                // craft.lookAt(camera.orbital.position)
+
+                ctx[stream].addon.binding(stream, [
+                [craft.position, 894]
+                ],
+                    [
+                    ['x', craft.move.x],
+                    ['y', craft.move.y],
+                    ['z', craft.move.z]
+                    ],
+                [801, 802, 803],
+                false)
+
+                ctx[stream].addon.binding(stream, [
+                [craft.rotation, 895]
+                ],
+                    [
+                    ['x', Math.degrees(craft.rotation.x)],
+                    ['y', Math.degrees(craft.rotation.y)],
+                    ['z', Math.degrees(craft.rotation.z)]
+                    ],
+                [804, 805, 806],
+                false)
+                
+                createScene(craft, 'CTorch',
+                    {x: 0, y: 0, z: 0},
+                    {x: 0, y: 0, z: 0},
+                    {x: 1, y: 1, z: 1},
+                    app.fileLocAssets + 'CTorch.json',
+                    true,
+                    true,
+                    stream,
+                    undefined,
+                    undefined,
+                    function (torch) {
+                        torch.material.materials[0].blendDst = 206
+                        torch.material.materials[0].blendSrc = 204
+                        torch.material.materials[0].blendEquation = 100
+                        torch.material.materials[0].blending = 5
+                    }// assign material blend
+                )
+
+                createScene(craft, 'LTorch',
+                    {x: -4250, y: 460, z: 3760},
+                    {x: 0, y: 0, z: 0},
+                    {x: 1, y: 1, z: 1},
+                    app.fileLocAssets + 'LTorch.json',
+                    true,
+                    true,
+                    stream,
+                    undefined,
+                    undefined,
+                    function (torch) {
+                        torch.material.materials[0].blendDst = 206
+                        torch.material.materials[0].blendSrc = 204
+                        torch.material.materials[0].blendEquation = 100
+                        torch.material.materials[0].blending = 5
+                    }// assign material blend
+                )
+
+                createScene(craft, 'RTorch',
+                    {x: 4250, y: 460, z: 3760},
+                    {x: 0, y: 0, z: 0},
+                    {x: 1, y: 1, z: 1},
+                    app.fileLocAssets + 'RTorch.json',
+                    true,
+                    true,
+                    stream,
+                    undefined,
+                    undefined,
+                    function (torch) {
+                        torch.material.materials[0].blendDst = 206
+                        torch.material.materials[0].blendSrc = 204
+                        torch.material.materials[0].blendEquation = 100
+                        torch.material.materials[0].blending = 5
+                    }// assign material blend
+                )
+            }// callback binding
             )
 
-        createScene('craft2',
+        createScene(ctx.scene, 'craft2',
             {x: 10, y: -10, z: -10},
             {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
@@ -158,10 +285,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             true,
             stream,
-            890// unique
+            896,
+            897// unique
             )
 
-        createScene('craft3',
+        createScene(ctx.scene, 'craft3',
             {x: -10, y: -10, z: -10},
             {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
@@ -169,15 +297,17 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             true,
             stream,
-            891// unique
+            898,
+            899// unique
             )
-            function random360 () {
-             return Math.random() * 360
-            }
+
+        function random360 () {
+            return Math.random() * 360
+        }
     }
 
     var nodeLoadCount = {entry: 0, finish: 0}
-    function createScene (node, position, rotation, scale, model, buff, doubleSide, stream, bindId) {
+    function createScene (addTo, node, position, rotation, scale, model, buff, doubleSide, stream, bindPositionId, bindRotationId, callback) {
         // instantiate a loader
         var loader = new THREE.JSONLoader()
 
@@ -196,39 +326,55 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 var material = new THREE.MultiMaterial(materials)
                 object = new THREE.Mesh(geometry, material)
                 object.doubleSided = doubleSide
+                object.position.copy(position)
+                object.position.divideScalar(Math.Type.precision('translation'))
+                object.rotation.fromArray([
+                    Math.radians(rotation.x),
+                    Math.radians(rotation.y),
+                    Math.radians(rotation.z)
+                ])
+
                 object.scale.copy(scale)
 
-                ctx.scene.add(object)
+                addTo.add(object)
 
-                ctx.scene.nodes[node] = object
+                if (!addTo.nodes) addTo.nodes = {}// put all scene object/nodes in here during loadtime
 
-                ctx.timeline.addon.binding(stream, [
-                [ctx.scene.nodes[node].position, bindId]
-                ],
-                    [
-                    ['x', position.x],
-                    ['y', position.y],
-                    ['z', position.z]
+                addTo.nodes[node] = object
+
+                if (callback) callback(object)
+
+                if (bindPositionId) {
+                    ctx[stream].addon.binding(stream, [
+                    [addTo.nodes[node].position, bindPositionId]
                     ],
-                [801, 802, 803],
-                false)
+                        [
+                        ['x', position.x],
+                        ['y', position.y],
+                        ['z', position.z]
+                        ],
+                    [801, 802, 803],
+                    false)
+                }
 
-                ctx.timeline.addon.binding(stream, [
-                [ctx.scene.nodes[node].rotation, bindId + nodeLoadCount.entry]
-                ],
-                    [
-                    ['x', rotation.x],
-                    ['y', rotation.y],
-                    ['z', rotation.z]
+                if (bindRotationId) {
+                    ctx[stream].addon.binding(stream, [
+                    [addTo.nodes[node].rotation, bindRotationId]
                     ],
-                [804, 805, 806],
-                false)
+                        [
+                        ['x', rotation.x],
+                        ['y', rotation.y],
+                        ['z', rotation.z]
+                        ],
+                    [804, 805, 806],
+                    false)
+                }
 
                 // Optimize rotation callbacks for THREE - bindId releasing 806 (streaming.addon.runtime.timeframe.js)
-                ctx.scene.nodes[node].rotation.onChange(function () {
+                addTo.nodes[node].rotation.onChange(function () {
                     if (!this.blockCallback) {
                         this.blockCallback = true
-                        ctx.scene.nodes[node].quaternion.setFromEuler(this, false)
+                        addTo.nodes[node].quaternion.setFromEuler(this, false)
                     }
                 })
 
@@ -251,7 +397,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         )
     }
 
-    function createParticles () {
+    this.createParticles = function () {
         var geometries = []
         var textureLoader = new THREE.TextureLoader()
 
@@ -265,6 +411,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         geometries.push(randomVerticies(600))
         var sprite5 = textureLoader.load(app.fileLocAssets + 'sprites/star5.png')
         geometries.push(randomVerticies(720))
+
+        if (!ctx.scene.nodes) ctx.scene.nodes = {}// put all scene object/nodes in here during loadtime
 
         ctx.scene.nodes['starcluster'] = geometries
 
@@ -321,5 +469,94 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
             ctx.scene.add(particles)
         }
+    }
+
+    this.screenSprite = function (height, width, x, y, z, urls) {
+        var textureLoader = new THREE.TextureLoader()
+
+        var sprites = []
+        for (var u = 0, ulen = urls.length; u < ulen; u++) {
+            sprites.push(textureLoader.load(app.fileLocAssets + urls[u]))
+        }
+
+        var shader = {
+            vertexToScreen: [
+                'varying vec2 vUv;' +
+
+            'void main() {' +
+                'gl_Position = modelMatrix * vec4(position, 1.0);' +
+                'vUv = uv;' +
+            '}'].join('\n'),
+
+            fragment: [
+                'varying vec2 vUv;' +
+            'uniform sampler2D texture;' +
+            'uniform float alpha;' +
+
+            'void main() {' +
+                'gl_FragColor = texture2D(texture, vec2(vUv)) * alpha;' +
+            '}'].join('\n')}
+
+        var src = [ 'ZeroFactor', 'OneFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor', 'DstColorFactor', 'OneMinusDstColorFactor', 'SrcAlphaSaturateFactor' ]
+        //          '200'         '201'        '204'             '205'                     '206'             '207'                     '208'             '209'                     '210'
+        var dst = [ 'ZeroFactor', 'OneFactor', 'SrcColorFactor', 'OneMinusSrcColorFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor' ]
+        //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
+        var blending = 'CustomBlending'
+
+        var out = new THREE.Mesh(
+            new THREE.PlaneGeometry(height, width),
+            new THREE.ShaderMaterial({
+                uniforms: {texture: {type: 't', value: sprites[0]}, alpha: {type: 'f', value: 1.0}},
+                vertexShader: shader.vertexToScreen,
+                fragmentShader: shader.fragment,
+                blending: THREE[blending],
+                blendSrc: THREE[src[2]],
+                blendDst: THREE[dst[6]],
+                blendEquation: THREE.AddEquation,
+                depthTest: false,
+                depthWrite: true,
+                transparent: true,
+                clipIntersection: true
+
+            })
+        )
+        out.sprites = sprites
+        out.frustumCulled = false
+        out.doubleSided = true
+        ctx.scene.add(out)
+
+        return out
+    }
+
+    this.sceneSprite = function (size, x, y, z, url) {
+        var textureLoader = new THREE.TextureLoader()
+
+        var sprite = textureLoader.load(app.fileLocAssets + url)
+
+        var geometry = new THREE.Geometry()
+        var vertex = new THREE.Vector3(x, y, z)
+        geometry.vertices.push(vertex)
+
+        var src = [ 'ZeroFactor', 'OneFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor', 'DstColorFactor', 'OneMinusDstColorFactor', 'SrcAlphaSaturateFactor' ]
+        //          '200'         '201'        '204'             '205'                     '206'             '207'                     '208'             '209'                     '210'
+        var dst = [ 'ZeroFactor', 'OneFactor', 'SrcColorFactor', 'OneMinusSrcColorFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor' ]
+        //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
+        var blending = 'CustomBlending'
+        
+        var out = new THREE.Points(geometry, new THREE.PointsMaterial({
+            size: size,
+            map: sprite,
+            blending: THREE[blending],
+            blendSrc: THREE[src[2]],
+            blendDst: THREE[dst[6]],
+            blendEquation: THREE.AddEquation,
+            depthTest: true,
+            depthWrite: false,
+            transparent: true
+        }))
+
+        ctx.scene.add(out)
+
+        return out
     }
 }(this.app, this.THREE, this.canvas, this.ctx)
