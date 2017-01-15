@@ -60,8 +60,22 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         // make a stream for buffing
         app.codeLoc = 'user/' + app.codesetting
         app.fileLocAssets = app._fileLocal + app.codeLoc + '/assets/'
+        createThumbControls()
         createGfxsAndBind('timeline')
         this.createParticles()
+    }
+
+    function createThumbControls () {
+        ctx.controller = {
+            joy: {
+                left: {x: 0, y: 0, pad: canvas.app.canvasSprite(0.43, 0.43, -0.66, -0.66, 0, true, ['LTurningLable.png']), knob: canvas.app.canvasSprite(0.25, 0.25, -0.66, -0.66, 0, true, ['knob.png'])},
+                right: {x: 0, y: 0, pad: canvas.app.canvasSprite(0.43, 0.43, 0.66, -0.66, 0, true, ['RShiftingLable.png']), knob: canvas.app.canvasSprite(0.25, 0.25, 0.66, -0.66, 0, true, ['knob.png'])}
+            }
+        }
+        ctx.controller.joy.left.pad.material.uniforms.alpha.value =
+        ctx.controller.joy.left.knob.material.uniforms.alpha.value =
+        ctx.controller.joy.right.pad.material.uniforms.alpha.value =
+        ctx.controller.joy.right.knob.material.uniforms.alpha.value = 0
     }
 
     init()
@@ -70,9 +84,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         var craft = ctx.scene.nodes.craft1
         var camera = ctx.camera
         camera.orbital = canvas.app.sceneSprite(1, 0, 0, 0, 'sprites/orbital.png')
-        camera.orbital.reticle = canvas.app.screenSprite(0.2, 0.2, 0, 0, 0, ['sprites/reticle.png'])
+        camera.orbital.reticle = canvas.app.canvasSprite(0.2, 0.2, 0, 0, 0, false, ['sprites/reticle.png'])
         camera.orbital.reticle.material.uniforms.alpha.value = 0
-        camera.orbital.reticle.tee = canvas.app.screenSprite(0.2, 0.2, 0, 0, 0, ['sprites/tee.png', 'sprites/teedir.png'])
+        camera.orbital.reticle.tee = canvas.app.canvasSprite(0.2, 0.2, 0, 0, 0, false, ['sprites/tee.png', 'sprites/teedir.png'])
         camera.orbital.reticle.tee.material.uniforms.alpha.value = 0
 
         camera.direction = new THREE.Vector3(0, 0, -1).applyQuaternion(craft.quaternion)
@@ -88,7 +102,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         camera.lookAt(camera.orbital.position)
 
         ctx.timeline.addon.binding(stream, [
-        [camera.position, 884]// unique
+        [camera.position, 884] // unique key (position)
         ],
             [
             ['x', camera.move.x],
@@ -99,7 +113,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         false)
 
         ctx.timeline.addon.binding(stream, [
-        [camera.rotation, 885]// unique
+        [camera.rotation, 885] // unique key (rotation)
         ],
             [
             ['x', Math.degrees(camera.rotation.x)],
@@ -110,7 +124,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         false)
 
         ctx.timeline.addon.binding(stream, [
-        [camera.orbital.position, 886]
+        [camera.orbital.position, 886] // unique key (position)
         ],
             [
             ['x', 0],
@@ -121,7 +135,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         false)
 
         ctx.timeline.addon.binding(stream, [
-        [camera.orbital.rotation, 887]
+        [camera.orbital.rotation, -1] // rotation - Dead Bind key (no rotation)
         ],
             [
             ['x', 0],
@@ -144,8 +158,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            888, // position
-            989// rotation
+            -1, // position - Dead Bind key (no translation)
+            -1 // rotation - Dead Bind key (no rotation)
             )
 
         createScene(ctx.scene, 'earth',
@@ -156,8 +170,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            890,
-            891// unique
+            -1, // position - Dead Bind key (no translation)
+            891 // unique key (rotation)
             )
 
         createScene(ctx.scene, 'moon',
@@ -168,8 +182,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            892,
-            893// unique
+            -1, // position - Dead Bind key (no translation)
+            893 // unique key (rotation)
             )
 
         createScene(ctx.scene, 'craft1',
@@ -183,7 +197,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             undefined,
             undefined,
             function (craft) {
-                setupCameraPropertiesAndBindings('timeline')
+                setupCameraPropertiesAndBindings(stream)
                 var camera = ctx.camera
 
                 craft.quaternion.copy(camera.quaternion)
@@ -220,11 +234,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                     ],
                 [804, 805, 806],
                 false)
-                
+
                 createScene(craft, 'CTorch',
                     {x: 0, y: 0, z: 0},
                     {x: 0, y: 0, z: 0},
-                    {x: 1, y: 1, z: 1},
+                    {x: 1, y: 1, z: 0.01},
                     app.fileLocAssets + 'CTorch.json',
                     true,
                     true,
@@ -242,7 +256,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 createScene(craft, 'LTorch',
                     {x: -4250, y: 460, z: 3760},
                     {x: 0, y: 0, z: 0},
-                    {x: 1, y: 1, z: 1},
+                    {x: 0.01, y: 1, z: 1},
                     app.fileLocAssets + 'LTorch.json',
                     true,
                     true,
@@ -260,7 +274,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 createScene(craft, 'RTorch',
                     {x: 4250, y: 460, z: 3760},
                     {x: 0, y: 0, z: 0},
-                    {x: 1, y: 1, z: 1},
+                    {x: 0.01, y: 1, z: 1},
                     app.fileLocAssets + 'RTorch.json',
                     true,
                     true,
@@ -286,7 +300,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             stream,
             896,
-            897// unique
+            897 // unique
             )
 
         createScene(ctx.scene, 'craft3',
@@ -298,7 +312,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             stream,
             898,
-            899// unique
+            899 // unique
             )
 
         function random360 () {
@@ -371,6 +385,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 }
 
                 // Optimize rotation callbacks for THREE - bindId releasing 806 (streaming.addon.runtime.timeframe.js)
+                // perform the rotation callback only on z change only bindkey 806
                 addTo.nodes[node].rotation.onChange(function () {
                     if (!this.blockCallback) {
                         this.blockCallback = true
@@ -471,7 +486,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         }
     }
 
-    this.screenSprite = function (height, width, x, y, z, urls) {
+    this.canvasSprite = function (width, height, x, y, z, aspect, urls) {
+        aspect = aspect ? app.width / app.height : 1
+        height = aspect * height
         var textureLoader = new THREE.TextureLoader()
 
         var sprites = []
@@ -504,7 +521,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         var blending = 'CustomBlending'
 
         var out = new THREE.Mesh(
-            new THREE.PlaneGeometry(height, width),
+            new THREE.PlaneGeometry(width, height),
             new THREE.ShaderMaterial({
                 uniforms: {texture: {type: 't', value: sprites[0]}, alpha: {type: 'f', value: 1.0}},
                 vertexShader: shader.vertexToScreen,
@@ -520,10 +537,24 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
             })
         )
+        out.position.copy({x: x, y: y, z: z})
         out.sprites = sprites
         out.frustumCulled = false
         out.doubleSided = true
         ctx.scene.add(out)
+
+        out.clip = {}
+        out.clip.onresizeCallBack = function () {
+            this.normal = {x: x, y: y, width: width, height: height}
+            x = (x + 1) / 2
+            y = (y + 1) / 2
+            this.width = app.width * width
+            this.height = app.height * height
+            this.x = app.width * x
+            this.y = app.height - (app.height * y)
+        }
+        out.clip.onresizeCallBack()
+        window.resizeCalls.push(out.clip.onresizeCallBack)
 
         return out
     }
@@ -542,7 +573,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         var dst = [ 'ZeroFactor', 'OneFactor', 'SrcColorFactor', 'OneMinusSrcColorFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor' ]
         //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
         var blending = 'CustomBlending'
-        
+
         var out = new THREE.Points(geometry, new THREE.PointsMaterial({
             size: size,
             map: sprite,
