@@ -6,6 +6,9 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
 
     var craft = ctx.scene.nodes.craft1
 
+    var leftJoy = ctx.controller.joy.left
+    var rightJoy = ctx.controller.joy.right
+
     craft.ctrl = {
         velocity:
         {
@@ -172,6 +175,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             ])
             var s = Math.atan2(y, x)
             this.rotation.z = s
+
             if (!camera.orbital.reticle.tee.dir) {
                 camera.orbital.reticle.tee.material.uniforms.texture.value = camera.orbital.reticle.tee.sprites[1]
                 camera.orbital.reticle.tee.dir = true
@@ -296,8 +300,12 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 camera.move.multiplyScalar(camera.ease)
                 camera.position.add(camera.move)
 
-                camera.orbital.reticle.material.uniforms.alpha.value = camera.ease
-                camera.orbital.reticle.tee.material.uniforms.alpha.value = camera.ease
+                camera.orbital.reticle.material.uniforms.alpha.value =
+                camera.orbital.reticle.tee.material.uniforms.alpha.value =
+                leftJoy.pad.material.uniforms.alpha.value =
+                leftJoy.knob.material.uniforms.alpha.value =
+                rightJoy.pad.material.uniforms.alpha.value =
+                rightJoy.knob.material.uniforms.alpha.value = camera.ease
 
                 if (camera.ease >= 1) {
                     camera.ease = 1
@@ -315,105 +323,214 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         }
         playCode(craft)
 
-        canvas.node.onmousemove = canvas.node.ontouchmove = function (e) {
-            e.preventDefault()
-            if (!app.pointers.inUse) {
-                if (typeof e.changedTouches == 'undefined') {
-                    app.pointers[0] = touch(e)
-                    let x = (((app.pointers[0].pageX - this.offsetLeft) / this.clientWidth) * 2 - 1)
-                    let y = (-((app.pointers[0].pageY - this.offsetTop) / this.clientHeight) * 2 + 1)
-                    camera.orbital.reticle.position.fromArray([x, y, 0])
-                    camera.orbital.reticle.tee.persision(x, y)
-                } else {
-                    for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
-                        let id = e.changedTouches[tm].identifier
-                        app.pointers[id] = touch(e.changedTouches[tm])
-                    }
+        var joy = function (pointer, joy, x, y) {
+            let jX = joy.knob.clip.normal.x
+            let jY = joy.knob.clip.normal.y
+            joy.x = x - jX
+            joy.y = y - jY
+
+            // mouse down
+            if (!pointer.joy) {
+                let d = Math.sqrt(joy.x * joy.x + joy.y * joy.y)
+                if (d < 0.2) {
+                    pointer.joy = joy
+                    joy.knob.position.fromArray([
+                        jX + joy.x,
+                        jY + joy.y,
+                        0
+                    ])
                 }
-                return
+            }
+        }
+
+        var touch = function (use, touches, id, e, canvas, callback, optimize) {
+            if (!touches[id]) {
+                touches[id] = e
+                touches[id].normal = {}
             }
 
-            if (typeof e.changedTouches == 'undefined') {
-                app.pointers[0] = touch(e)
-                console.log('press move: mouse' + app.pointers[0].pageX)
-            } else {
-                for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
-                    let id = e.changedTouches[tm].identifier
-                    app.pointers[id] = touch(e.changedTouches[tm])
-                    console.log('press move: touch ' + app.pointers[id].pageX)
+            touches[id].normal.x = (((e.pageX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1)
+            touches[id].normal.y = (-((e.pageY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1)
+
+            callback(touches[id])
+            if (optimize) return
+
+            if (e.type == 'mousedown' || e.type == 'touchstart') app.pointers.inUse = true
+            if (e.type == 'mouseup') app.pointers.inUse = false
+            if (use) {
+                app.pointers.multi = false
+                if (e.targetTouches.length == 0) {
+                    app.pointers.inUse = false
+                } else if (e.targetTouches.length > 1) {
+                    app.pointers.multi = true
                 }
             }
-            // playCode(craft)
+            touches[id].area = e.pageX > (canvas.clientWidth / 2) ? 'left' : 'right'
         }
 
         canvas.node.onmousedown = canvas.node.ontouchstart = function (e) {
-            e.preventDefault()
-            if (!app.pointers.enabled) {
-                return
-            }
+            e.preventDefault(); if (!app.pointers.enabled) return
+            if (!e.changedTouches) {
+                touch(false, app.pointers, 0, e, this, function (pointer) {
 
-            app.pointers.inUse = true
 
-            if (typeof e.changedTouches == 'undefined') {
-                app.pointers[0] = touch(e)
-                console.log('press down: mouse' + app.pointers[0].pageX)
-                // debugger
-                craft.reticle.mid.multiply({x: -1, y: -1, z: -1})
-                craft.lookAt(craft.reticle.mid)
+
+                    let x = pointer.normal.x
+                    let y = pointer.normal.y
+                    joy(pointer, leftJoy, x, y)
+                    joy(pointer, rightJoy, x, y)
+
+
+
+                }) 
             } else {
                 for (let ts = 0, dlen = e.changedTouches.length; ts < dlen; ts++) {
                     let id = e.changedTouches[ts].identifier
-                    app.pointers[id] = touch(e.changedTouches[ts])
-                    console.log('press down: touch' + app.pointers[id].pageX)
-                    if (e.changedTouches[ts].identifier == 0) {
-                        // console.log('touch: ' + e.changedTouches[ts].identifier)
-                    } else if (e.changedTouches[ts].identifier > 0) {
-                        app.pointers.multi = true
-                        // console.log('touch: ' + e.changedTouches[ts].identifier + '(multi)')
+                    touch(true, app.pointers, id, e, this, function (pointer) {
+
+
+                        let x = pointer.normal.x
+                        let y = pointer.normal.y
+                        joy(pointer, leftJoy, x, y)
+                        joy(pointer, rightJoy, x, y)
+
+
+
+                    })
+                }
+            }
+        }
+
+        // // CONTROLLER
+        canvas.node.onmousemove = canvas.node.ontouchmove = function (e) {
+            e.preventDefault()
+            // FREEFORM
+            if (!app.pointers.inUse) {
+                if (!e.changedTouches) {
+                    // mouse freeform
+                    touch(false, app.pointers, 0, e, this, function (pointer) {
+
+
+
+                        let x = pointer.normal.x
+                        let y = pointer.normal.y
+                        camera.orbital.reticle.position.fromArray([x, y, 0])
+                        camera.orbital.reticle.tee.persision(x, y)
+
+
+
+                    }, true)
+                } else {
+                    // touch freeform ??
+                    for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
+                        let id = e.changedTouches[tm]
+                        touch(true, app.pointers, id, e, this, function (pointer) {
+
+
+
+                        })
                     }
+                }
+                return
+
+                //
+            } else if (!e.changedTouches) {
+                touch(false, app.pointers, 0, e, this, function (pointer) {
+
+
+
+                    let x = pointer.normal.x
+                    let y = pointer.normal.y
+                    if (pointer.joy) {
+                        let jX = pointer.joy.knob.clip.normal.x
+                        let jY = pointer.joy.knob.clip.normal.y
+                        pointer.joy.x = x - jX
+                        pointer.joy.y = y - jY
+                        let d = Math.sqrt(pointer.joy.x * pointer.joy.x + pointer.joy.y * pointer.joy.y)
+                        if (d < 0.2) {
+                            let lx = pointer.joy.x / 0.2
+                            let ly = pointer.joy.y / 0.2
+                            camera.orbital.reticle.position.fromArray([lx, ly, 0])
+                            camera.orbital.reticle.tee.persision(lx, ly)
+                            pointer.joy.knob.position.fromArray([
+                                pointer.joy.knob.clip.normal.x + pointer.joy.x,
+                                pointer.joy.knob.clip.normal.y + pointer.joy.y,
+                                0
+                            ])
+                        } else {
+                            let a = Math.atan2(y - jY, x - jX) * 180 / Math.PI + 270
+                            let r = rotatePoint(jX, jY, jX, jY + 0.2, a, true)
+                            let lx = (r.x - jX) / 0.2
+                            let ly = (r.y - jY - 0.2) / 0.2
+                            camera.orbital.reticle.position.fromArray([lx, ly, 0])
+                            camera.orbital.reticle.tee.persision(lx, ly)
+                            pointer.joy.knob.position.fromArray([
+                                r.x,
+                                r.y - 0.2,
+                                0
+                            ])
+                        }
+                    }
+
+
+
+                }, true)
+            } else {
+                for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
+                    let id = e.changedTouches[tm].identifier
+                    touch(true, app.pointers, id, e, this, function (pointer) {
+
+
+
+                    }, true)
                 }
             }
             // playCode(craft)
-            // console.log(JSON.stringify(app.pointers))
         }
 
         canvas.node.onmouseup = canvas.node.ontouchend = function (e) {
-            e.preventDefault()
-            if (!app.pointers.enabled) {
-                return
-            }
+            e.preventDefault(); if (!app.pointers.enabled) return
 
-            if (typeof e.changedTouches == 'undefined') {
+            if (!e.changedTouches) {
                 app.pointers.inUse = false
-                app.pointers[0] = touch(e)
-                console.log('press up: mouse' + app.pointers[0].pageX)
+                touch(false, app.pointers, 0, e, this, function (pointer) {
+
+
+
+                    console.log(pointer.area)
+
+
+
+                })
                 delete app.pointers[0]
             } else {
-                if (e.targetTouches.length == 0) {
-                    app.pointers.inUse = false
-                    // console.log('press up: touch')
-                }
-
-                if (e.targetTouches.length < 2) {
-                    app.pointers.multi = false
-                    // console.log('touch: (not-multi)')
-                } else {
-                    // console.log('touch: (multi)')
-                }
-
                 for (let te = 0, dlen = e.changedTouches.length; te < dlen; te++) {
                     if (!touchExists(e.targetTouches, e.changedTouches[te].identifier)) {
                         let id = e.changedTouches[te].identifier
-                        app.pointers[id] = touch(e.changedTouches[te])
-                        console.log('touch: ' + id + ' ' + app.pointers[id].pageX)
+                        touch(true, app.pointers, id, e, this, function (pointer) {
+
+
+
+                            console.log(pointer.area)
+
+
+
+                        })
                         delete app.pointers[id]
                     }
                 }
             }
-            // console.log(JSON.stringify(app.pointers))
             // playCode(craft)
         }
-
+        // // CONTROLLER
+        var rotatePoint = function (pointX, pointY, originX, originY, angle, clockwise) {
+            if (clockwise) angle -= 180.0
+            angle = angle * Math.PI / 180.0
+            return {
+                x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
+                y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
+            }
+        }
         function optimizeConstruct (o) {
             for (let p in o) {
                 if (p != 'position' && p != 'rotation' && p != 'quaternion' && p != 'up' && p != 'lookAt') {
@@ -429,10 +546,6 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         }
     }
 
-    var touch = function (e) {
-        e.area = e.pageX > canvas.width / 2 ? 'left' : 'right'
-        return e
-    }
     var touchExists = function (touchArr, match) {
         for (let ct = 0, tlen = touchArr.length; ct < tlen; ct++) {
             if (touchArr[ct].identifier === match) return true
