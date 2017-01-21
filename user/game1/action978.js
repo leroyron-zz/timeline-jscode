@@ -28,6 +28,8 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         },
         thrusts:
         {
+            leftthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }},
+            rightthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }},
             forwardthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }},
             backwardsthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }}
         },
@@ -61,11 +63,38 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         }
         return bufferArray
     }
+
+    var drive = new THREE.Vector3()
+    function driveLow (craft) {
+        // get direction vector of craft
+        // buff stream for a duration between segments (978 - 1978 = 1000) from the current timeframe position
+        // allow reverting
+        // buff x, y, z in that direction depending on speed
+        drive.fromArray([200, 200, 200])
+        // node.move.copy(craft.reticle.far)
+        craft.direction.fromArray([0, 0, -1])
+        craft.direction.applyQuaternion(craft.quaternion)
+        drive.multiply(craft.direction)
+
+        buffer.eval('timeline',
+            [
+                [
+                    [camera.orbital.position], [
+                        [['x', drive.x]],
+                        [['y', drive.y]],
+                        [['z', drive.z]]],
+                        [['linear', duration]]// start from current frame
+                ]
+            ],
+        true)// get values
+        // To-Do enable reverting
+    }
+
     Math.Cache.store('nines', cacheNines, craft.ctrl.playstate.codeLength)// optimizing runtime Math
     cacheNines = null
-    var playCode = function (node) {
+    var playCode = function (craft) {
         for (let p = 0; p < craft.ctrl.playstate.codeLength; ++p) {
-            let a = node.ctrl.playstate.code
+            let a = craft.ctrl.playstate.code
             if (a > Math.Cache.nines[p]) {
                 while (a > Math.Cache.nines[p + 1]) {
                     a = (a / 10) << 0 // Use bitwise '<<' operator to force integer result.
@@ -75,7 +104,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 switch (p) {
                 case 0:// drive
                     switch (a) { // low(1), high(2), hyper(3), zero(4)
-                    case 1: driveLow(node); break
+                    case 1: driveLow(craft); break
                     case 2: break
                     case 3: break
                     case 4:
@@ -159,7 +188,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         }
     }
 
-    camera.orbital.reticle.tee.persision = function (x, y) {
+    camera.orbital.reticle.tee.persision = function (x, y, mode) {
         craft.ctrl.playstate.vertical = x = 50 - 50 * x << 0
         craft.ctrl.playstate.horizontal = y = 50 - 50 * y << 0
 
@@ -181,24 +210,20 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 camera.orbital.reticle.tee.dir = true
             }
         } else {
-            if (camera.orbital.reticle.tee.dir) {
-                camera.orbital.reticle.tee.material.uniforms.texture.value = camera.orbital.reticle.tee.sprites[0]
-                camera.orbital.reticle.tee.dir = false
-            }
-
             this.position.fromArray([
                 0,
                 0,
                 0
             ])
+
+            if (camera.orbital.reticle.tee.dir) {
+                camera.orbital.reticle.tee.material.uniforms.texture.value = camera.orbital.reticle.tee.sprites[0]
+                camera.orbital.reticle.tee.dir = false
+            }
         }
 
         // Persision mode
-        /* this.position.fromArray([
-            x > 0.25 ? x - 0.25 : x < -0.25 ? x + 0.25 : 0,
-            y > 0.25 ? y - 0.25 : y < -0.25 ? y + 0.25 : 0,
-            0
-        ]) */
+        /*  */
     }
     craft.rotation.onChange(function () {
         if (!this.blockCallback) {
@@ -321,7 +346,20 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         ctx.compute = function () {
 
         }
+        window.removeEventListener('keyup', window.keydown_space_pause)
+        window.keydown_space_drive = function (e) {
+            if (e) {
+                if (e.keyCode != 32) {
+                    return
+                }
+                playCode(craft)
+            }
+        }
+        window.addEventListener('keyup', window.keydown_space_drive)
+
         playCode(craft)
+
+        ctx.timeline.addon.timeframe.timeline.info.setValue('spacebar to boost')
 
         var joy = function (pointer, joy, x, y) {
             let jX = joy.knob.clip.normal.x
@@ -387,6 +425,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 for (let ts = 0, dlen = e.changedTouches.length; ts < dlen; ts++) {
                     let id = e.changedTouches[ts].identifier
                     touch(true, app.pointers, id, e, this, function (pointer) {
+
 
 
                         let x = pointer.normal.x
@@ -557,32 +596,6 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         // var lon = ((270 + (Math.atan2(x , y)) * 180 / Math.PI) % 360) -180;
         // Three.js var lon = ((270 + (Math.atan2(x , z)) * 180 / Math.PI) % 360) -180;
         return false
-    }
-
-    var drive = new THREE.Vector3()
-    function driveLow (node) {
-        // get direction vector of craft
-        // buff stream for a duration between segments (978 - 1978 = 1000) from the current timeframe position
-        // allow reverting
-        // buff x, y, z in that direction depending on speed
-        drive.fromArray([200, 200, 200])
-        // node.move.copy(craft.reticle.far)
-        node.direction.fromArray([0, 0, -1])
-        node.direction.applyQuaternion(node.quaternion)
-        drive.multiply(node.direction)
-
-        camera.easing = {in: 0.15, out: 0.85} // determine distance from camera percent to fillin easing frames
-        camera.easing.position = buffer.eval('timeline',
-            [
-                [
-                    [camera.orbital.position], [
-                        [['x', drive.x]],
-                        [['y', drive.y]],
-                        [['z', drive.z]]],
-                        [['linear', duration]]// start from current frame
-                ]
-            ],
-        true, undefined, duration * camera.easing.in)// get values
     }
 
     return this
