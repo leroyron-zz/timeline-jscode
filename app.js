@@ -68,8 +68,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     function createThumbControls () {
         ctx.controller = {
             joy: {
-                left: {x: 0, y: 0, pad: canvas.app.canvasSprite(0.43, 0.43, -0.66, -0.66, 0, true, ['LTurningLable.png']), knob: canvas.app.canvasSprite(0.25, 0.25, -0.66, -0.66, 0, true, ['knob.png'])},
-                right: {x: 0, y: 0, pad: canvas.app.canvasSprite(0.43, 0.43, 0.66, -0.66, 0, true, ['RShiftingLable.png']), knob: canvas.app.canvasSprite(0.25, 0.25, 0.66, -0.66, 0, true, ['knob.png'])}
+                left: {id: 0, x: 0, y: 0, pad: canvas.app.canvasSprite(0.43, 0.43, -0.66, -0.66, 0, true, ['LRevolvingLable.png']), knob: canvas.app.canvasSprite(0.25, 0.25, -0.66, -0.66, 0, true, ['knob.png'])},
+                right: {id: 1, x: 0, y: 0, pad: canvas.app.canvasSprite(0.43, 0.43, 0.66, -0.66, 0, true, ['RShiftingLable.png']), knob: canvas.app.canvasSprite(0.25, 0.25, 0.66, -0.66, 0, true, ['knob.png'])}
             }
         }
         ctx.controller.joy.left.pad.material.uniforms.alpha.value =
@@ -134,6 +134,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         [801, 802, 803],
         false)
 
+        /*
         ctx.timeline.addon.binding(stream, [
         [camera.orbital.rotation, -1] // rotation - Dead Bind key (no rotation)
         ],
@@ -144,13 +145,15 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             ],
         [804, 805, 806],
         false)
+        */
 
         // Buffing is done during runtime user/game1/segment0.js
     }
 
     function createGfxsAndBind (stream) {
+        console.log('Binding objects to stream - Starting')
         // SCENE
-        createScene(ctx.scene, 'starwall',
+        createSceneMeshNodeFromJSONForInit(ctx.scene, 'starwall',
             {x: 0, y: 0, z: 0},
             {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
@@ -158,11 +161,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            -1, // position - Dead Bind key (no translation)
-            -1 // rotation - Dead Bind key (no rotation)
+            undefined, // no position binding
+            undefined // no rotation binding
             )
 
-        createScene(ctx.scene, 'earth',
+        createSceneMeshNodeFromJSONForInit(ctx.scene, 'earth',
             {x: -20, y: 25, z: -67},
             {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
@@ -170,11 +173,12 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            -1, // position - Dead Bind key (no translation)
+            // -1, // position - Dead Bind key (no translation until change)
+            undefined,
             891 // unique key (rotation)
             )
 
-        createScene(ctx.scene, 'moon',
+        createSceneMeshNodeFromJSONForInit(ctx.scene, 'moon',
             {x: 14, y: 45, z: 60},
             {x: 0, y: 0, z: 0},
             {x: 1, y: 1, z: 1},
@@ -182,16 +186,17 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             false,
             stream,
-            -1, // position - Dead Bind key (no translation)
+            // -1, // position - Dead Bind key (no translation until change)
+            undefined,
             893 // unique key (rotation)
             )
 
-        createScene(ctx.scene, 'craft1',
+        createSceneMeshNodeFromJSONForInit(ctx.scene, 'craft1',
             {x: 0, y: 0, z: -10}, // don't buff position
             {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
             app.fileLocAssets + 'craft1.json',
-            false,
+            true,
             true,
             stream,
             undefined,
@@ -235,7 +240,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 [804, 805, 806],
                 false)
 
-                createScene(craft, 'CTorch',
+                createSceneMeshNodeFromJSONForInit(craft, 'CTorch',
                     {x: 0, y: 0, z: 0},
                     {x: 0, y: 0, z: 0},
                     {x: 1, y: 1, z: 0.01},
@@ -253,7 +258,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                     }// assign material blend
                 )
 
-                createScene(craft, 'LTorch',
+                createSceneMeshNodeFromJSONForInit(craft, 'LTorch',
                     {x: -4250, y: 460, z: 3760},
                     {x: 0, y: 0, z: 0},
                     {x: 0.01, y: 1, z: 1},
@@ -271,7 +276,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                     }// assign material blend
                 )
 
-                createScene(craft, 'RTorch',
+                createSceneMeshNodeFromJSONForInit(craft, 'RTorch',
                     {x: 4250, y: 460, z: 3760},
                     {x: 0, y: 0, z: 0},
                     {x: 0.01, y: 1, z: 1},
@@ -288,10 +293,24 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                         torch.material.materials[0].blending = 5
                     }// assign material blend
                 )
+
+                // particle blasts
+                ctx.scene.paperPieceSprites = storeTextures(['sprites/paperPiece1.png', 'sprites/paperPiece2.png', 'sprites/paperPiece3.png'])
+                console.log('Binding particles to stream - Starting')
+                for (let p = 0; p < 200; p++) {
+                    let randSprites = Math.floor(random3())
+                    createScenePointNode(ctx.scene, 'paper_particle' + p, Math.random() + 0.2,
+                    {x: p, y: p, z: p},
+                    ctx.scene.paperPieceSprites[randSprites],
+                    stream,
+                    900 + p // position
+                    )
+                }
+                console.log('Finished Binding particles to stream')
             }// callback binding
             )
 
-        createScene(ctx.scene, 'craft2',
+        createSceneMeshNodeFromJSONForInit(ctx.scene, 'craft2',
             {x: 10, y: -10, z: -10},
             {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
@@ -303,7 +322,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             897 // unique
             )
 
-        createScene(ctx.scene, 'craft3',
+        createSceneMeshNodeFromJSONForInit(ctx.scene, 'craft3',
             {x: -10, y: -10, z: -10},
             {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
@@ -318,10 +337,13 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         function random360 () {
             return Math.random() * 360
         }
+        function random3 () {
+            return Math.random() * 3
+        }
     }
 
     var nodeLoadCount = {entry: 0, finish: 0}
-    function createScene (addTo, node, position, rotation, scale, model, buff, doubleSide, stream, bindPositionId, bindRotationId, callback) {
+    function createSceneMeshNodeFromJSONForInit (addTo, node, position, rotation, scale, model, buff, doubleSide, stream, bindPositionID, bindRotationID, callback) {
         // instantiate a loader
         var loader = new THREE.JSONLoader()
 
@@ -341,7 +363,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 object = new THREE.Mesh(geometry, material)
                 object.doubleSided = doubleSide
                 object.position.copy(position)
-                object.position.divideScalar(Math.Type.precision('translation'))
+                // object.position.divideScalar(Math.Type.precision('translation'))
                 object.rotation.fromArray([
                     Math.radians(rotation.x),
                     Math.radians(rotation.y),
@@ -358,45 +380,14 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
                 if (callback) callback(object)
 
-                if (bindPositionId) {
-                    ctx[stream].addon.binding(stream, [
-                    [addTo.nodes[node].position, bindPositionId]
-                    ],
-                        [
-                        ['x', position.x],
-                        ['y', position.y],
-                        ['z', position.z]
-                        ],
-                    [801, 802, 803],
-                    false)
-                }
-
-                if (bindRotationId) {
-                    ctx[stream].addon.binding(stream, [
-                    [addTo.nodes[node].rotation, bindRotationId]
-                    ],
-                        [
-                        ['x', rotation.x],
-                        ['y', rotation.y],
-                        ['z', rotation.z]
-                        ],
-                    [804, 805, 806],
-                    false)
-                }
-
-                // Optimize rotation callbacks for THREE - bindId releasing 806 (streaming.addon.runtime.timeframe.js)
-                // perform the rotation callback only on z change only bindkey 806
-                addTo.nodes[node].rotation.onChange(function () {
-                    if (!this.blockCallback) {
-                        this.blockCallback = true
-                        addTo.nodes[node].quaternion.setFromEuler(this, false)
-                    }
-                })
+                bindNodeToStream(stream, node, addTo, position, bindPositionID, rotation, bindRotationID)
 
                 nodeLoadCount.finish++
                 if (nodeLoadCount.entry == nodeLoadCount.finish) {
-                    // build stream and prebuff from the binding data
+                    // build stream and prebuff from the binding DATA
+                    console.log('Finished Binding to stream - Building')
                     ctx.timeline.build(function () {
+                        console.log('Finished Building - Initializing')
                         ctx.timeline.addon.timeframe._init() // timeframe init has to be set to true for additional scripts to load
                     })
                 }
@@ -410,6 +401,93 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 // console.log('An error happened')
             }
         )
+    }
+
+    function bindNodeToStream (stream, node, addTo, position, bindPositionID, rotation, bindRotationID) {
+        if (bindPositionID) {
+            ctx[stream].addon.binding(stream, [
+            [addTo.nodes[node].position, bindPositionID]
+            ],
+                [
+                ['x', position.x],
+                ['y', position.y],
+                ['z', position.z]
+                ],
+            [801, 802, 803],
+            false)
+        }
+
+        if (bindRotationID) {
+            ctx[stream].addon.binding(stream, [
+            [addTo.nodes[node].rotation, bindRotationID]
+            ],
+                [
+                ['x', rotation.x],
+                ['y', rotation.y],
+                ['z', rotation.z]
+                ],
+            [804, 805, 806],
+            false)
+        }
+
+        // Optimize rotation callbacks for THREE - bindId releasing 806 (streaming.addon.runtime.timeframe.js)
+        // perform the rotation callback only on z change only bindkey 806
+        addTo.nodes[node].rotation.onChange(function () {
+            if (!this.blockCallback) {
+                this.blockCallback = true
+                addTo.nodes[node].quaternion.setFromEuler(this, false)
+            }
+        })
+    }
+
+    var storeTextures = function (urls) {
+        var textureLoader = new THREE.TextureLoader()
+
+        var textures = []
+        for (var u = 0, ulen = urls.length; u < ulen; u++) {
+            textures.push(textureLoader.load(app.fileLocAssets + urls[u]))
+        }
+
+        return textures
+    }
+
+    var createScenePointNode = function (addTo, node, size, position, sprite, stream, bindPositionID, callback) {
+        // instantiate a loader
+        var geometry = new THREE.Geometry()
+        var vertex = new THREE.Vector3().copy(position)
+        vertex.divideScalar(Math.Type.precision('translation'))
+        geometry.vertices.push(vertex)
+
+        var src = [ 'ZeroFactor', 'OneFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor', 'DstColorFactor', 'OneMinusDstColorFactor', 'SrcAlphaSaturateFactor' ]
+        //          '200'         '201'        '204'             '205'                     '206'             '207'                     '208'             '209'                     '210'
+        var dst = [ 'ZeroFactor', 'OneFactor', 'SrcColorFactor', 'OneMinusSrcColorFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor' ]
+        //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
+        var blending = 'CustomBlending'
+
+        var object = new THREE.Points(geometry, new THREE.PointsMaterial({
+            size: size,
+            map: sprite,
+            blending: THREE[blending],
+            blendSrc: THREE[src[2]],
+            blendDst: THREE[dst[6]],
+            blendEquation: THREE.AddEquation,
+            depthTest: true,
+            depthWrite: false,
+            transparent: true,
+            opacity: 0.1
+        }))
+
+        ctx.scene.add(object)
+
+        addTo.add(object)
+
+        if (!addTo.nodes) addTo.nodes = {}// put all scene object/nodes in here during loadtime
+
+        addTo.nodes[node] = object
+
+        if (callback) callback(object)
+
+        bindNodeToStream(stream, node, addTo, position, bindPositionID)
     }
 
     this.createParticles = function () {
@@ -489,12 +567,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     this.canvasSprite = function (width, height, x, y, z, aspect, urls) {
         aspect = aspect ? app.width / app.height : 1
         height = aspect * height
-        var textureLoader = new THREE.TextureLoader()
 
-        var sprites = []
-        for (var u = 0, ulen = urls.length; u < ulen; u++) {
-            sprites.push(textureLoader.load(app.fileLocAssets + urls[u]))
-        }
+        var sprites = storeTextures(urls)
 
         var shader = {
             vertexToScreen: [
@@ -520,7 +594,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
         var blending = 'CustomBlending'
 
-        var out = new THREE.Mesh(
+        var object = new THREE.Mesh(
             new THREE.PlaneGeometry(width, height),
             new THREE.ShaderMaterial({
                 uniforms: {texture: {type: 't', value: sprites[0]}, alpha: {type: 'f', value: 1.0}},
@@ -537,14 +611,14 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
             })
         )
-        out.position.copy({x: x, y: y, z: z})
-        out.sprites = sprites
-        out.frustumCulled = false
-        out.doubleSided = true
-        ctx.scene.add(out)
+        object.position.copy({x: x, y: y, z: z})
+        object.sprites = sprites
+        object.frustumCulled = false
+        object.doubleSided = true
+        ctx.scene.add(object)
 
-        out.clip = {}
-        out.clip.onresizeCallBack = function () {
+        object.clip = {}
+        object.clip.onresizeCallBack = function () {
             this.normal = {x: x, y: y, width: width, height: height}
             x = (x + 1) / 2
             y = (y + 1) / 2
@@ -553,10 +627,10 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             this.x = app.width * x
             this.y = app.height - (app.height * y)
         }
-        out.clip.onresizeCallBack()
-        window.resizeCalls.push(out.clip.onresizeCallBack)
+        object.clip.onresizeCallBack()
+        window.resizeCalls.push(object.clip.onresizeCallBack)
 
-        return out
+        return object
     }
 
     this.sceneSprite = function (size, x, y, z, url) {
@@ -574,7 +648,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
         var blending = 'CustomBlending'
 
-        var out = new THREE.Points(geometry, new THREE.PointsMaterial({
+        var object = new THREE.Points(geometry, new THREE.PointsMaterial({
             size: size,
             map: sprite,
             blending: THREE[blending],
@@ -586,8 +660,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             transparent: true
         }))
 
-        ctx.scene.add(out)
+        ctx.scene.add(object)
 
-        return out
+        return object
     }
 }(this.app, this.THREE, this.canvas, this.ctx)
