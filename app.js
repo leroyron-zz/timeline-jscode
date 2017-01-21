@@ -92,8 +92,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         camera.direction = new THREE.Vector3(0, 0, -1).applyQuaternion(craft.quaternion)
         camera.orbital.offset = [-25, -25, -25]
         camera.offset = new THREE.Vector3().fromArray(camera.orbital.offset).multiply(camera.direction)
-        // camera.direction.fromArray([0, 0, -1]).applyQuaternion(camera.quaternion)
-        // camera.offset.fromArray(camera.orbital.offset).multiply(camera.direction)
 
         camera.move = new THREE.Vector3()
         camera.move.copy(camera.orbital.position)
@@ -133,19 +131,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             ],
         [801, 802, 803],
         false)
-
-        /*
-        ctx.timeline.addon.binding(stream, [
-        [camera.orbital.rotation, -1] // rotation - Dead Bind key (no rotation)
-        ],
-            [
-            ['x', 0],
-            ['y', 0],
-            ['z', 0]
-            ],
-        [804, 805, 806],
-        false)
-        */
 
         // Buffing is done during runtime user/game1/segment0.js
     }
@@ -209,14 +194,10 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 craft.direction = new THREE.Vector3(0, 0, -1).applyQuaternion(craft.quaternion)
                 craft.orbital = {offset: [-15, -15, -15]}
                 craft.offset = new THREE.Vector3().fromArray(craft.orbital.offset).multiply(craft.direction)
-                // craft.direction.fromArray([0, 0, -1]).applyQuaternion(craft.quaternion)
-                // craft.offset.fromArray(craft.orbital.offset).multiply(craft.direction)
                 craft.move = new THREE.Vector3()
                 craft.move.copy(camera.position)
                 craft.move.sub(craft.offset)
                 craft.position.copy(craft.move)
-
-                // craft.lookAt(camera.orbital.position)
 
                 ctx[stream].addon.binding(stream, [
                 [craft.position, 894]
@@ -255,11 +236,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                         torch.material.materials[0].blendSrc = 204
                         torch.material.materials[0].blendEquation = 100
                         torch.material.materials[0].blending = 5
-                    }// assign material blend
+                    }
                 )
 
                 createSceneMeshNodeFromJSONForInit(craft, 'LTorch',
-                    {x: -4250, y: 460, z: 3760},
+                    {x: -4.250, y: 0.460, z: 3.760},
                     {x: 0, y: 0, z: 0},
                     {x: 0.01, y: 1, z: 1},
                     app.fileLocAssets + 'LTorch.json',
@@ -273,11 +254,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                         torch.material.materials[0].blendSrc = 204
                         torch.material.materials[0].blendEquation = 100
                         torch.material.materials[0].blending = 5
-                    }// assign material blend
+                    }
                 )
 
                 createSceneMeshNodeFromJSONForInit(craft, 'RTorch',
-                    {x: 4250, y: 460, z: 3760},
+                    {x: 4.250, y: 0.460, z: 3.760},
                     {x: 0, y: 0, z: 0},
                     {x: 0.01, y: 1, z: 1},
                     app.fileLocAssets + 'RTorch.json',
@@ -291,23 +272,21 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                         torch.material.materials[0].blendSrc = 204
                         torch.material.materials[0].blendEquation = 100
                         torch.material.materials[0].blending = 5
-                    }// assign material blend
+                    }
                 )
 
                 // particle blasts
                 ctx.scene.paperPieceSprites = storeTextures(['sprites/paperPiece1.png', 'sprites/paperPiece2.png', 'sprites/paperPiece3.png'])
-                console.log('Binding particles to stream - Starting')
                 for (let p = 0; p < 200; p++) {
                     let randSprites = Math.floor(random3())
                     createScenePointNode(ctx.scene, 'paper_particle' + p, Math.random() + 0.2,
-                    {x: p, y: p, z: p},
+                    {x: 0, y: 0, z: 0},
                     ctx.scene.paperPieceSprites[randSprites],
                     stream,
-                    900 + p // position
+                    900 + p
                     )
                 }
-                console.log('Finished Binding particles to stream')
-            }// callback binding
+            }
             )
 
         createSceneMeshNodeFromJSONForInit(ctx.scene, 'craft2',
@@ -319,7 +298,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             stream,
             896,
-            897 // unique
+            897
             )
 
         createSceneMeshNodeFromJSONForInit(ctx.scene, 'craft3',
@@ -331,7 +310,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             true,
             stream,
             898,
-            899 // unique
+            899
             )
 
         function random360 () {
@@ -363,7 +342,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 object = new THREE.Mesh(geometry, material)
                 object.doubleSided = doubleSide
                 object.position.copy(position)
-                // object.position.divideScalar(Math.Type.precision('translation'))
                 object.rotation.fromArray([
                     Math.radians(rotation.x),
                     Math.radians(rotation.y),

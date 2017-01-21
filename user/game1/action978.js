@@ -292,8 +292,6 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             craft.nodes.RTorch.material.materials[0].map.offset.x =
             craft.nodes.CTorch.material.materials[0].map.offset.x -= 0.11
             craft.nodes.CTorch.scale.z = craft.nodes.CTorch.scale.z == 0.90 ? 1 : 0.90
-            // craft.nodes.LTorch.material.materials[0].map.offset.y = camera.orbital.reticle.tee.position.x * 0.90
-            // craft.nodes.RTorch.material.materials[0].map.offset.y = camera.orbital.reticle.tee.position.x * 0.90
 
             camera.direction.fromArray([0, 0, -1]).applyQuaternion(camera.quaternion)
             camera.offset.fromArray(camera.orbital.offset).multiply(camera.direction)
