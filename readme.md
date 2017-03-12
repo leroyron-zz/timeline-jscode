@@ -22,6 +22,6 @@ Launch a server on 5000
 
 VSCode Extension
 ---
-[Timeline VSCode][tvl]
+[Timeline JSCode Visual Studio Code Extension][tvl]
 
-[tvl]: <https://github.com/leroyron/timeline-vscode>
+[tvl]: <https://github.com/leroyron/timeline-jsvscode>
