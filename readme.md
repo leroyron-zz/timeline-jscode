@@ -1,4 +1,4 @@
-Timeline Code
+Timeline JSCode
 ==============
 
 Install
