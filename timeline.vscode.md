@@ -36,7 +36,7 @@
         var canvas = createCanvas('3d');
         var ctx = canvas.context;
         window.location.href = 'chrome://flags/';
-        console.log('Chrome Version:' + getChromeVersionPerfomanceGL())
+        console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
         // Get the Streaming class
         var stream = new Streaming(2200); 
         // prepare stream and exploit access to context, addons, data and GUI
