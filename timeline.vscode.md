@@ -35,7 +35,6 @@
         context('app', 'fps');
         var canvas = createCanvas('3d');
         var ctx = canvas.context;
-        window.location.href = 'chrome://flags/';
         console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
         // Get the Streaming class
         var stream = new Streaming(2200); 
@@ -44,7 +43,8 @@
         ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
     </script>
     <!--APP - MAIN-->
-    <script type="text/javascript" src="app.js">// THREE scene and stream bindings//</script>
+    <script type="text/javascript" src="app.js">// VSCode replaces app.js (app.codesetting/app.js) 
+    //THREE scene and stream bindings//</script>
     <script type="text/javascript">
         // user code/setting
         app.codesetting = 'game1'
