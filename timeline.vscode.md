@@ -1,7 +1,7 @@
 <markdown-html>
     <head>
         <title>Timeline JSVSCode</title>
-        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="description" content="Timeline for multi purpose application in VSCode: Requires Visual Studio Code TimeLine extension (vscode-md-timeline-jscode)" />
         <meta name="author" content="Leroy Thompson" />
         <link rel="stylesheet" href="style.css?v=1.0" />
@@ -19,6 +19,7 @@
     <script type="text/javascript" src="lib/math.addon.type.js"></script>
     <script type="text/javascript" src="lib/math.addon.cache.js"></script>
     <script type="text/javascript" src="lib/window.app.js"></script>
+    <script type="text/javascript" src="lib/window.info.js"></script>
     <script type="text/javascript" src="lib/Streaming.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.js"></script>
@@ -30,10 +31,12 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
-    <script type="text/javascript" >
+    <script type="text/javascript">
         context('app', 'fps');
         var canvas = createCanvas('3d');
         var ctx = canvas.context;
+        window.location.href = 'chrome://flags/';
+        console.log('Chrome Version:' + getChromeVersionPerfomanceGL())
         // Get the Streaming class
         var stream = new Streaming(2200); 
         // prepare stream and exploit access to context, addons, data and GUI
@@ -42,7 +45,7 @@
     </script>
     <!--APP - MAIN-->
     <script type="text/javascript" src="app.js">// THREE scene and stream bindings//</script>
-    <script type="text/javascript" >
+    <script type="text/javascript">
         // user code/setting
         app.codesetting = 'game1'
         // setup binding data for Streaming for the canvas

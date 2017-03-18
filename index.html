@@ -21,7 +21,10 @@
     <script type="text/javascript" src="lib/math.addon.js"></script>
     <script type="text/javascript" src="lib/math.addon.type.js"></script>
     <script type="text/javascript" src="lib/math.addon.cache.js"></script>
+
     <script type="text/javascript" src="lib/window.app.js"></script>
+    <script type="text/javascript" src="lib/window.info.js"></script>
+
     <script type="text/javascript" src="lib/Streaming.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.js"></script>
@@ -38,6 +41,7 @@
         context('app', 'fps');
         var canvas = createCanvas('3d');
         var ctx = canvas.context;
+        console.log('Chrome Version:' + getChromeVersionPerfomanceGL())
         // Get the Streaming class
         var stream = new Streaming(2200); 
         // prepare stream and exploit access to context, addons, data and GUI

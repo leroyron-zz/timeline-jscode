@@ -372,11 +372,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             },
             // Function called when download progresses
             function (xhr) {
-                // console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
             },
             // Function called when download errors
             function (xhr) {
-                // console.log('An error happened')
+                console.log('An error happened')
             }
         )
     }
@@ -423,7 +423,15 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
         var textures = []
         for (var u = 0, ulen = urls.length; u < ulen; u++) {
-            textures.push(textureLoader.load(app.fileLocAssets + urls[u]))
+            textures.push(textureLoader.load(app.fileLocAssets + urls[u],
+            function () {}, // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            // Function called when download errors
+            function (xhr) {
+                console.log('An error happened')
+            }))
         }
 
         return textures
@@ -472,15 +480,55 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         var geometries = []
         var textureLoader = new THREE.TextureLoader()
 
-        var sprite1 = textureLoader.load(app.fileLocAssets + 'sprites/star1.png')
+        var sprite1 = textureLoader.load(app.fileLocAssets + 'sprites/star1.png',
+            function () {}, // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            // Function called when download errors
+            function (xhr) {
+                console.log('An error happened')
+            })
         geometries.push(randomVerticies(240))
-        var sprite2 = textureLoader.load(app.fileLocAssets + 'sprites/star2.png')
+        var sprite2 = textureLoader.load(app.fileLocAssets + 'sprites/star2.png',
+            function () {}, // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            // Function called when download errors
+            function (xhr) {
+                console.log('An error happened')
+            })
         geometries.push(randomVerticies(360))
-        var sprite3 = textureLoader.load(app.fileLocAssets + 'sprites/star3.png')
+        var sprite3 = textureLoader.load(app.fileLocAssets + 'sprites/star3.png',
+            function () {}, // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            // Function called when download errors
+            function (xhr) {
+                console.log('An error happened')
+            })
         geometries.push(randomVerticies(480))
-        var sprite4 = textureLoader.load(app.fileLocAssets + 'sprites/star4.png')
+        var sprite4 = textureLoader.load(app.fileLocAssets + 'sprites/star4.png',
+            function () {}, // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            // Function called when download errors
+            function (xhr) {
+                console.log('An error happened')
+            })
         geometries.push(randomVerticies(600))
-        var sprite5 = textureLoader.load(app.fileLocAssets + 'sprites/star5.png')
+        var sprite5 = textureLoader.load(app.fileLocAssets + 'sprites/star5.png',
+            function () {}, // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            // Function called when download errors
+            function (xhr) {
+                console.log('An error happened')
+            })
         geometries.push(randomVerticies(720))
 
         if (!ctx.scene.nodes) ctx.scene.nodes = {}// put all scene object/nodes in here during loadtime
@@ -614,7 +662,15 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     this.sceneSprite = function (size, x, y, z, url) {
         var textureLoader = new THREE.TextureLoader()
 
-        var sprite = textureLoader.load(app.fileLocAssets + url)
+        var sprite = textureLoader.load(app.fileLocAssets + url,
+            function () {}, // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            // Function called when download errors
+            function (xhr) {
+                console.log('An error happened')
+            })
 
         var geometry = new THREE.Geometry()
         var vertex = new THREE.Vector3(x, y, z)
