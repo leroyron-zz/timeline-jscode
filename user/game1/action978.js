@@ -385,23 +385,46 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 touches[id].normal = {}
             }
 
-            touches[id].normal.x = (((e.pageX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1)
-            touches[id].normal.y = (-((e.pageY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1)
+            var pointerX = 0
+            var pointerY = 0
+            var active = {}
+            if (use) {
+                if (!e.targetTouches[id]) {
+                    console.log('touch missed')
+                    if (e.changedTouches[id]) {
+                        active = e.changedTouches[id]
+                    } else {
+                        console.log('exiting')
+                        return
+                    }
+                } else {
+                    active = e.targetTouches[id]
+                }
+            } else {
+                active = e
+            }
+            
+            pointerX = active.pageX
+            pointerY = active.pageY
+
+            touches[id].normal.x = (((pointerX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1)
+            touches[id].normal.y = (-((pointerY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1)
 
             callback(touches[id])
             if (optimize) return
 
             if (e.type == 'mousedown' || e.type == 'touchstart') app.pointers.inUse = true
-            if (e.type == 'mouseup') app.pointers.inUse = false
+            if (e.type == 'mouseup' || e.type == 'touchend') app.pointers.inUse = false
+            
             if (use) {
                 app.pointers.multi = false
-                if (e.targetTouches.length == 0) {
+                if (active.length == 0) {
                     app.pointers.inUse = false
-                } else if (e.targetTouches.length > 1) {
+                } else if (active.length > 1) {
                     app.pointers.multi = true
                 }
             }
-            touches[id].area = e.pageX > (canvas.clientWidth / 2) ? 'left' : 'right'
+            touches[id].area = pointerX > (canvas.clientWidth / 2) ? 'right' : 'left'
         }
 
         canvas.node.onmousedown = canvas.node.ontouchstart = function (e) {
@@ -438,6 +461,41 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             }
         }
 
+        var moveKnob = function (pointer) {
+            let x = pointer.normal.x
+            let y = pointer.normal.y
+            if (pointer.joy) {
+                let jX = pointer.joy.knob.clip.normal.x
+                let jY = pointer.joy.knob.clip.normal.y
+                pointer.joy.x = x - jX
+                pointer.joy.y = y - jY
+                let d = Math.sqrt(pointer.joy.x * pointer.joy.x + pointer.joy.y * pointer.joy.y)
+                if (d < 0.2) {
+                    let lx = pointer.joy.x / 0.2
+                    let ly = pointer.joy.y / 0.2
+                    camera.orbital.reticle.position.fromArray([lx, ly, 0])
+                    camera.orbital.reticle.tee.persision(lx, ly)
+                    pointer.joy.knob.position.fromArray([
+                        pointer.joy.knob.clip.normal.x + pointer.joy.x,
+                        pointer.joy.knob.clip.normal.y + pointer.joy.y,
+                        0
+                    ])
+                } else {
+                    let a = Math.atan2(y - jY, x - jX) * 180 / Math.PI + 270
+                    let r = rotatePoint(jX, jY, jX, jY + 0.2, a, true)
+                    let lx = (r.x - jX) / 0.2
+                    let ly = (r.y - jY - 0.2) / 0.2
+                    camera.orbital.reticle.position.fromArray([lx, ly, 0])
+                    camera.orbital.reticle.tee.persision(lx, ly)
+                    pointer.joy.knob.position.fromArray([
+                        r.x,
+                        r.y - 0.2,
+                        0
+                    ])
+                }
+            }
+        }
+
         // // CONTROLLER
         canvas.node.onmousemove = canvas.node.ontouchmove = function (e) {
             e.preventDefault()
@@ -463,6 +521,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                         let id = e.changedTouches[tm]
                         touch(true, app.pointers, id, e, this, function (pointer) {
 
+                            
 
 
                         })
@@ -474,42 +533,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             } else if (!e.changedTouches) {
                 touch(false, app.pointers, 0, e, this, function (pointer) {
 
-
-
-                    let x = pointer.normal.x
-                    let y = pointer.normal.y
-                    if (pointer.joy) {
-                        let jX = pointer.joy.knob.clip.normal.x
-                        let jY = pointer.joy.knob.clip.normal.y
-                        pointer.joy.x = x - jX
-                        pointer.joy.y = y - jY
-                        let d = Math.sqrt(pointer.joy.x * pointer.joy.x + pointer.joy.y * pointer.joy.y)
-                        if (d < 0.2) {
-                            let lx = pointer.joy.x / 0.2
-                            let ly = pointer.joy.y / 0.2
-                            camera.orbital.reticle.position.fromArray([lx, ly, 0])
-                            camera.orbital.reticle.tee.persision(lx, ly)
-                            pointer.joy.knob.position.fromArray([
-                                pointer.joy.knob.clip.normal.x + pointer.joy.x,
-                                pointer.joy.knob.clip.normal.y + pointer.joy.y,
-                                0
-                            ])
-                        } else {
-                            let a = Math.atan2(y - jY, x - jX) * 180 / Math.PI + 270
-                            let r = rotatePoint(jX, jY, jX, jY + 0.2, a, true)
-                            let lx = (r.x - jX) / 0.2
-                            let ly = (r.y - jY - 0.2) / 0.2
-                            camera.orbital.reticle.position.fromArray([lx, ly, 0])
-                            camera.orbital.reticle.tee.persision(lx, ly)
-                            pointer.joy.knob.position.fromArray([
-                                r.x,
-                                r.y - 0.2,
-                                0
-                            ])
-                        }
-                    }
-
-
+                    moveKnob(pointer)
 
                 }, true)
             } else {
@@ -517,7 +541,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                     let id = e.changedTouches[tm].identifier
                     touch(true, app.pointers, id, e, this, function (pointer) {
 
-
+                        moveKnob(pointer)
 
                     }, true)
                 }
