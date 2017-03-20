@@ -33,7 +33,7 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
     <script type="text/javascript">
         context('app', 'fps');
-        var canvas = createCanvas('3d');
+        var canvas = createCanvas('2d');
         var ctx = canvas.context;
         console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
         // Get the Streaming class
@@ -47,7 +47,7 @@
     //THREE scene and stream bindings//</script>
     <script type="text/javascript">
         // user code/setting
-        app.codesetting = 'game1'
+        app.codesetting = 'demo1'
         // setup binding data for Streaming for the canvas
         canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');        
     </script>
