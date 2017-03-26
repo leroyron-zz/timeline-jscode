@@ -47,7 +47,7 @@
     //THREE scene and stream bindings//</script>
     <script type="text/javascript">
         // user code/setting
-        app.codesetting = 'demo1'
+        app.codesetting = 'slinkygoogle'
         // setup binding data for Streaming for the canvas
         canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');        
     </script>
