@@ -15,7 +15,6 @@ this.canvas.app = new function (app, canvas, ctx) {
     var earth = new Image();
 
     function init () {
-        // preload during pageload
         sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
         moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
         earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
@@ -32,38 +31,38 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     ctx.rendering = function () {
-        ctx.globalCompositeOperation = 'destination-over';
-        ctx.clearRect(0, 0, 300, 300); // clear canvas
+        this.globalCompositeOperation = 'destination-over';
+        this.clearRect(0, 0, 300, 300); // clear canvas
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-        ctx.strokeStyle = 'rgba(0, 153, 255, 0.4)';
-        ctx.save();
-        ctx.translate(150, 150);
+        this.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        this.strokeStyle = 'rgba(0, 153, 255, 0.4)';
+        this.save();
+        this.translate(150, 150);
 
         // Earth
-        ctx.rotate(earth.nodes[0].rotation);
-        ctx.translate(105, 0);
-        ctx.fillRect(0, -12, 50, 24); // Shadow
-        ctx.drawImage(earth, -12, -12);
+        this.rotate(earth.nodes[0].rotation);
+        this.translate(105, 0);
+        this.fillRect(0, -12, 50, 24); // Shadow
+        this.drawImage(earth, -12, -12);
 
         // Moon
-        ctx.save();
-        ctx.rotate(moon.nodes[0].rotation);
-        ctx.translate(0, 28.5);
-        ctx.drawImage(moon, -3.5, -3.5);
-        ctx.restore();
+        this.save();
+        this.rotate(moon.nodes[0].rotation);
+        this.translate(0, 28.5);
+        this.drawImage(moon, -3.5, -3.5);
+        this.restore();
 
-        ctx.restore();
+        this.restore();
         
-        ctx.beginPath();
-        ctx.arc(150, 150, 105, 0, Math.PI * 2, false); // Earth orbit
-        ctx.stroke();
+        this.beginPath();
+        this.arc(150, 150, 105, 0, Math.PI * 2, false); // Earth orbit
+        this.stroke();
         
-        ctx.drawImage(sun, 0, 0, 300, 300);
+        this.drawImage(sun, 0, 0, 300, 300);
     }
 
     ctx.compute = function () {
-
+        
     }
 
     this.SetupContextBindsForStreamAndBuildAfterLoad = function () {
@@ -78,7 +77,10 @@ this.canvas.app = new function (app, canvas, ctx) {
     function createGFXBindNodesToStream(stream) {
         console.log('Binding objects to stream - Starting');
 
-        earth.nodes = ctx[stream].addon.binding(stream, [
+        var bind = ctx[stream].addon.binding
+        var buffer = ctx.timeline.addon.buffer
+
+        earth.nodes = bind(stream, [
         [undefined, 804]
         ],
             [
@@ -96,7 +98,6 @@ this.canvas.app = new function (app, canvas, ctx) {
         [802],
         false)
 
-        var buffer = ctx.timeline.addon.buffer
         buffer.eval('timeline',
         [
             [
@@ -108,7 +109,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         buffer.eval('timeline',
         [
             [
-                [moon.nodes[0]], [[['rotation', 1080]]], [['linear', 2200]]
+                [moon.nodes[0]], [[['rotation', 1080 + 360]]], [['linear', 2200]]
             ]
         ],
         false)

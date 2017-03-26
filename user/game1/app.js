@@ -31,11 +31,11 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     }
 
     ctx.calc = function () {
-        if (ctx.scene.nodes.starwall) {
-            ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
+        if (this.scene.nodes.starwall) {
+            this.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
         }
 
-        ctx.camera.lookAt(ctx.camera.orbital.position)
+        this.camera.lookAt(this.camera.orbital.position)
         // calculations taken into action insert
         // Ref: action978.js
         /*
