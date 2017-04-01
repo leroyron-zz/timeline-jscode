@@ -40,7 +40,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         this.translate(150, 150);
 
         // Earth
-        this.rotate(earth.nodes[0].rotation);
+        this.rotate(earth.rotation);
         this.translate(105, 0);
         this.fillRect(0, -12, 50, 24); // Shadow
         this.drawImage(earth, -12, -12);
@@ -80,8 +80,8 @@ this.canvas.app = new function (app, canvas, ctx) {
         var bind = ctx[stream].addon.binding
         var buffer = ctx.timeline.addon.buffer
 
-        earth.nodes = bind(stream, [
-        [undefined, 804]
+        bind(stream, [
+        [earth, 804]
         ],
             [
             ['rotation', 0]
@@ -90,7 +90,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         false)
 
         moon.nodes = ctx[stream].addon.binding(stream, [
-        [undefined, 805]
+        [moon, 805]
         ],
             [
             ['rotation', 0]
@@ -101,7 +101,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         buffer.eval('timeline',
         [
             [
-                [earth.nodes[0]], [[['rotation', 360]]], [['linear', 2200]]
+                [earth], [[['rotation', 360]]], [['linear', 2200]]
             ]
         ],
         false)
