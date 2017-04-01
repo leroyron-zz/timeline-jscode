@@ -12,7 +12,6 @@
             <br><div id="fps"></div>            
         </div>
     </body>
-    <script type="text/javascript" src="node_modules/three/build/three.js"></script>
     <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script>
     <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
     <script type="text/javascript" src="lib/math.addon.js"></script>
@@ -37,7 +36,8 @@
         var ctx = canvas.context;
         console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
         // Get the Streaming class
-        var stream = new Streaming(2200); 
+        // var stream = new Streaming(2200);
+        var stream = new Streaming(850);
         // prepare stream and exploit access to context, addons, data and GUI
         // timeline context with Streaming
         ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
@@ -49,7 +49,7 @@
         // user code/setting
         app.codesetting = 'slinkygoogle'
         // setup binding data for Streaming for the canvas
-        canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');        
+        canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');
     </script>
     <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.js"></script>
