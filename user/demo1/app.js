@@ -8,6 +8,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         canvas.node.width = this.width = app.width
         canvas.node.height = this.height = app.height
     }
+    this.resolution(app)
 
     // Private
     var sun = new Image();
@@ -120,7 +121,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         console.log('Finished Binding to stream - Building')
         ctx.timeline.build(function () {
             console.log('Finished Building - Initializing')
-            ctx.timeline.addon.timeframe._init() // timeframe init has to be set to true for additional scripts to load
+            ctx.timeline.addon.timeframe._init(window) // timeframe init has to be set to true for additional scripts to load
         })
     }
 }(this.app, this.canvas, this.ctx)

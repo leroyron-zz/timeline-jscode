@@ -10,6 +10,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         this.width = app.resolution.width
         this.height = app.resolution.height
     }
+    this.resolution(app)
 
     function init () {
         // LIGHTS
@@ -366,7 +367,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                     console.log('Finished Binding to stream - Building')
                     ctx.timeline.build(function () {
                         console.log('Finished Building - Initializing')
-                        ctx.timeline.addon.timeframe._init() // timeframe init has to be set to true for additional scripts to load
+                        ctx.timeline.addon.timeframe._init(window) // timeframe init has to be set to true for additional scripts to load
                     })
                 }
             },
