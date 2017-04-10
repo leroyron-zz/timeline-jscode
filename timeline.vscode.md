@@ -12,6 +12,7 @@
             <br><div id="fps"></div>            
         </div>
     </body>
+    <script type="text/javascript" src="node_modules/three/build/three.js"></script>
     <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script>
     <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
     <script type="text/javascript" src="lib/math.addon.js"></script>
@@ -31,25 +32,42 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
     <script type="text/javascript">
-        context('app', 'fps');
-        var canvas = createCanvas('2d');
-        var ctx = canvas.context;
-        console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
-        // Get the Streaming class
-        // var stream = new Streaming(2200);
-        var stream = new Streaming(850);
-        // prepare stream and exploit access to context, addons, data and GUI
-        // timeline context with Streaming
-        ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
+        window.launch = function (app) {
+            var select = {
+                        game1: {mode:'3d', duration: 2200,
+                            preload: []
+                        }, 
+                        demo1: {mode:'2d', duration: 2200,
+                            preload: []
+                        },
+                        slinkygoogle: {mode:'2d', duration: 1050,
+                            preload: []
+                        }
+                     }
+            select = select[app];
+            context('app', 'fps');
+            this.canvas = createCanvas(select.mode);
+            this.ctx = canvas.context;
+            console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
+            // Get the Streaming class
+            this.stream = new Streaming(select.duration);
+            // prepare stream and exploit access to context, addons, data and GUI
+            // timeline context with Streaming
+            ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
+            // user setting
+            var script = document.createElement('script');
+            script.src = "user/"+app+"/app.js";// THREE scene and stream bindings//
+            script.onload = function () {
+                // setup binding data for Streaming for the canvas
+                canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');     
+            }
+            document.body.appendChild(script); //or something of the likes
+        }
     </script>
-    <!--APP - MAIN-->
-    <script type="text/javascript" src="app.js">// VSCode replaces app.js (app.codesetting/app.js) 
-    //THREE scene and stream bindings//</script>
     <script type="text/javascript">
         // user code/setting
         app.codesetting = 'slinkygoogle'
-        // setup binding data for Streaming for the canvas
-        canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');
+        window.launch(app.codesetting)
     </script>
     <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
     <script type="text/javascript" src="lib/dat.gui.addon.js"></script>
