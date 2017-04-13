@@ -23,7 +23,7 @@ var Authority = new function (app, timeline, buffer, binding, canvas) {
     canvas.app.drop.items = Array(120)
     this.main = function () {
         if (stage == 1) {
-            buffer.valIn('timeline', canvas.app.drop, ['value'], 1, 350, 1044, 1, dosentMatter,
+            buffer.valIn('timeline', [canvas.app.drop], ['value'], 1, 350, 1044, 1, dosentMatter,
             function () {
                 canvas.app.drop.next = this.next = this.next || 0
                 canvas.app.drop.items[this.next] = new dropImage(Math.randomFromTo(0, 11), Math.randomFromTo(100, canvas.node.width-100), -88)
@@ -40,9 +40,9 @@ var Authority = new function (app, timeline, buffer, binding, canvas) {
 
             for (let gi=0; gi<gen/2; gi++) { // Half and half of time line generate leap values with break/space inbetween
                 let randNum = Math.randomFromTo(360, (360 +(86.25 * 2)))
-                buffer.valIn('timeline', canvas.app.drop, ['value'], timeline.arguments.leap, randNum, randNum + 1, 1)
+                buffer.valIn('timeline', [canvas.app.drop], ['value'], timeline.arguments.leap, randNum, randNum + 1, 1)
                 randNum = Math.randomFromTo((360 +(86.25 * 5)), (360 +(86.25 * 7))-20)
-                buffer.valIn('timeline', canvas.app.drop, ['value'], timeline.arguments.leap, randNum, randNum + 1, 1)
+                buffer.valIn('timeline', [canvas.app.drop], ['value'], timeline.arguments.leap, randNum, randNum + 1, 1)
             }
             stage++
         }

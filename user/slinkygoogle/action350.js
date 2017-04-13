@@ -39,13 +39,13 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
 
         var clearSize = function () {
             ctx.timeline.bindings.ids._bi811[820].value = 704
-            buffer.zeroOut('timeline', 350, ctx.timeline.length, canvas.app.size, 'value')
+            buffer.zeroOut('timeline', 350, ctx.timeline.length, [canvas.app.size], ['value'])
             return 0.7
         }
 
         var clearSwallow = function () {
             ctx.timeline.bindings.ids._bi801[820].value = ctx.timeline.bindings.ids._bi801.node.value = 0.05
-            buffer.zeroOut('timeline', 0, ctx.timeline.length, canvas.app.swallow, 'value')
+            buffer.zeroOut('timeline', 350, ctx.timeline.length, [canvas.app.swallow, canvas.app.y], ['value'])
             return 0.05
         }
 
@@ -82,7 +82,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             ],
             true, undefined, undefined, function () {
                         // check this.size, this.actionID
-                        buffer.zeroOut('timeline', 350, ctx.timeline.length, canvas.app.size, 'value')
+                        buffer.zeroOut('timeline', 350, ctx.timeline.length, [canvas.app.size], ['value'])
                         buffer.eval('timeline',
                         [
                             [
@@ -120,9 +120,9 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 ]
             ],
             true, undefined, undefined, function () {
-                        buffer.zeroOut('timeline', 350, ctx.timeline.length, canvas.app.swallow, 'value')
+                        buffer.zeroOut('timeline', 350, ctx.timeline.length, [canvas.app.y], ['value'])
+                        buffer.zeroOut('timeline', 350, ctx.timeline.length, [canvas.app.swallow], ['value'])
                         ctx.timeline.bindings.ids._bi806[820].value = ctx.timeline.bindings.ids._bi806.node.value = 0
-                        buffer.zeroOut('timeline', 350, ctx.timeline.length, canvas.app.y, 'value')
                     }, true, true)
         }
         var nearBlue, nearYellow, nearRed
@@ -276,6 +276,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                             
                     } else { 
                         this.globalAlpha = item.alpha -= 0.1
+                        Math.lerpProp(item, 'x', mX, 1 - item.alpha);
                         if (item.alpha < 0.1)  {
                             canvas.app.drop.items[id] = undefined
                         }

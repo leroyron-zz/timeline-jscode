@@ -36,7 +36,7 @@ var Authority = new function (camera, timeframe, buffer, binding, app) {
         ]
     ],
     false)
-    //buffer.valIn('timeline', app.y, ['value'], 76, 200, 1044)
+    //buffer.valIn('timeline', [app.y], ['value'], 76, 200, 1044)
     //app.y.elem.value = 76
 
     // Slinky Staggers into play position
@@ -47,7 +47,7 @@ var Authority = new function (camera, timeframe, buffer, binding, app) {
         ]
     ],
     false)
-    buffer.valIn('timeline', app.size, ['value'], 0.7, 350, 1044)
+    buffer.valIn('timeline', [app.size], ['value'], 0.7, 350, 1044)
     app.size.elem.value = 0.7
     buffer.eval('timeline',
     [
@@ -56,7 +56,7 @@ var Authority = new function (camera, timeframe, buffer, binding, app) {
         ]
     ],
     false)
-    buffer.valIn('timeline', app.persp, ['value'], 0.4, 300, 1044)
+    buffer.valIn('timeline', [app.persp], ['value'], 0.4, 300, 1044)
     app.persp.elem.value = 0.5
     buffer.eval('timeline',
     [
@@ -65,7 +65,7 @@ var Authority = new function (camera, timeframe, buffer, binding, app) {
         ]
     ],
     false)
-    buffer.valIn('timeline', app.x, ['value'], 248, 350, 1044)
+    buffer.valIn('timeline', [app.x], ['value'], 248, 350, 1044)
     app.x.elem.value = 248
     buffer.eval('timeline',
     [
@@ -74,8 +74,8 @@ var Authority = new function (camera, timeframe, buffer, binding, app) {
         ]
     ],
     false)
-    buffer.valIn('timeline', app.freq, ['value'], 0, 300, 350)
-    buffer.valIn('timeline', app.freq, ['value'], 0, 350, 1044)
+    buffer.valIn('timeline', [app.freq], ['value'], 0, 300, 350)
+    buffer.valIn('timeline', [app.freq], ['value'], 0, 350, 1044)
     app.freq.elem.value = 0
     buffer.eval('timeline',
     [
@@ -84,7 +84,7 @@ var Authority = new function (camera, timeframe, buffer, binding, app) {
         ]
     ],
     false)
-    buffer.valIn('timeline', app.spring.coil, ['value'], 13.24, 300, 1044)
+    buffer.valIn('timeline', [app.spring.coil], ['value'], 13.24, 300, 1044)
     buffer.eval('timeline',
     [
         [
@@ -92,7 +92,7 @@ var Authority = new function (camera, timeframe, buffer, binding, app) {
         ]
     ],
     false) 
-    buffer.valIn('timeline', app.spring.stretch, ['value'], 28.25, 300, 1044)
+    buffer.valIn('timeline', [app.spring.stretch], ['value'], 28.25, 300, 1044)
     app.spring.stretch.elem.value = 28.25
     this.main = function () {
         timeframe.stop(0)
