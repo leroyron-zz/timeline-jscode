@@ -7,82 +7,10 @@
         <link rel="stylesheet" href="style.css?v=1.0" />
     </head>
     <body>
-        <div id="app">
-            <div id="info"></div>
-            <br><div id="fps"></div>            
-        </div>
+        <!-- VSCode command palette goes here // don't remove -->
+        <iframe src="index.html" />
     </body>
-    <script type="text/javascript" src="node_modules/three/build/three.js"></script>
-    <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script>
-    <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
-    <script type="text/javascript" src="lib/math.addon.js"></script>
-    <script type="text/javascript" src="lib/math.addon.type.js"></script>
-    <script type="text/javascript" src="lib/math.addon.cache.js"></script>
-    <script type="text/javascript" src="lib/window.app.js"></script>
-    <script type="text/javascript" src="lib/window.info.js"></script>
-    <script type="text/javascript" src="lib/Streaming.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.binding.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.comment.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.segment.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.action.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
     <script type="text/javascript">
-        window.launch = function (app) {
-            var select = {
-                        game1: {mode:'3d', duration: 2200,
-                            preload: []
-                        }, 
-                        demo1: {mode:'2d', duration: 2200,
-                            preload: []
-                        },
-                        slinkygoogle: {mode:'2d', duration: 1050,
-                            preload: []
-                        }
-                     }
-            select = select[app];
-            context('app', 'fps');
-            this.canvas = createCanvas(select.mode);
-            this.ctx = canvas.context;
-            console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
-            // Get the Streaming class
-            this.stream = new Streaming(select.duration);
-            // prepare stream and exploit access to context, addons, data and GUI
-            // timeline context with Streaming
-            ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
-            // user setting
-            var script = document.createElement('script');
-            script.src = "user/"+app+"/app.js";// THREE scene and stream bindings//
-            script.onload = function () {
-                // setup binding data for Streaming for the canvas
-                canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');     
-            }
-            document.body.appendChild(script); //or something of the likes
-        }
+        app.codesetting = 'game1'
     </script>
-    <script type="text/javascript">
-        // user code/setting
-        app.codesetting = 'slinkygoogle'
-        window.launch(app.codesetting)
-    </script>
-    <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.window.app.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.buffer.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.bar.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.comment.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.segment.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.action.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.sound.js"></script>    
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.dialog.js"></script>
-    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.charts.js"></script>
 </markdown-html>

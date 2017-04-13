@@ -60,7 +60,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         // DATA
         // make a stream for buffing
         app.codeLoc = 'user/' + app.codesetting
-        app.fileLocAssets = app._fileLocal + app.codeLoc + '/assets/'
+        app.fileLocAssets = app.vscode._fileLocal + app.codeLoc + '/assets/'
         createThumbControls()
         createGfxsAndBind('timeline')
         this.createParticles()

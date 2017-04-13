@@ -23,6 +23,7 @@
     <script type="text/javascript" src="lib/math.addon.cache.js"></script>
 
     <script type="text/javascript" src="lib/window.app.js"></script>
+    <script type="text/javascript" src="lib/window.app.vscode.js"></script>
     <script type="text/javascript" src="lib/window.info.js"></script>
 
     <script type="text/javascript" src="lib/Streaming.js"></script>
@@ -72,7 +73,7 @@
     </script>
     <script type="text/javascript">
         // user code/setting
-        app.codesetting = 'slinkygoogle'
+        app.codesetting = app.vscode.codesetting || 'game1'
         window.launch(app.codesetting)
     </script>
     <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
