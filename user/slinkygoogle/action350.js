@@ -45,6 +45,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
 
         var clearSwallow = function () {
             ctx.timeline.bindings.ids._bi801[820].value = ctx.timeline.bindings.ids._bi801.node.value = 0.05
+            ctx.timeline.bindings.ids._bi806[820].value = ctx.timeline.bindings.ids._bi806.node.value = 0
             buffer.zeroOut('timeline', 350, ctx.timeline.length, [canvas.app.swallow, canvas.app.y], ['value'])
             return 0.05
         }
