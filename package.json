@@ -15,10 +15,7 @@
     "three": "^0.82.1"
   },
   "devDependencies": {
-    "eslint": "^3.8.1",
-    "eslint-config-standard": "^6.2.0",
-    "eslint-plugin-promise": "^3.3.0",
-    "eslint-plugin-standard": "2.0.1",
-    "node-simplehttpserver": "^0.2.7"
+    "node-simplehttpserver": "^0.2.7",
+    "standard": "10.0.2"
   }
 }

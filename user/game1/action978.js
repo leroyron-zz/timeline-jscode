@@ -403,7 +403,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             } else {
                 active = e
             }
-            
+
             pointerX = active.pageX
             pointerY = active.pageY
 
@@ -415,7 +415,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
 
             if (e.type == 'mousedown' || e.type == 'touchstart') app.pointers.inUse = true
             if (e.type == 'mouseup' || e.type == 'touchend') app.pointers.inUse = false
-            
+
             if (use) {
                 app.pointers.multi = false
                 if (active.length == 0) {
@@ -431,31 +431,19 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             e.preventDefault(); if (!app.pointers.enabled) return
             if (!e.changedTouches) {
                 touch(false, app.pointers, 0, e, this, function (pointer) {
-
-
-
                     let x = pointer.normal.x
                     let y = pointer.normal.y
                     joy(pointer, leftJoy, x, y)
                     joy(pointer, rightJoy, x, y)
-
-
-
-                }) 
+                })
             } else {
                 for (let ts = 0, dlen = e.changedTouches.length; ts < dlen; ts++) {
                     let id = e.changedTouches[ts].identifier
                     touch(true, app.pointers, id, e, this, function (pointer) {
-
-
-
                         let x = pointer.normal.x
                         let y = pointer.normal.y
                         joy(pointer, leftJoy, x, y)
                         joy(pointer, rightJoy, x, y)
-
-
-
                     })
                 }
             }
@@ -504,16 +492,10 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 if (!e.changedTouches) {
                     // mouse freeform
                     touch(false, app.pointers, 0, e, this, function (pointer) {
-
-
-
                         let x = pointer.normal.x
                         let y = pointer.normal.y
                         camera.orbital.reticle.position.fromArray([x, y, 0])
                         camera.orbital.reticle.tee.persision(x, y)
-
-
-
                     }, true)
                 } else {
                     // touch freeform ??
@@ -521,28 +503,20 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                         let id = e.changedTouches[tm]
                         touch(true, app.pointers, id, e, this, function (pointer) {
 
-                            
-
-
                         })
                     }
                 }
-                return
 
                 //
             } else if (!e.changedTouches) {
                 touch(false, app.pointers, 0, e, this, function (pointer) {
-
                     moveKnob(pointer)
-
                 }, true)
             } else {
                 for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
                     let id = e.changedTouches[tm].identifier
                     touch(true, app.pointers, id, e, this, function (pointer) {
-
                         moveKnob(pointer)
-
                     }, true)
                 }
             }
@@ -555,13 +529,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             if (!e.changedTouches) {
                 app.pointers.inUse = false
                 touch(false, app.pointers, 0, e, this, function (pointer) {
-
-
-
                     console.log(pointer.area)
-
-
-
                 })
                 delete app.pointers[0]
             } else {
@@ -569,13 +537,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                     if (!touchExists(e.targetTouches, e.changedTouches[te].identifier)) {
                         let id = e.changedTouches[te].identifier
                         touch(true, app.pointers, id, e, this, function (pointer) {
-
-
-
                             console.log(pointer.area)
-
-
-
                         })
                         delete app.pointers[id]
                     }

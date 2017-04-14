@@ -11,7 +11,7 @@ Install dependencies
 Install Githooks
 ----------------
 
-    ./bin/install_githooks.sh
+    .\bin\install_githooks.sh
 
 Sample
 ---
