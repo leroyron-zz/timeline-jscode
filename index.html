@@ -41,14 +41,14 @@
     <script type="text/javascript">
         // user code/setting
         app.codesetting = app.vscode.codesetting || 'slinkygoogle'
-        var select = {
-                    game1: {mode:'3d', duration: 2200,
+        var select = app.vscode.select || {
+                    "game1": {mode: "3d", duration: 2200,
                         preload: []
                     }, 
-                    demo1: {mode:'2d', duration: 2200,
+                    "demo1": {mode: "2d", duration: 2200,
                         preload: []
                     },
-                    slinkygoogle: {mode:'2d', duration: 1050,
+                    "slinkygoogle": {mode: "2d", duration: 1050,
                         preload: []
                     }
                     }
