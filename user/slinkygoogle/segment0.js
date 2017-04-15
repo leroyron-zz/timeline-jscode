@@ -84,7 +84,7 @@ var Authority = new function (camera, timeframe, buffer, binding, app) {
             ]
         ],
     false)
-    buffer.valIn('timeline', [app.spring.coil], ['value'], 13.24, 300, 1044)
+    buffer.valIn('timeline', [app.spring.coil], ['value'], app.spring.coil.elem.value, 300, 1044)
     buffer.eval('timeline',
         [
             [

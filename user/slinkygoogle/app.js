@@ -2,12 +2,16 @@ this.canvas.app = new function (app, canvas, ctx) {
     // Public
     this.width = 680
     this.height = 225
+    this.aspect = Math.aspectRatio(this.height, this.width)
     this.resolution = function (app) {
         // Screen resize adjustments
-        canvas.node.width = this.width = 680
-        canvas.node.height = this.height = 225
+        canvas.node.width = this.width = app.width
+        canvas.node.height = this.height = this.aspect * this.width
         canvas.node.style.width = canvas.node.width + 'px'
         canvas.node.style.height = canvas.node.height + 'px'
+
+        this.resX = 680 / this.width
+        this.resY = 225 / this.height
     }
     this.resolution(app)
 
@@ -132,7 +136,8 @@ this.canvas.app = new function (app, canvas, ctx) {
         // console.clear();
         this.globalCompositeOperation = 'destination-over'
         this.save()
-        this.clearRect(0, 0, app.width, app.height)
+        this.clearRect(0, 0, canvas.app.width, canvas.app.height)
+        this.scale(canvas.app.width / 680, (canvas.app.height / 225))
         this.scale(1, persp)
         this.lineWidth = lineWidth
         spring.val = 0
@@ -228,7 +233,8 @@ this.canvas.app = new function (app, canvas, ctx) {
 
             this.stroke()
         }
-        this.restore()
+
+        this.scale(1, 1 / persp)
         for (let id = 0; id < imgs.length; id++) {
             if (imgs[id].wSrc && imgs[id].hSrc) { ctx.drawImage(imgs[id], (imgs[id].wSrc * imgs[id].sprite), imgs[id].yPos, imgs[id].wSrc, imgs[id].hSrc, imgs[id].xDes, imgs[id].yDes, imgs[id].wDes, imgs[id].hDes) }
         }
@@ -237,6 +243,8 @@ this.canvas.app = new function (app, canvas, ctx) {
             ctx.drawImage(imgs[ii], imgs[ii].xPos, imgs[ii].yPos)
             this.globalAlpha = 1
         }
+        this.scale(680 / canvas.app.width, 225 / canvas.app.height)
+        this.restore()
 
         start = undefined
     }
@@ -268,7 +276,7 @@ this.canvas.app = new function (app, canvas, ctx) {
 
             ['TMinus: ', 'tminus', 'range', '0', '0', ctx.timeline.addon.timeframe.duration, '1', 'canvas.app.spring', 'tminus', canvas.app.spring],
 
-            ['Coil: ', 'coil', 'range', '17.69', '0', '1', '0.01', 'canvas.app.spring', 'coil', canvas.app.spring],
+            ['Coil: ', 'coil', 'range', spring.coil + (2 + 2.45), '0', '1', '0.01', 'canvas.app.spring', 'coil', canvas.app.spring],
 
             ['X: ', 'x', 'range', '248', '-100', '680', '1', 'canvas.app', 'x', canvas.app],
 

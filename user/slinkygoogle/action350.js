@@ -132,6 +132,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             this.globalCompositeOperation = 'destination-over'
             this.save()
             this.clearRect(0, 0, app.width, app.height)
+            this.scale(canvas.app.width / 680, (canvas.app.height / 225))
             this.scale(1, persp)
             this.lineWidth = lineWidth
             spring.val = 0
@@ -252,7 +253,8 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
 
                 this.stroke()
             }
-            this.restore()
+
+            this.scale(1, 1 / persp)
             for (let id = 0; id < canvas.app.drop.items.length; id++) {
                 let item = canvas.app.drop.items[id]
                 if (item) {
@@ -285,6 +287,8 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 ctx.drawImage(imgs[ii], imgs[ii].xPos, imgs[ii].yPos)
                 this.globalAlpha = 1
             }
+            this.scale(680 / canvas.app.width, 225 / canvas.app.height)
+            this.restore()
         }
 
         // To-Do
@@ -292,6 +296,8 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         //
 
         var setPosDistance = function (pX, pY) {
+            pX *= canvas.app.resX
+            pY *= canvas.app.resY
             mX = pX - spring.r
             mY = pY * 1.5
             ggeLetter[0].dis = Math.distance2(ggeLetter[0], {x: pX, y: pY})

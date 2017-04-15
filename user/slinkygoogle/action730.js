@@ -3,6 +3,7 @@ var Authority = new function (app, timeline, buffer, binding, canvas) {
     var dosentMatter = this.actionID
 
     var stage = 1
+    var generate = 10
 
     var dropImage = function (sprite, x, y) {
         this.img = new Image()
@@ -36,7 +37,7 @@ var Authority = new function (app, timeline, buffer, binding, canvas) {
         }
 
         if (stage < 6) {
-            let gen = 5 * stage
+            let gen = generate * stage
 
             for (let gi = 0; gi < gen / 2; gi++) { // Half and half of time line generate leap values with break/space inbetween
                 let randNum = Math.randomFromTo(360, (360 + (86.25 * 2)))
