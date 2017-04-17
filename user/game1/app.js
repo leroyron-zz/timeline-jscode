@@ -61,6 +61,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         // make a stream for buffing
         app.codeLoc = 'user/' + app.codesetting
         app.fileLocAssets = app.vscode._fileLocal + app.codeLoc + '/assets/'
+        init()
         createThumbControls()
         createGfxsAndBind('timeline')
         this.createParticles()
@@ -78,8 +79,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         ctx.controller.joy.right.pad.material.uniforms.alpha.value =
         ctx.controller.joy.right.knob.material.uniforms.alpha.value = 0
     }
-
-    init()
 
     function setupCameraPropertiesAndBindings (stream) {
         var craft = ctx.scene.nodes.craft1
@@ -276,7 +275,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                     }
                 )
 
-                // particle blasts
+                // particle blasts// slow in IE
+                /*
                 ctx.scene.paperPieceSprites = storeTextures(['sprites/paperPiece1.png', 'sprites/paperPiece2.png', 'sprites/paperPiece3.png'])
                 for (let p = 0; p < 200; p++) {
                     let randSprites = Math.floor(random3())
@@ -287,6 +287,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                     900 + p
                     )
                 }
+                */
             }
             )
 

@@ -15,9 +15,9 @@ this.canvas.app = new function (app, canvas, ctx) {
     var earth = new Image()
 
     function init () {
-        sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png'
-        moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png'
-        earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png'
+        sun.src = app.fileLocAssets + 'Canvas_sun.png'
+        moon.src = app.fileLocAssets + 'Canvas_moon.png'
+        earth.src = app.fileLocAssets + 'Canvas_earth.png'
     }
 
     ctx.timeline.addon.timeframe.invoke = function () {
@@ -68,11 +68,10 @@ this.canvas.app = new function (app, canvas, ctx) {
     this.SetupContextBindsForStreamAndBuildAfterLoad = function () {
         app.codeLoc = 'user/' + app.codesetting
         app.fileLocAssets = app.vscode._fileLocal + app.codeLoc + '/assets/'
+        init()
         createGFXBindNodesToStream('timeline')
         buildStream()
     }
-
-    init()
 
     function createGFXBindNodesToStream (stream) {
         console.log('Binding objects to stream - Starting')

@@ -10,9 +10,9 @@
         <!-- !VSCode command association goes here // don't remove/modify! -->
         <iframe src="index.html" />
     </body>
-    <script type="text/javascript" >
-        // game1, demo1, slinkygoogle
-        app.codesetting = 'slinkygoogle'
+    <script type="text/javascript">
+        // game1(challenge, ThreeJS), demo1, slinkygoogle (challenge buffers and leap values)
+        app.codesetting = 'game1'
         var select = {
                     "demo1": {mode: "2d", duration: 2200,
                         preload: []
@@ -21,9 +21,6 @@
                         preload: []
                     },
                     "slinkygoogle": {mode: "2d", duration: 1050,
-                        preload: []
-                    },
-                    "gameGoo": {mode: "2d", duration: 2200,
                         preload: []
                     }
                     }// !end // don't remove/modify!

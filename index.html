@@ -10,8 +10,14 @@
     </head>
     <body>
         <div id="app">
-            <div id="info"></div>
-            <br><div id="fps"></div>            
+            <div id="info">
+                <select name="select" id="select">
+                    <option value="game1">Game1 (Challenge THREE.Js Bindings and Interaction) </option>
+                    <option value="demo1">Demo1 (Challenge Template)</option>
+                    <option value="slinkygoogle">Slinky Google (Challenge Buffers and Leap)</option>
+                </select> 
+            </div>
+            <br><div id="fps"></div>   
         </div>
     </body>
     <script type="text/javascript" src="node_modules/three/build/three.js"></script>
@@ -21,6 +27,8 @@
     <script type="text/javascript" src="lib/math.addon.js"></script>
     <script type="text/javascript" src="lib/math.addon.type.js"></script>
     <script type="text/javascript" src="lib/math.addon.cache.js"></script>
+
+    <script type="text/javascript" src="lib/utils.js"></script>
 
     <script type="text/javascript" src="lib/window.app.js"></script>
     <script type="text/javascript" src="lib/window.app.vscode.js"></script>
@@ -40,7 +48,7 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
     <script type="text/javascript">
         // user code/setting
-        app.codesetting = app.vscode.codesetting || 'slinkygoogle'
+        app.codesetting = app.vscode.codesetting || Utils.userSelectDropDown(document.getElementById('select'));
         var select = app.vscode.select || {
                     "game1": {mode: "3d", duration: 2200,
                         preload: []

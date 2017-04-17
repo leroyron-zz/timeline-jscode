@@ -27,7 +27,8 @@ this.canvas.app = new function (app, canvas, ctx) {
         stretch: 0.25,
         sample: 1 / this.slinky.length,
         tminus: 0,
-        secms: 50
+        secms: 50,
+        c: 100 * (size + swallow)
     }
     var size = this.size = 0.7
     var swallow = this.swallow = 0.01
@@ -71,7 +72,7 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
     buildSlinky()
 
-    var imgs = this.imgs = [['items.png', 0, -88, 1, 89, 88], ['richard.jpg', 73, 11, 0], ['betty.jpg', 433, 44, 0], ['boy.jpg', 551, 80, 0], ['googletitle.jpg', 0, 0, 1]]
+    var imgs = this.imgs = [['items.png', 0, -88, 1, 89, 88], ['countdown.png', 230, 0, 1, 221, 198], ['richard.jpg', 41, 0, 1, undefined, undefined, 'grow.jpg'], ['betty.jpg', 405, 0, 1, undefined, undefined, 'gain.jpg'], ['boy.jpg', 535, 61, 1, undefined, undefined, 'speed.jpg'], ['googletitle.jpg', 0, 0, 1]]
     function init () {
         for (let ii = 0; ii < imgs.length; ii++) {
             let img = imgs[ii][0]
@@ -80,22 +81,27 @@ this.canvas.app = new function (app, canvas, ctx) {
             let w = imgs[ii][4]
             let h = imgs[ii][5]
             let alpha = imgs[ii][3]
-            imgs[ii] = new Image(w, h)
+            let sec = imgs[ii][6]
+            imgs[ii] = new Image()
             imgs[ii].xPos = x
             imgs[ii].yPos = y
+            imgs[ii].secImg = sec ? app.fileLocAssets + sec : false
             if (w && h) {
                 imgs[ii].wSrc = w
                 imgs[ii].hSrc = h
-                imgs[ii].xDes = x
+                imgs[ii].xDes = x + 1
                 imgs[ii].yDes = y
                 imgs[ii].wDes = w
                 imgs[ii].hDes = h
                 imgs[ii].sprite = 0
             }
             imgs[ii].alpha = alpha
+            imgs[ii].preAlpha = 1
             imgs[ii].onload = function () {
-                this.globalAlpha = imgs[ii].alpha
                 if (!this.wSrc && !this.hSrc) { ctx.drawImage(this, this.xPos, this.yPos) }
+                if (!this.secImg) return
+                this.sec = new Image()
+                this.sec.src = this.secImg
             }
             imgs[ii].src = app.fileLocAssets + img
         }
@@ -109,35 +115,39 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     ctx.timeline.addon.timeframe.invoke = function () {
-        canvas.app.calc(this.lapse, this.access)// before render
-        ctx.rendering(this._deltaTimeFrame)
+        ctx.calc(this.lapse, this.access)// before render
+        ctx.rendering(this.frame.duration)
         ctx.compute()// after render
     }
 
-    this.calc = function (lapse, access) {
+    ctx.calc = function (lapse, access) {
         if (hold) {
-            if (access == 'read') { ctx.timeline.addon.buffer.injectDataVal(hold.stream, hold.node, hold.prop, hold.elem.value, lapse) } else { ctx.timeline.addon.buffer.injectDataVal(hold.stream, hold.node, hold.prop, (hold.elem.title - hold.elem.value), lapse) }
+            if (access == 'read') { this.timeline.addon.buffer.injectDataVal(hold.stream, hold.node, hold.prop, hold.elem.value, lapse) } else { this.timeline.addon.buffer.injectDataVal(hold.stream, hold.node, hold.prop, (hold.elem.title - hold.elem.value), lapse) }
             hold.elem.title = hold.elem.value
         }
-        persp = this.persp.value
-        x = this.x.value
-        y = this.y.value
-        size = this.size.value
-        swallow = this.swallow.value
-        spring.r = 50 * (size + swallow)
+
+        persp = canvas.app.persp.value || persp
+        x = canvas.app.x.value || x
+        y = canvas.app.y.value || y
+        size = canvas.app.size.value || size
+        swallow = canvas.app.swallow.value || swallow
         spring.c = 100 * (size + swallow)
-        lineWidth = this.lineWidth.value
-        freq = this.freq.value
-        split = this.split.value
+        lineWidth = canvas.app.lineWidth.value || lineWidth
+        freq = canvas.app.freq.value || freq
+        split = canvas.app.split.value || split
     }
 
-    var start = 1
+    var first = 1
     ctx.rendering = function (timeFrame) {
-        // console.clear();
         this.globalCompositeOperation = 'destination-over'
         this.save()
         this.clearRect(0, 0, canvas.app.width, canvas.app.height)
         this.scale(canvas.app.width / 680, (canvas.app.height / 225))
+        if (!timeFrame || timeFrame < 60) {
+            this.globalAlpha = 1 - (timeFrame / 60)
+            this.drawImage(imgs[1], (imgs[1].wSrc * imgs[1].sprite) + 1, imgs[1].yPos, imgs[1].wSrc, imgs[1].hSrc, imgs[1].xDes, imgs[1].yDes, imgs[1].wDes, imgs[1].hDes)
+            this.globalAlpha = 1
+        }
         this.scale(1, persp)
         this.lineWidth = lineWidth
         spring.val = 0
@@ -165,7 +175,7 @@ this.canvas.app = new function (app, canvas, ctx) {
 
             if (!slinky[ci]) break
 
-            let flux = start || slinky[ci].flux
+            let flux = first || slinky[ci].flux
             let xX = coilX + x
             let yY = coilY + y
 
@@ -236,17 +246,16 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         this.scale(1, 1 / persp)
         for (let id = 0; id < imgs.length; id++) {
-            if (imgs[id].wSrc && imgs[id].hSrc) { ctx.drawImage(imgs[id], (imgs[id].wSrc * imgs[id].sprite), imgs[id].yPos, imgs[id].wSrc, imgs[id].hSrc, imgs[id].xDes, imgs[id].yDes, imgs[id].wDes, imgs[id].hDes) }
-        }
-        for (let ii = 1; ii < imgs.length; ii++) {
-            this.globalAlpha = imgs[ii].alpha
-            ctx.drawImage(imgs[ii], imgs[ii].xPos, imgs[ii].yPos)
-            this.globalAlpha = 1
+            if (!imgs[id].wSrc && !imgs[id].hSrc) {
+                this.globalAlpha = imgs[id].alpha
+                this.drawImage(imgs[id], imgs[id].xPos, imgs[id].yPos)
+                this.globalAlpha = 1
+            }
         }
         this.scale(680 / canvas.app.width, 225 / canvas.app.height)
         this.restore()
 
-        start = undefined
+        first = undefined
     }
 
     ctx.compute = function () {

@@ -17,25 +17,26 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         var mX = 0
         var mY = 0
 
+        var currentFrame = this.actionID
+
         var dropping = 0
 
         var start = false
 
-        canvas.app.calc = function (lapse, access) {
-            persp = this.persp.value
-            x = mX + this.x.value
-            y = mY + this.y.value
-            size = this.size.value
-            size = this.size.value = size < 0.7 ? clearSize() : size
-            swallow = this.swallow.value
+        ctx.calc = function (lapse, access) {
+            persp = canvas.app.persp.value
+            x = mX + canvas.app.x.value
+            y = mY + canvas.app.y.value
+            size = canvas.app.size.value
+            size = canvas.app.size.value = size < 0.7 ? clearSize() : size
+            swallow = canvas.app.swallow.value
             swallow = swallow < -0.5 || swallow > 0.5 ? clearSwallow() : swallow
             spring.r = 50 * (size + swallow)
             spring.c = 100 * (size + swallow)
-            // lineWidth = 5
-            freq = this.freq.value
-            split = this.split.value
-            dropping = this.drop.value
-            ctx.timeline.bindings.ids._bi800[820].value = ctx.timeline.bindings.ids._bi800.node.value = 0
+            freq = canvas.app.freq.value
+            split = canvas.app.split.value
+            dropping = canvas.app.drop.value
+            this.timeline.bindings.ids._bi800[820].value = this.timeline.bindings.ids._bi800.node.value = 0
         }
 
         var clearSize = function () {
@@ -59,18 +60,26 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         var modSpeed = 1
 
         var addCoil = function () {
-            modCoil--
+            dimImages()
+            modCoil -= modCoil > 0 ? 1 : 0
         }
         var removeCoil = function () {
-            modCoil++
+            dimImages()
+            modCoil += modCoil < slinky.length ? 3 : 0
         }
-        var addSpeed = function () {
-            modSpeed = modSpeed < 1 ? modSpeed + 0.1 : modSpeed
+        var speedUp = function () {
+            dimImages()
+            modSpeed = modSpeed < 1 ? modSpeed + 0.2 : 1
         }
-        var removeSpeed = function () {
-            modSpeed = modSpeed > 0.4 ? modSpeed - 0.1 : modSpeed
+        var slowDown = function () {
+            dimImages()
+            modSpeed = modSpeed > 0.2 ? modSpeed - 0.01 : 0.1
+        }
+        var dimImages = function () {
+            imgs[2].preAlpha = imgs[3].preAlpha = imgs[4].preAlpha = 1 - (((modSplit - 1) / 26) / 7)
         }
         var grow = function () {
+            dimImages()
             if (modSize <= 0) {
                 modSize = 0
                 modFreq = 0
@@ -79,7 +88,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             buffer.eval('timeline',
                 [
                     [
-                    [canvas.app.size], [[['value', 0.5], ['value', -0.25], ['value', -0.1]]], [['easeInOutQuad', 30]], 10// give enough time so the leap won't zero out
+                    [canvas.app.size], [[['value', 0.5], ['value', -0.25], ['value', -0.15]]], [['easeInOutQuad', 30]], 10// give enough time so the leap won't zero out
                     ]
                 ],
             true, undefined, undefined, function () {
@@ -97,13 +106,16 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
         }
         var shrink = {
             func: function () {
+                dimImages()
                 modSize--
+                slowDown()
             },
             check: function () {
-
+                // dimImages()
             }
         }
         var eat = function () {
+            slowDown()
             buffer.eval('timeline',
                 [
                     [
@@ -127,12 +139,35 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 ctx.timeline.bindings.ids._bi806[820].value = ctx.timeline.bindings.ids._bi806.node.value = 0
             }, true, true)
         }
+        var swapImage = function (img) {
+            img.img = img.sec
+            img.sec = null
+            delete img.sec
+        }
+
         var nearBlue, nearYellow, nearRed
+        var nearRange = 10 * canvas.app.resX
         ctx.rendering = function (timeFrame) {
             this.globalCompositeOperation = 'destination-over'
             this.save()
             this.clearRect(0, 0, app.width, app.height)
             this.scale(canvas.app.width / 680, (canvas.app.height / 225))
+            if (timeFrame > currentFrame && imgs[1].sprite < 4) {
+                let actionFrame = timeFrame - currentFrame
+                imgs[1].sprite = (actionFrame / 110 << 0) + 1
+                this.drawImage(imgs[1], (imgs[1].wSrc * imgs[1].sprite) + 1, imgs[1].yPos, imgs[1].wSrc, imgs[1].hSrc, imgs[1].xDes, imgs[1].yDes, imgs[1].wDes, imgs[1].hDes)
+                if (imgs[1].sprite == 0) {
+
+                } else if (imgs[1].sprite == 1) {
+                    imgs[2].alpha = imgs[2].alpha > 0.1 && imgs[2].sec ? imgs[2].alpha - 0.1 : imgs[2].sec ? swapImage(imgs[2]) : imgs[2].alpha + 0.1
+                } else if (imgs[1].sprite == 2) {
+                    imgs[3].alpha = imgs[3].alpha > 0.1 && imgs[3].sec ? imgs[3].alpha - 0.1 : imgs[3].sec ? swapImage(imgs[3]) : imgs[3].alpha + 0.1
+                } else if (imgs[1].sprite == 3) {
+                    imgs[4].alpha = imgs[4].alpha > 0.1 && imgs[4].sec ? imgs[4].alpha - 0.1 : imgs[4].sec ? swapImage(imgs[4]) : imgs[4].alpha + 0.1
+                    imgs[2].preAlpha = imgs[2].preAlpha > 0.1 ? imgs[2].preAlpha - 0.1 : 0
+                    imgs[3].preAlpha = imgs[4].preAlpha = imgs[2].preAlpha
+                }
+            }
             this.scale(1, persp)
             this.lineWidth = lineWidth
             spring.val = 0
@@ -147,9 +182,13 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             modFreq += comp > 10 ? 0.25 : -0.50
             modSplit += comp > 10 ? 0.50 : -0.50
 
-            nearBlue > 10 && modSplit % 25 == 1 ? grow() : nearBlue < 10 && modSplit % 25 == 1 ? shrink.func() : shrink.check()
+            nearBlue > nearRange && modSplit % 25 == 1 ? grow() : nearBlue < nearRange && modSplit % 25 == 1 ? shrink.func() : shrink.check()
 
-            if (nearYellow > 10) { nearYellow > 10 && modSplit % 25 == 1 ? addCoil() : nearYellow < 10 && modSplit % 25 == 1 ? removeCoil() : nearYellow } else if (nearRed > 10) { nearRed > 10 && modSplit % 25 == 1 ? addSpeed() : nearRed < 10 && modSplit % 25 == 1 ? removeSpeed() : nearRed }
+            if (nearYellow > nearRange && modSplit % 25 == 1) {
+                addCoil()
+            } else if (nearRed > nearRange && modSplit % 25 == 1) {
+                speedUp()
+            }
 
             modSplit = modSplit < 0 ? 0 : modSplit > 200 ? 180 : modSplit
             modFreq = modFreq < 0 ? 0 : modFreq > 100 ? 90 : modFreq
@@ -160,14 +199,16 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 let g = slinky[ci].rgb[1]
                 let b = slinky[ci].rgb[2]
 
-                b = b * nearBlue << 0
-                imgs[1].alpha = nearBlue - 1
+                if (imgs[1].sprite > 3) {
+                    b = b * nearBlue << 0
+                    imgs[2].alpha = nearBlue - 1 < 1 ? nearBlue - 1 : 1
 
-                g = g * nearYellow << 0
-                imgs[2].alpha = nearYellow - 1
+                    g = g * nearYellow << 0
+                    imgs[3].alpha = nearYellow - 1 < 1 ? nearYellow - 1 : 1
 
-                r = r * nearRed << 0
-                imgs[3].alpha = nearRed - 1
+                    r = r * nearRed << 0
+                    imgs[4].alpha = nearRed - 1 < 1 ? nearRed - 1 : 1
+                }
 
                 spring.val +=
                 spring.coil.value >= spring.mid
@@ -189,7 +230,7 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
 
                 coilY = ci == 0 ? spring.val - 5 : spring.val
 
-                let flux = slinky[ci].flux
+                let flux = slinky[ci].flux * modSpeed
                 let xX = coilX + x
                 let yY = coilY + y
 
@@ -258,10 +299,11 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             for (let id = 0; id < canvas.app.drop.items.length; id++) {
                 let item = canvas.app.drop.items[id]
                 if (item) {
-                    item.dis = Math.distance2({x: (item.x + 40), y: (item.y + 40)}, {x: mX, y: mY / 1.5})
+                    item.dis = Math.distance2({x: (item.x + 40), y: (item.y + 40)}, {x: slinky[0].x + (slinky[0].c / 2), y: (slinky[0].y / 1.5) + (slinky[0].c / 2)})
                     if (item.y > 225) {
                         canvas.app.drop.items[id] = undefined
                         removeCoil()
+                        continue
                     }
                     if (!item.ate) {
                         if (item.dis < spring.c) {
@@ -270,21 +312,28 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                         }
                     } else {
                         this.globalAlpha = item.alpha -= 0.1
-                        Math.lerpProp(item, 'x', mX, 1 - item.alpha)
+                        Math.lerpProp(item, 'x', slinky[0].x + (slinky[0].c / 2), 1 - item.alpha)
                         if (item.alpha < 0.1) {
                             canvas.app.drop.items[id] = undefined
                         }
                     }
 
-                    item.y += dropping
-                    ctx.drawImage(item.img, (item.wSrc * item.sprite), 0, item.wSrc, item.hSrc, item.x, item.y, item.wSrc, item.hSrc)
+                    item.y += (dropping * item.drop)
+                    this.translate(item.x, item.y)
+                    this.rotate(item.y * Math.PI / 180)
+                    this.translate(-44, -44)
+                    this.drawImage(item.img, (item.wSrc * item.sprite), 0, item.wSrc, item.hSrc, 0, 0, item.wSrc, item.hSrc)
+                    this.translate(44, 44)
+                    this.rotate(-item.y * Math.PI / 180)
+                    this.translate(-(item.x), -(item.y))
                     this.globalAlpha = 1
                 }
-                    // ctx.drawImage(img, (img.wSrc * img.sprite), img.yPos, img.wSrc, img.hSrc, img.xPos, img.yPos, img.wSrc, img.hSrc)
             }
-            for (let ii = 1; ii < imgs.length; ii++) {
-                this.globalAlpha = imgs[ii].alpha
-                ctx.drawImage(imgs[ii], imgs[ii].xPos, imgs[ii].yPos)
+
+            for (let ii = 2; ii < imgs.length; ii++) {
+                this.globalAlpha = imgs[ii].alpha * imgs[ii].preAlpha
+                let img = imgs[ii].img || imgs[ii]
+                this.drawImage(img, imgs[ii].xPos, imgs[ii].yPos)
                 this.globalAlpha = 1
             }
             this.scale(680 / canvas.app.width, 225 / canvas.app.height)
@@ -309,9 +358,6 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
             e.preventDefault(); if (!app.pointers.enabled) return
             if (!e.changedTouches) {
                 touch(false, app.pointers, 0, e, this, function (pointer) {
-                    // let x = pointer.normal.x
-                    // let y = pointer.normal.y
-
                     setPosDistance(pointer.mX, pointer.mY)
                     if (!start) {
                         canvas.app.x.value = canvas.app.x.elem.value = canvas.app.y.value = canvas.app.y.elem.value = 0
@@ -322,8 +368,6 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 for (let ts = 0, dlen = e.changedTouches.length; ts < dlen; ts++) {
                     let id = e.changedTouches[ts].identifier
                     touch(true, app.pointers, id, e, this, function (pointer) {
-                        // let x = pointer.normal.x
-                        // let y = pointer.normal.y
                         setPosDistance(pointer.mX, pointer.mY)
                         if (!start) {
                             canvas.app.x.value = canvas.app.x.elem.value = canvas.app.y.value = canvas.app.y.elem.value = 0
@@ -342,53 +386,26 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
                 if (!e.changedTouches) {
                     // mouse freeform
                     touch(false, app.pointers, 0, e, this, function (pointer) {
-                        // let x = pointer.normal.x
-                        // let y = pointer.normal.y
                         setPosDistance(pointer.mX, pointer.mY)
                         if (!start) {
                             canvas.app.x.value = canvas.app.x.elem.value = canvas.app.y.value = canvas.app.y.elem.value = 0
                             start = true
                         }
                     }, true)
-                } else {
-                    // touch freeform ??
-                    for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
-                        let id = e.changedTouches[tm]
-                        touch(true, app.pointers, id, e, this, function (pointer) {
-
-                            // let x = pointer.normal.x
-                            // let y = pointer.normal.y
-
-                        })
-                    }
                 }
-
                 //
             } else if (!e.changedTouches) {
                 touch(false, app.pointers, 0, e, this, function (pointer) {
-                    // let x = pointer.normal.x
-                    // let y = pointer.normal.y
                     setPosDistance(pointer.mX, pointer.mY)
-                    if (!start) {
-                        canvas.app.x.value = canvas.app.x.elem.value = canvas.app.y.value = canvas.app.y.elem.value = 0
-                        start = true
-                    }
                 }, true)
             } else {
                 for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
                     let id = e.changedTouches[tm].identifier
                     touch(true, app.pointers, id, e, this, function (pointer) {
-                        // let x = pointer.normal.x
-                        // let y = pointer.normal.y
                         setPosDistance(pointer.mX, pointer.mY)
-                        if (!start) {
-                            canvas.app.x.value = canvas.app.x.elem.value = canvas.app.y.value = canvas.app.y.elem.value = 0
-                            start = true
-                        }
                     }, true)
                 }
             }
-            // playCode(craft)
         }
 
         canvas.node.onmouseup = canvas.node.ontouchend = function (e) {
@@ -396,21 +413,13 @@ var Authority = new function (app, THREE, camera, canvas, ctx) {
 
             if (!e.changedTouches) {
                 app.pointers.inUse = false
-                touch(false, app.pointers, 0, e, this, function (pointer) {
-                    console.log(pointer.area)
-                    // let x = pointer.normal.x
-                    // let y = pointer.normal.y
-                })
+
                 delete app.pointers[0]
             } else {
                 for (let te = 0, dlen = e.changedTouches.length; te < dlen; te++) {
                     if (!touchExists(e.targetTouches, e.changedTouches[te].identifier)) {
                         let id = e.changedTouches[te].identifier
-                        touch(true, app.pointers, id, e, this, function (pointer) {
-                            console.log(pointer.area)
-                            // let x = pointer.normal.x
-                            // let y = pointer.normal.y
-                        })
+
                         delete app.pointers[id]
                     }
                 }

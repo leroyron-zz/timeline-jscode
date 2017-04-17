@@ -14,29 +14,35 @@ var Authority = new function (app, timeline, buffer, binding, canvas) {
         this.sprite = sprite
         this.alpha = 1
         this.ate = false
+        this.drop =
+        sprite == 0 ? 1
+        : sprite == 1 ? 0.95
+        : sprite == 2 ? 0.9
+        : sprite == 3 ? 0.9
+        : sprite == 4 ? 0.85
+        : sprite == 5 ? 0.6
+        : sprite == 6 ? 1
+        : sprite == 7 ? 0.5
+        : sprite == 8 ? 0.4
+        : sprite == 9 ? 0.3
+        : 0.7
         this.img.onload = function () {
-            // ctx.drawImage(img, (img.wSrc * img.sprite), img.yPos, img.wSrc, img.hSrc, img.xPos, img.yPos, img.wSrc, img.hSrc)
         }
         this.img.src = app.fileLocAssets + 'items.png'
-        // return this.img
     }
 
-    canvas.app.drop.items = Array(120)
+    canvas.app.drop.items = []
     this.main = function () {
         if (stage == 1) {
             buffer.valIn('timeline', [canvas.app.drop], ['value'], 1, 350, 1044, 1, dosentMatter,
             function () {
                 canvas.app.drop.next = this.next = this.next || 0
-                canvas.app.drop.items[this.next] = new dropImage(Math.randomFromTo(0, 11), Math.randomFromTo(100, canvas.node.width - 100), -88)
+                canvas.app.drop.items[this.next] = new dropImage(Math.randomFromTo(0, 11), Math.randomFromTo(0, 680 - 50), -88)
                 this.next++
             }, false, false, 1)
-            // buffer.assignLeap('timeline', canvas.app.drop, ['value'], dosentMatter
-            // function () {
-
-            // }, false, false)
         }
 
-        if (stage < 6) {
+        if (stage < 10) {
             let gen = generate * stage
 
             for (let gi = 0; gi < gen / 2; gi++) { // Half and half of time line generate leap values with break/space inbetween
