@@ -34,7 +34,7 @@ window.Authority = new function (app, timeline, buffer, binding, canvas) {
     canvas.app.drop.items = []
     this.main = function () {
         if (stage == 1) {
-            buffer.valIn('timeline', [canvas.app.drop], ['value'], 1, 350, 1044, 1, dosentMatter,
+            buffer.valIn('timeline', [canvas.app.drop], ['value'], 1, 350, 1044, 1, false, dosentMatter,
             function () {
                 canvas.app.drop.next = this.next = this.next || 0
                 canvas.app.drop.items[this.next] = new DropImage(Math.randomFromTo(0, 11), Math.randomFromTo(0, 680 - 50), -88)
