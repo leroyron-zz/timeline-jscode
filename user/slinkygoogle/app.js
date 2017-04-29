@@ -20,6 +20,8 @@ this.canvas.app = new function (app, canvas, ctx) {
     var persp = this.persp = 1
     var x = this.x = 248
     var y = this.y = 76
+    var size = this.size = 0.7
+    var swallow = this.swallow = 0.01
     var spring = this.spring = {
         coil: this.slinky.length / 2,
         mid: this.slinky.length / 2,
@@ -30,8 +32,6 @@ this.canvas.app = new function (app, canvas, ctx) {
         secms: 50,
         c: 100 * (size + swallow)
     }
-    var size = this.size = 0.7
-    var swallow = this.swallow = 0.01
     var lineWidth = this.lineWidth = 5
     var freq = this.freq = 5
     var split = this.split = 19 // 37, 21
@@ -82,7 +82,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             let h = imgs[ii][5]
             let alpha = imgs[ii][3]
             let sec = imgs[ii][6]
-            imgs[ii] = new Image()
+            imgs[ii] = new window.Image()
             imgs[ii].xPos = x
             imgs[ii].yPos = y
             imgs[ii].secImg = sec ? app.fileLocAssets + sec : false
@@ -100,18 +100,33 @@ this.canvas.app = new function (app, canvas, ctx) {
             imgs[ii].onload = function () {
                 if (!this.wSrc && !this.hSrc) { ctx.drawImage(this, this.xPos, this.yPos) }
                 if (!this.secImg) return
-                this.sec = new Image()
+                this.sec = new window.Image()
                 this.sec.src = this.secImg
             }
             imgs[ii].src = app.fileLocAssets + img
         }
     }
 
-    var hold
+    var inject
     this.rangeINOUT = function (stream, elem, obj, prop) {
         obj[prop].value = parseFloat(elem.value)
-        hold = {stream: stream, node: obj[prop], prop: 'value', elem: elem}
+        inject = {stream: stream, nodes: [obj[prop]], props: ['value'], elem: elem}
         elem.title = elem.value
+    }
+
+    ctx.timeline.addon.timeframe.process = function () {
+        ctx.process(this.access, this._timeFrame, this.lapse)// before timeFrame process
+    }
+
+    ctx.process = function (access, timeFrame, lapse) {
+        if (inject) {
+            if (access == 'read') {
+                this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, inject.elem.value, timeFrame + lapse)
+            } else {
+                this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, (inject.elem.title - inject.elem.value), timeFrame + lapse)
+            }
+            inject.elem.title = inject.elem.value
+        }
     }
 
     ctx.timeline.addon.timeframe.invoke = function () {
@@ -121,11 +136,6 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     ctx.calc = function (lapse, access) {
-        if (hold) {
-            if (access == 'read') { this.timeline.addon.buffer.injectDataVal(hold.stream, hold.node, hold.prop, hold.elem.value, lapse) } else { this.timeline.addon.buffer.injectDataVal(hold.stream, hold.node, hold.prop, (hold.elem.title - hold.elem.value), lapse) }
-            hold.elem.title = hold.elem.value
-        }
-
         persp = canvas.app.persp.value || persp
         x = canvas.app.x.value || x
         y = canvas.app.y.value || y
@@ -317,7 +327,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                 input.title = props[ei][3]
                 input.type = props[ei][2]
                 input.onmouseup = input.ontouchend = function () {
-                    hold = undefined
+                    inject = undefined
                         // this.value = canvas.app[this.id].value
                 }
                 if (input.id == 'coil') {

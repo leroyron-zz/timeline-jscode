@@ -25,6 +25,14 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         ctx.scene.add(directionalLight)
     }
 
+    ctx.timeline.addon.timeframe.process = function () {
+        ctx.process(this.access, this._timeFrame, this.lapse)// before timeFrame process
+    }
+
+    ctx.process = function (access, timeFrame, lapse) {
+
+    }
+
     ctx.timeline.addon.timeframe.invoke = function () {
         ctx.calc()// before render
         ctx.rendering()

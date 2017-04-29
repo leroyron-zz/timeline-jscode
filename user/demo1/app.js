@@ -10,14 +10,22 @@ this.canvas.app = new function (app, canvas, ctx) {
     this.resolution(app)
 
     // Private
-    var sun = new Image()
-    var moon = new Image()
-    var earth = new Image()
+    var sun = new window.Image()
+    var moon = new window.Image()
+    var earth = new window.Image()
 
     function init () {
         sun.src = app.fileLocAssets + 'Canvas_sun.png'
         moon.src = app.fileLocAssets + 'Canvas_moon.png'
         earth.src = app.fileLocAssets + 'Canvas_earth.png'
+    }
+
+    ctx.timeline.addon.timeframe.process = function () {
+        ctx.process(this.access, this._timeFrame, this.lapse)// before timeFrame process
+    }
+
+    ctx.process = function (access, timeFrame, lapse) {
+
     }
 
     ctx.timeline.addon.timeframe.invoke = function () {
