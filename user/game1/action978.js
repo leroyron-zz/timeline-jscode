@@ -1,4 +1,4 @@
-var Authority = new function (app, THREE, camera, canvas, ctx) {
+window.Authority = new function (app, THREE, camera, canvas, ctx) {
     this.actionID = 978
     var duration = 1000 // move to segment Authority duration// have access to current segment authorty in action
                         // segment = segment.Authority

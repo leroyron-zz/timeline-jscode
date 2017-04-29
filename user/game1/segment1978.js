@@ -1,4 +1,4 @@
-var Authority = new function (camera, timeframe, buffer, binding, nodes) {
+window.Authority = new function (camera, timeframe, buffer, binding, nodes) {
     this.segmentID = 1978
 
     this.main = function () {

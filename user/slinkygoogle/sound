@@ -1,1 +1,1 @@
-var Authority = {"360":{}}
+window.Authority = {"360":{}}

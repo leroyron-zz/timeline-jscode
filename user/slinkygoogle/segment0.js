@@ -1,4 +1,4 @@
-var Authority = new function (camera, timeframe, buffer, binding, app) {
+window.Authority = new function (camera, timeframe, buffer, binding, app) {
     this.segmentID = 0
 
     buffer.eval('timeline',

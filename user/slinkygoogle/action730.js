@@ -1,12 +1,12 @@
-var Authority = new function (app, timeline, buffer, binding, canvas) {
+window.Authority = new function (app, timeline, buffer, binding, canvas) {
     this.actionID = 730
     var dosentMatter = this.actionID
 
     var stage = 1
     var generate = 10
 
-    var dropImage = function (sprite, x, y) {
-        this.img = new Image()
+    var DropImage = function (sprite, x, y) {
+        this.img = new window.Image()
         this.x = x
         this.y = y
         this.wSrc = 89
@@ -37,7 +37,7 @@ var Authority = new function (app, timeline, buffer, binding, canvas) {
             buffer.valIn('timeline', [canvas.app.drop], ['value'], 1, 350, 1044, 1, dosentMatter,
             function () {
                 canvas.app.drop.next = this.next = this.next || 0
-                canvas.app.drop.items[this.next] = new dropImage(Math.randomFromTo(0, 11), Math.randomFromTo(0, 680 - 50), -88)
+                canvas.app.drop.items[this.next] = new DropImage(Math.randomFromTo(0, 11), Math.randomFromTo(0, 680 - 50), -88)
                 this.next++
             }, false, false, 1)
         }

@@ -1,4 +1,4 @@
-var Authority = new function (camera, timeframe, buffer, binding, nodes) {
+window.Authority = new function (camera, timeframe, buffer, binding, nodes) {
     this.segmentID = 0
     var last = camera.position.y + 140 - 280
     buffer.eval('timeline',

@@ -1,1 +1,1 @@
-var Authority = {}
+window.Authority = {}

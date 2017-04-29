@@ -1,4 +1,4 @@
-var Authority = new function (timeline, timeframe, buffer, binding, app) {
+window.Authority = new function (timeline, timeframe, buffer, binding, app) {
     this.segmentID = 350
 
     this.main = function () {

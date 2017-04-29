@@ -1,4 +1,4 @@
-var Authority = new function (Audio, AudioListener, AudioLoader, PositionalAudio, AudioAnalyser) {
+window.Authority = new function (Audio, AudioListener, AudioLoader, PositionalAudio, AudioAnalyser) {
     this.soundID = 978
 
     this.main = function () {

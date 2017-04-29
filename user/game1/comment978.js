@@ -1,4 +1,4 @@
-var Authority = new function (info) {
+window.Authority = new function (info) {
     this.segmentID = 978
 
     this.main = function () {

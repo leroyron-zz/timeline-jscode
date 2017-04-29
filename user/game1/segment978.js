@@ -1,4 +1,4 @@
-var Authority = new function (timeline, timeframe, buffer, binding, nodes, ctx) {
+window.Authority = new function (timeline, timeframe, buffer, binding, nodes, ctx) {
     // segment
     this.segmentID = 978
 

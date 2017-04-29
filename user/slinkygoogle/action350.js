@@ -1,4 +1,4 @@
-var Authority = new function (app, THREE, camera, canvas, ctx) {
+window.Authority = new function (app, THREE, camera, canvas, ctx) {
     this.actionID = 350
 
     var buffer = ctx.timeline.addon.buffer
