@@ -12,6 +12,7 @@
         <div id="app">
             <div id="info">
                 <select name="select" id="select">
+                    <option value="audioanalyser">Audio Analyser (Test Injection)</option>
                     <option value="game1">Game1 (Challenge THREE.Js Bindings and Interaction) </option>
                     <option value="demo1">Demo1 (Challenge Template)</option>
                     <option value="slinkygoogle">Slinky Google (Challenge Buffers and Leap)</option>
@@ -27,6 +28,7 @@
     <script type="text/javascript" src="lib/math.addon.js"></script>
     <script type="text/javascript" src="lib/math.addon.type.js"></script>
     <script type="text/javascript" src="lib/math.addon.cache.js"></script>
+    <script type="text/javascript" src="lib/math.addon.poly.js"></script>
 
     <script type="text/javascript" src="lib/utils.js"></script>
 
@@ -50,13 +52,16 @@
         // user code/setting
         app.codesetting = app.vscode.codesetting || Utils.userSelectDropDown(document.getElementById('select'));
         var select = app.vscode.select || {
-                    "game1": {mode: "3d", duration: 2200,
+                    "game1": {mode: "3d", duration: 2200,// 00:22sec
                         preload: []
                     }, 
-                    "demo1": {mode: "2d", duration: 2200,
+                    "demo1": {mode: "2d", duration: 2200,// 00:22sec
                         preload: []
                     },
-                    "slinkygoogle": {mode: "2d", duration: 1050,
+                    "slinkygoogle": {mode: "2d", duration: 1050,// 00:10.50ms
+                        preload: []
+                    },
+                    "audioanalyser": {mode: "2d", duration: 20331,// 03:23sec
                         preload: []
                     }
                     }
