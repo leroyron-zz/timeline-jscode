@@ -20,8 +20,12 @@ this.canvas.app = new function (app, canvas, ctx) {
     var audio, audioSrc, analyser, bufferLength, audioFreqData, audioUrl
     var inject = false
 
+    var tickSound
+
     function init () {
         audioUrl = app.fileLocAssets + 'RoyWoodsGetYouGood.mp3'
+        var tickUrl = app.fileLocAssets + 'Tick.mp3'
+        tickSound = new window.Audio(tickUrl)
     }
 
     ctx.timeline.addon.timeframe.process = function () {
@@ -59,18 +63,24 @@ this.canvas.app = new function (app, canvas, ctx) {
         var frequencyHeight = 0
         var x = 0
 
-        for (let increment = 0; increment < bufferLength; increment++) {
-            // Streaming data
-            frequencyHeight = audio.frequency['v' + increment] * (canvas.app.height * 0.002)
-            this.fillStyle = 'rgba(255,0,0,0.5)'
-            this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
+        if (inject) {
+            for (let increment = 0; increment < bufferLength; increment++) {
+                // MP3 data
+                frequencyHeight = audioFreqData[increment] * (canvas.app.height * 0.002)
+                this.fillStyle = 'rgba(0,0,255,0.5)'
+                this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
-            // MP3 data
-            frequencyHeight = audioFreqData[increment] * (canvas.app.height * 0.002)
-            this.fillStyle = 'rgba(0,0,255,0.5)'
-            this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
+                x += frequencyWidth + 2
+            }
+        } else {
+            for (let increment = 0; increment < bufferLength; increment++) {
+                // Streaming data
+                frequencyHeight = audio.frequency['v' + increment] * (canvas.app.height * 0.002)
+                this.fillStyle = 'rgba(255,0,0,0.5)'
+                this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
-            x += frequencyWidth + 2
+                x += frequencyWidth + 2
+            }
         }
     }
 
@@ -105,8 +115,6 @@ this.canvas.app = new function (app, canvas, ctx) {
             bufferLength = analyser.frequencyBinCount
             audioFreqData = new Uint8Array(bufferLength)
 
-            audio.play()
-
             // // Simple Bind and Buffering
             bind(stream, [
             [audio.frequency = {'poly': []}, 800]
@@ -119,6 +127,10 @@ this.canvas.app = new function (app, canvas, ctx) {
             1)// keep precision
 
             buildStream()
+
+            audio.play()
+
+            injectRecordBut.click()
         }
         audioRequest.send()
 
@@ -151,39 +163,42 @@ this.canvas.app = new function (app, canvas, ctx) {
         })
         divElem.appendChild(decreaseBut)
 
+        // injection of MP3 frequency: sync first then inject
         var injectRecordBut = document.createElement('button')
         injectRecordBut.id = 'freqRec'
         injectRecordBut.className = 'rec'
-        injectRecordBut.innerHTML = 'Inject Audio Frequency Data <span class="bull">&bull;</span> Segment <span class="rec seg">0</span>'
+        injectRecordBut.innerHTML = 'Inject Audio Frequency Data &bull; Segment <span class="rec seg">0</span>'
         injectRecordBut.addEventListener('click', function () {
+            // sync first
+            ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
+            // start injection
             inject = !inject ? {stream: stream, nodes: [audio.frequency], props: ['poly'], data: [], deltaData: []} : false
             // Global record/segment class rec *
             this.className = (this.className == 'rec off' || this.className == 'rec on') ? 'rec' : 'rec off'
+            this.innerHTML = this.className == 'rec' ? 'Inject Audio Frequency Data &bull; Segment <span class="rec seg">0</span>' : 'Recording <span class="bull">&bull;</span> Segment <span class="rec seg">0</span> (Stop this, Seek back on TimeLine, Then - Sync MP3 with TimeLine)'
         })
         divElem.appendChild(injectRecordBut)
 
-        var syncMP3But = document.createElement('button')
-        syncMP3But.innerHTML = 'Sync with MP3 with Timeline'
-        syncMP3But.addEventListener('click', function () {
-            audio.currentTime = ctx.timeline.addon.timeframe.duration / 100
-        })
-        divElem.appendChild(syncMP3But)
-
-        var syncTimeLineBut = document.createElement('button')
-        syncTimeLineBut.innerHTML = 'Sync with Timeline with MP3'
-        syncTimeLineBut.addEventListener('click', function () {
-            ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
-        })
-        divElem.appendChild(syncTimeLineBut)
-
         var autoSyncBut = document.createElement('button')
-        autoSyncBut.innerHTML = 'Auto Sync every 4th bar:'
+        autoSyncBut.innerHTML = 'Auto TimeLine Syncing (Every 2th bar):'
         autoSyncBut.addEventListener('click', function () {
-            var bar4th = autoSyncBpm / 4
-            var barLength = autoSyncLength / bar4th
-            for (let bi = 0; bi < autoSyncLength; bi += barLength) {
+            ctx.timeline.addon.timeframe.timeline.destroy()
+            var bar4th = autoSyncBpm.value
+            var barLength = autoSyncLength.value / bar4th
 
+            var segmentAuth = new function (timeframe) {
+                this.main = function () {
+                    timeframe.goTo(audio.currentTime * 100 << 0)
+                    tickSound.play()
+                }
+                return this
+            }(ctx.timeline.addon.timeframe)
+
+            var data = {segment: {}}
+            for (let bi = 0; bi < autoSyncLength.value; bi += barLength) {
+                data.segment[bi << 0] = {Authority: segmentAuth}
             }
+            ctx.timeline.addon.timeframe.timeline.seek.insert.insertAuthorities(data)
         })
         divElem.appendChild(autoSyncBut)
 
@@ -198,11 +213,27 @@ this.canvas.app = new function (app, canvas, ctx) {
         autoSyncBpm.innerHTML = 'BPM:'// audio.duration * 100 << 0
         divElem.appendChild(autoSyncBpm)
         autoSyncBpm = document.createElement('input')
-        autoSyncBpm.value = 86
+        autoSyncBpm.value = 73
         divElem.appendChild(autoSyncBpm)
 
+        var syncMP3But = document.createElement('button')
+        syncMP3But.innerHTML = 'Sync MP3 with TimeLine'
+        syncMP3But.addEventListener('click', function () {
+            ctx.timeline.addon.timeframe.timeline.destroy()
+            audio.currentTime = ctx.timeline.addon.timeframe.duration / 100
+        })
+        divElem.appendChild(syncMP3But)
+
+        var syncTimeLineBut = document.createElement('button')
+        syncTimeLineBut.innerHTML = 'Sync TimeLine with MP3'
+        syncTimeLineBut.addEventListener('click', function () {
+            ctx.timeline.addon.timeframe.timeline.destroy()
+            ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
+        })
+        divElem.appendChild(syncTimeLineBut)
+
         var divInfoStyle = document.createElement('style')
-        divInfoStyle.innerHTML = '#info {color:#000}                #freqRec.rec.on{border-color: #FFFFFF}                #freqRec.rec.on{border-color: #FF0000}                #freqRec.rec.on .bull {color:#FFFFFF;}                #freqRec.rec.on .bull {color:#FF0000;}'
+        divInfoStyle.innerHTML = '#info {color:#000}                #info button {display:block}#freqRec.rec.on{border-color: #FFFFFF}                #freqRec.rec.on{border-color: #FF0000}                #freqRec.rec.on .bull {color:#FFFFFF;}                #freqRec.rec.on .bull {color:#FF0000;}'
         div.appendChild(divInfoStyle)
         div.appendChild(divElem)
     }
