@@ -12,18 +12,21 @@
     </body>
     <script type="text/javascript" >
         // game1(challenge, ThreeJS), demo1, slinkygoogle (challenge buffers and leap values)
-        app.codesetting = 'audioanalyser'
+        app.codesetting = 'audioanalyser' 
         var select = {
-                    "demo1": {mode: "2d", duration: 2200,
+                    "game1": {mode: "3d", duration: 2200,
                         preload: []
                     },
-                    "game1": {mode: "3d", duration: 2200,
+                    "demo1": {mode: "2d", duration: 2200,
                         preload: []
                     },
                     "slinkygoogle": {mode: "2d", duration: 1050,
                         preload: []
                     },
                     "audioanalyser": {mode: "2d", duration: 20331,
+                        preload: []
+                    },
+                    "three2d": {mode: "3d", duration: 2200,
                         preload: []
                     }
                     }// !end // don't remove/modify!
