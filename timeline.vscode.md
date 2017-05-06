@@ -12,7 +12,7 @@
     </body>
     <script type="text/javascript" >
         // game1(challenge, ThreeJS), demo1, slinkygoogle (challenge buffers and leap values)
-        app.codesetting = 'audioanalyser' 
+        app.codesetting = 'particles32d' 
         var select = {
                     "game1": {mode: "3d", duration: 2200,
                         preload: []
@@ -27,6 +27,9 @@
                         preload: []
                     },
                     "three2d": {mode: "3d", duration: 2200,
+                        preload: []
+                    },
+                    "particles32d": {mode: "3d", duration: 2200,
                         preload: []
                     }
                     }// !end // don't remove/modify!
