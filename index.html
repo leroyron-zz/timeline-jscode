@@ -53,7 +53,8 @@
 
     <script type="text/javascript">
         // user code/setting
-        app.codesetting = app.vscode.codesetting || Utils.userSelectDropDown(document.getElementById('select'));
+        var dropdownSelect = document.getElementById('select')
+        app.codesetting = Utils.vscodeSelectDropDown(app.vscode.codesetting, dropdownSelect) || Utils.userSelectDropDown(dropdownSelect);
         var select = app.vscode.select || {
                     "game1": {mode: "3d", duration: 2200,// 00:22sec
                         preload: []
