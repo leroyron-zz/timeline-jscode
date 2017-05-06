@@ -233,7 +233,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         divElem.appendChild(syncTimeLineBut)
 
         var divInfoStyle = document.createElement('style')
-        divInfoStyle.innerHTML = '#info {color:#000}                #info button {display:block}#freqRec.rec.on{border-color: #FFFFFF}                #freqRec.rec.on{border-color: #FF0000}                #freqRec.rec.on .bull {color:#FFFFFF;}                #freqRec.rec.on .bull {color:#FF0000;}'
+        divInfoStyle.innerHTML = 'body {background: #FFF}                #info {color:#000}                #info button {display:block}#freqRec.rec.on{border-color: #FFFFFF}                #freqRec.rec.on{border-color: #FF0000}                #freqRec.rec.on .bull {color:#FFFFFF;}                #freqRec.rec.on .bull {color:#FF0000;}'
         div.appendChild(divInfoStyle)
         div.appendChild(divElem)
     }
