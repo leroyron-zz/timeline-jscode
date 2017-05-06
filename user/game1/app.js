@@ -78,8 +78,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     function createThumbControls () {
         ctx.controller = {
             joy: {
-                left: {id: 0, x: 0, y: 0, pad: canvas.app.canvasSprite(0.43, 0.43, -0.66, -0.66, 0, true, ['LRevolvingLable.png']), knob: canvas.app.canvasSprite(0.25, 0.25, -0.66, -0.66, 0, true, ['knob.png'])},
-                right: {id: 1, x: 0, y: 0, pad: canvas.app.canvasSprite(0.43, 0.43, 0.66, -0.66, 0, true, ['RShiftingLable.png']), knob: canvas.app.canvasSprite(0.25, 0.25, 0.66, -0.66, 0, true, ['knob.png'])}
+                left: {id: 0, x: 0, y: 0, pad: canvas.app.canvasSprite(['LRevolvingLable.png'], 0.43, 0.43, -0.66, -0.66, 0, true), knob: canvas.app.canvasSprite(['knob.png'], 0.25, 0.25, -0.66, -0.66, 0, true)},
+                right: {id: 1, x: 0, y: 0, pad: canvas.app.canvasSprite(['RShiftingLable.png'], 0.43, 0.43, 0.66, -0.66, 0, true), knob: canvas.app.canvasSprite(['knob.png'], 0.25, 0.25, 0.66, -0.66, 0, true)}
             }
         }
         ctx.controller.joy.left.pad.material.uniforms.alpha.value =
@@ -91,10 +91,10 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     function setupCameraPropertiesAndBindings (stream) {
         var craft = ctx.scene.nodes.craft1
         var camera = ctx.camera
-        camera.orbital = canvas.app.sceneSprite(1, 0, 0, 0, 'sprites/orbital.png')
-        camera.orbital.reticle = canvas.app.canvasSprite(0.2, 0.2, 0, 0, 0, false, ['sprites/reticle.png'])
+        camera.orbital = canvas.app.sceneSprite('sprites/orbital.png', 1, 0, 0, 0)
+        camera.orbital.reticle = canvas.app.canvasSprite(['sprites/reticle.png'], 0.2, 0.2, 0, 0, 0, false)
         camera.orbital.reticle.material.uniforms.alpha.value = 0
-        camera.orbital.reticle.tee = canvas.app.canvasSprite(0.2, 0.2, 0, 0, 0, false, ['sprites/tee.png', 'sprites/teedir.png'])
+        camera.orbital.reticle.tee = canvas.app.canvasSprite(['sprites/tee.png', 'sprites/teedir.png'], 0.2, 0.2, 0, 0, 0, false)
         camera.orbital.reticle.tee.material.uniforms.alpha.value = 0
 
         camera.direction = new THREE.Vector3(0, 0, -1).applyQuaternion(craft.quaternion)
@@ -600,7 +600,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         }
     }
 
-    this.canvasSprite = function (width, height, x, y, z, aspect, urls) {
+    this.canvasSprite = function (urls, width, height, x, y, z, aspect) {
         aspect = aspect ? app.width / app.height : 1
         height = aspect * height
 
@@ -669,7 +669,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         return object
     }
 
-    this.sceneSprite = function (size, x, y, z, url) {
+    this.sceneSprite = function (url, size, x, y, z) {
         var textureLoader = new THREE.TextureLoader()
 
         var sprite = textureLoader.load(app.fileLocAssets + url,
