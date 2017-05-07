@@ -75,7 +75,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         } else {
             for (let increment = 0; increment < bufferLength; increment++) {
                 // Streaming data
-                frequencyHeight = audio.frequency['v' + increment] * (canvas.app.height * 0.002)
+                frequencyHeight = audio.frequency[increment] * (canvas.app.height * 0.002)
                 this.fillStyle = 'rgba(255,0,0,0.5)'
                 this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
