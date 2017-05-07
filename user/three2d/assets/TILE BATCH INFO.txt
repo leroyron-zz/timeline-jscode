@@ -1,0 +1,4 @@
+download/install imagemagick
+save images as power of two 2048(x3)x1024(x3) your scene 6144x3072 equal columns and rows
+command:
+convert ground.png -crop 2048x1024 ground/tile%d.png

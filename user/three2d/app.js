@@ -10,10 +10,101 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     this.resolution(app)
 
     // Private
-    var variable
+    var System = ctx.timeline.addon.runtime.system
+    var system
 
     function init () {
+        system = new System().Pointer().Grid()// .Parallax() no need, all ready 3D
+        system.Pointer
+        .bind(app.pointers, canvas.node)
+        .result(function (pointer) {
+            // console.log(JSON.stringify(pointer))
+        })
+        .init()
 
+        var textureLoader = new THREE.TextureLoader()
+        var jsonLoader = new THREE.JSONLoader()
+        canvas.app.layers = system.Grid
+        .mode('2d')
+        .dir(app.fileLocAssets)
+        .batches('foreground', 'ground', 'nearground', 'background')
+        .offsets({x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0})
+        .properties({name: 'tile', count: 9, columns: 3, width: 2048, height: 1080})
+        .syntax(function (i) {
+            var output = {
+                image: this.dir + this.batch.name + '/' + this.name + i + '.png',
+                model: this.dir + 'plane' + 0 + '.json'
+            }
+            return output
+        })
+        .assign(function (output, i, batch, column, row, properties, tile) {
+            var textile = textureLoader.load(
+            output.image, function (texture) {
+                jsonLoader.load(
+                output.model, function (geometry) {
+                    geometry = new THREE.BufferGeometry().fromGeometry(geometry)
+                    Math.Poly.multiplyScalarVector(geometry.attributes.position.array, {x: texture.tile.width / 2, y: texture.tile.height / 2})
+                        // itemSize = 3 because there are 3 values (components) per vertex
+                    var material = new THREE.MeshBasicMaterial({map: texture,
+                        /* side: THREE.DoubleSide,  uniforms: {texture: {type: 't', value: sprites[0]}, alpha: {type: 'f', value: 1.0}},
+                        vertexShader: shader.vertexToScreen,
+                        fragmentShader: shader.fragment, */
+                        // blending: THREE[Utils.Blend.blending],
+                        // blendSrc: THREE[Utils.Blend.blending[2]],
+                        // blendDst: THREE[Utils.Blend.blending[6]],
+                        // blendEquation: THREE.AddEquation,
+                        depthTest: false,
+                        depthWrite: true,
+                        transparent: true
+                    })
+                    var mesh = new THREE.Mesh(geometry, material)
+
+                    texture.tile.position = {
+                        x: texture.tile.column * texture.tile.width,
+                        y: -texture.tile.row * texture.tile.height,
+                        z: -texture.tile.batch.index * 200}
+                    mesh.position.copy(texture.tile.position)
+
+                    ctx.scene.add(mesh)
+                    texture.tile = mesh
+                },
+                function (xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+                },
+                // Function called when download errors
+                function (xhr) {
+                    console.log('An error happened')
+                })
+            },
+            // Function called when download progresses
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+            },
+            function (xhr) {
+                console.log('An error happened')
+            })
+            var scale = batch.index / 3 + 0.66
+            scale = scale < 1 ? 1 : scale * scale
+            console.log(scale)
+            tile.width = properties.width * scale
+            tile.height = properties.height * scale
+            tile.name = 'tile' + i
+            tile.row = row
+            tile.column = column
+            tile.batch = batch
+
+            textile.tile = tile
+            return textile
+        })
+        .init()
+
+        // all ready 3D no need for parallax
+        /* system.Parallax
+        .subject(pointer)
+        .constrain('XY')
+        .fields(layers)
+        .separation(1.25, 1, 0.75, 0.50)
+        .init() */
     }
 
     ctx.timeline.addon.timeframe.process = function () {
@@ -35,7 +126,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     }
 
     ctx.rendering = function (timeFrame) {
-
+        canvas.renderer.render(ctx.scene, ctx.camera)
     }
 
     ctx.compute = function () {
@@ -52,10 +143,32 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
     function createGFXBindNodesToStream (stream) {
         console.log('Binding objects to stream - Starting')
+
+        var bind = ctx[stream].addon.binding
+
+        // LIGHTS
+        var ambient = new THREE.AmbientLight(0x666666)
+        ctx.scene.add(ambient)
+        var directionalLight = new THREE.DirectionalLight(0xFFEEDD)
+        directionalLight.position.set(0, 70, 100).normalize()
+        ctx.scene.add(directionalLight)
+
+        directionalLight = new THREE.DirectionalLight(0xBFA475)
+        directionalLight.position.set(0, -70, -100).normalize()
+        ctx.scene.add(directionalLight)
+
         var camera = ctx.camera
-        camera.foreground = canvas.app.sceneTile('foreground.png', 3, 3, 1, 0, 0, 0)
-        camera.ground = canvas.app.sceneTile('ground.png', 3, 3, 1, 0, 0, 0)
-        camera.background = canvas.app.sceneTile('background.png', 3, 3, 1, 0, 0, 0)
+
+        bind(stream, [
+        [camera.position, 800]
+        ],
+            [
+            ['x', -500, 8500],
+            ['y', -1550, 100],
+            ['z', 600]
+            ],
+        [801, 802, 803],
+        false)
     }
 
     this.sceneTile = function (url, size, x, y, z) {
