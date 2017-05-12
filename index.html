@@ -43,10 +43,17 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.system.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.system.pointer.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.knob.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.subject.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.marquee.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.particle.js"></script>
-    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.collision.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.entity.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.physic.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.bound.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.collision.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.particle.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.rig.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.binding.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
@@ -56,11 +63,12 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.action.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
     
-
     <script type="text/javascript">
         // user code/setting
         var dropdownSelect = document.getElementById('select')
-        app.codesetting = Utils.vscodeSelectDropDown(app.vscode.codesetting, dropdownSelect) || Utils.userSelectDropDown(dropdownSelect);
+        app.codesetting = Utils.vscodeSelectDropDown(app.vscode.codesetting, dropdownSelect) ||
+                          app.vscode.codesetting ||
+                          Utils.userSelectDropDown(dropdownSelect);
         var select = app.vscode.select || {
                     "game1": {mode: "3d", duration: 2200,// 00:22sec
                         preload: []

@@ -14,22 +14,37 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     var system
 
     function init () {
-        system = new System().Pointer().Grid()// .Parallax() no need, all ready 3D
+        // ctx.timeline.addon.timeframe.switchToTimeFrameThrusting()
+        system = new System()// start new system and start the down-line
+                             .Pointer()// the pointer such as a mouse or touch moves the cursor
+                        //   .Knob()// the pointer moves the knob, knob moves the cursor
+                        //   .Subject()// node/object moves the cursor
+                                    // .Marquee()// cursor draws the marquee
+                                       .Grid()// the grid prepares the matrices to render textiles, boundaries, particles and collisions depending on cursor location
+                                              .Parallax()// exploits grid data and cuts out necessary data for optimization, rendering and other various uses
+                                                         .Entity()// node/object collection optimized by parallax
+                                                    //   .Physic()// chained physics optimized by parallax
+                                                    //   .Bound()// utilizes the parallax exploits to resolve and utilize boundary matrices
+                                                    //   .Collision()// utilizes the parallax exploits to resolve and utilize collision matrices
+                                                                //   .Particle()// entitys could emit particles, particle generation and behaviors affected by physics, boundaries and collisions
+                                                                //   .Rig()// rigging behaviors affected by entitys, physics, boundaries and collisions
+
         system.Pointer
         .bind(app.pointers, canvas.node)
         .result(function (pointer) {
-            // console.log(JSON.stringify(pointer))
+            console.log(JSON.stringify(pointer))
         })
         .init()
 
         var textureLoader = new THREE.TextureLoader()
         var jsonLoader = new THREE.JSONLoader()
-        canvas.app.layers = system.Grid
+        canvas.app.layers = // could store grid layers
+        system.Grid
         .mode('2d')
-        .dir(app.fileLocAssets)
+        .dir(app.fileLocAssets + 'optimal/')
         .batches('foreground', 'ground', 'nearground', 'background')
         .offsets({x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0})
-        .properties({name: 'tile', count: 9, columns: 3, width: 2048, height: 1080})
+        .properties({name: 'tile', count: 9, columns: 3, width: 2048, height: 1024})
         .syntax(function (i) {
             var output = {
                 image: this.dir + this.batch.name + '/' + this.name + i + '.png',
@@ -44,17 +59,17 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 output.model, function (geometry) {
                     geometry = new THREE.BufferGeometry().fromGeometry(geometry)
                     Math.Poly.multiplyScalarVector(geometry.attributes.position.array, {x: texture.tile.width / 2, y: texture.tile.height / 2})
-                        // itemSize = 3 because there are 3 values (components) per vertex
                     var material = new THREE.MeshBasicMaterial({map: texture,
-                        /* side: THREE.DoubleSide,  uniforms: {texture: {type: 't', value: sprites[0]}, alpha: {type: 'f', value: 1.0}},
-                        vertexShader: shader.vertexToScreen,
-                        fragmentShader: shader.fragment, */
+                        // uniforms: {texture: {type: 't', value: sprites[0]}, alpha: {type: 'f', value: 1.0}},
+                        // vertexShader: shader.vertex,
+                        // fragmentShader: shader.fragment,
                         // blending: THREE[Utils.Blend.blending],
-                        // blendSrc: THREE[Utils.Blend.blending[2]],
-                        // blendDst: THREE[Utils.Blend.blending[6]],
+                        // blendSrc: THREE[Utils.Blend.src[2]],
+                        // blendDst: THREE[Utils.Blend.dst[6]],
                         // blendEquation: THREE.AddEquation,
-                        depthTest: false,
-                        depthWrite: true,
+                        // depthTest: false,
+                        // depthWrite: true,
+                        // side: THREE.DoubleSide,
                         transparent: true
                     })
                     var mesh = new THREE.Mesh(geometry, material)
@@ -83,9 +98,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             function (xhr) {
                 console.log('An error happened')
             })
+
             var scale = batch.index / 3 + 0.66
             scale = scale < 1 ? 1 : scale * scale
-            console.log(scale)
             tile.width = properties.width * scale
             tile.height = properties.height * scale
             tile.name = 'tile' + i
@@ -99,12 +114,12 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         .init()
 
         // all ready 3D no need for parallax
-        /* system.Parallax
-        .subject(pointer)
-        .constrain('XY')
-        .fields(layers)
-        .separation(1.25, 1, 0.75, 0.50)
-        .init() */
+        // system.Parallax
+        // .subject(canvas.app.pointer)
+        // .constrain('XY')
+        // .fields(layers)
+        // .separation(1.25, 1, 0.75, 0.50)
+        // .init()
     }
 
     ctx.timeline.addon.timeframe.process = function () {
@@ -163,12 +178,12 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         [camera.position, 800]
         ],
             [
-            ['x', -500, 8500],
-            ['y', -1550, 100],
+            ['x', 0, 8500],
+            ['y', -1400, 100],
             ['z', 600]
             ],
-        [801, 802, 803],
-        false)
+        [801, 802, 803]/*,
+         false * streaming has default */)
     }
 
     this.sceneTile = function (url, size, x, y, z) {
