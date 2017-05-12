@@ -8,7 +8,7 @@ src/**
 tsconfig.json
 vsc-extension-quickstart.md
 **/bin
-**/*.obj*
-**/*.psd*
-**/*.mtl*
-**/*.blend*
+**/*.obj
+**/*.psd
+**/*.mtl
+**/*.blend
