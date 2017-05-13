@@ -357,7 +357,7 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
 
         playCode(craft)
 
-        ctx.timeline.addon.timeframe.timeline.info.setValue('spacebar to boost')
+        if (ctx.timeline.addon.timeframe.timeline.info) ctx.timeline.addon.timeframe.timeline.info.setValue('spacebar to boost')
 
         var joy = function (pointer, joy, x, y) {
             let jX = joy.knob.clip.normal.x
