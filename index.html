@@ -24,11 +24,8 @@
         </div>
     </body>
     <script type="text/javascript" src="node_modules/three/build/three.js"></script>
-    <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
-    <script type="text/javascript" src="lib/utils.js"></script>
-    <script type="text/javascript" src="lib/build/Math.js"></script>
-    <script type="text/javascript" src="lib/build/Suite.js"></script>
-    <script type="text/javascript" src="lib/build/Streaming.js"></script>
+    <!-- <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script> -->
+    <script type="text/javascript" src="lib/export/Streaming.min.js"></script>
     <script type="text/javascript">
         // user code/setting
         var dropdownSelect = document.getElementById('select')
@@ -75,5 +72,6 @@
         document.body.appendChild(script); //or something of the likes
         //setTimeout(function(){ location.reload(); }, 10000);
     </script>
-    <script type="text/javascript" src="lib/build/Streaming.gui.data.none.js"></script>
+    <!-- <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script> -->
+    <script type="text/javascript" src="lib/build/Streaming.no.gui.min.js"></script>
 </html>
