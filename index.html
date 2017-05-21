@@ -12,6 +12,7 @@
         <div id="app">
             <div id="info">
                 <select name="select" id="select">
+                    <option value="audiofeaturealizer">Audio Feature Visualization (for a website)</option>
                     <option value="three2d">2D Parallax (THREE.Js - 2D Scene)</option>
                     <option value="audioanalyser">Audio Analyser (Test Injection - APP/BROWSER ONLY)</option>
                     <option value="game1">Game1 (Challenge THREE.Js Bindings and Interaction) </option>
@@ -24,8 +25,45 @@
         </div>
     </body>
     <script type="text/javascript" src="node_modules/three/build/three.js"></script>
-    <!-- <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script> -->
-    <script type="text/javascript" src="lib/export/Streaming.min.js"></script>
+    <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script>
+    <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
+
+    <script type="text/javascript" src="lib/math.addon.js"></script>
+    <script type="text/javascript" src="lib/math.addon.type.js"></script>
+    <script type="text/javascript" src="lib/math.addon.cache.js"></script>
+    <script type="text/javascript" src="lib/math.addon.poly.js"></script>
+    <script type="text/javascript" src="lib/math.addon.poly.medium.js"></script>
+
+    <script type="text/javascript" src="lib/utils.js"></script>
+
+    <script type="text/javascript" src="lib/window.app.js"></script>
+    <script type="text/javascript" src="lib/window.info.js"></script>
+    <script type="text/javascript" src="lib/window.app.vscode.js"></script>
+
+    <script type="text/javascript" src="lib/Streaming.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.pointer.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.knob.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.subject.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.marquee.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.entity.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.physic.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.bound.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.collision.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.particle.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.system.grid.parallax.rig.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.binding.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.buffer.ease.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.comment.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.segment.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.action.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
     <script type="text/javascript">
         // user code/setting
         var dropdownSelect = document.getElementById('select')
@@ -43,6 +81,9 @@
                         preload: []
                     },
                     "audioanalyser": {mode: "2d", duration: 20331,// 03:23.31
+                        preload: []
+                    },
+                    "audiofeaturealizer": {mode: "2d", duration: 12000,// 02:00.00
                         preload: []
                     },
                     "three2d": {mode: "3d", duration: 2200,// 00:22sec
@@ -70,8 +111,22 @@
             canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');     
         }
         document.body.appendChild(script); //or something of the likes
-        //setTimeout(function(){ location.reload(); }, 10000);
+        //setTimeout(function(){ location.reload(); }, 20000);
     </script>
-    <!-- <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script> -->
-    <script type="text/javascript" src="lib/build/Streaming.no.gui.min.js"></script>
+    <script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.window.app.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.buffer.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.bar.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.comment.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.segment.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.action.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.sound.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.dialog.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.addon.Streaming.timeframe.timeline.charts.js"></script>
 </html>

@@ -12,7 +12,7 @@
     </body>
     <script type="text/javascript">
         // game1(challenge, ThreeJS), demo1, slinkygoogle (challenge buffers and leap values)
-        app.codesetting = 'three2d' 
+        app.codesetting = 'audiofeaturealizer' 
         var select = {
                     "game1": {mode: "3d", duration: 2200,
                         preload: []
@@ -24,6 +24,9 @@
                         preload: []
                     },
                     "audioanalyser": {mode: "2d", duration: 20331,
+                        preload: []
+                    },
+                    "audiofeaturealizer": {mode: "2d", duration: 12000,
                         preload: []
                     },
                     "three2d": {mode: "3d", duration: 2200,
