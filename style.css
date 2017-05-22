@@ -8,3 +8,4 @@ input {right: left;}
 canvas, svg {position: absolute; top: 0px; left: 0px;}
 text {font-size: 12px; fill: #bbb}
 path, line {stroke: #aaa; fill: #FFF;}
+.dg.ac {z-index: 1!important}
