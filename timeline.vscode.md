@@ -26,7 +26,7 @@
                     "audioanalyser": {mode: "2d", duration: 20331,
                         preload: []
                     },
-                    "audiofeaturealizer": {mode: "2d", duration: 12000,
+                    "audiofeaturealizer": {mode: "2d", duration: 30976,
                         preload: []
                     },
                     "three2d": {mode: "3d", duration: 2200,
