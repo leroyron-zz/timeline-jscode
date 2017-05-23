@@ -30,7 +30,21 @@ this.canvas.app = new function (app, canvas, ctx) {
 
     function init () {
         audioUrls = [[app.fileLocAssets + 'drop.mp3', 0], [app.fileLocAssets + 'features.mp3', 1100]]
+        var div = document.getElementById('info')
+        var divElem = document.createElement('div')
+        var playBut = document.createElement('button')
 
+        var playFeature = function (e) {
+            divElem.style.display = 'none'
+
+            audioUrls[0][0].play()
+
+            audioUrls[1][2].send()// load feature right after
+
+            timeframe.run()
+
+            playBut.removeEventListener('click', playFeature)
+        }
         for (let ai = 0; ai < audioUrls.length; ai++) {
             var audioRequest = audioUrls[ai][2] = new window.XMLHttpRequest()
             audioRequest.id = ai
@@ -41,21 +55,51 @@ this.canvas.app = new function (app, canvas, ctx) {
                 audioUrls[this.id][0] = new window.Audio(window.URL.createObjectURL(this.response))
                 audioUrls[this.id][0].paused = true
                 if (this.id == 0) { // ////// Build Stream after feature mp3 loads:
-                    buildStream()
-                    audioUrls[0][0].play()
+                    buildStream(function () {
+                        ctx.timeline.addon.timeframe.timeline.destroy()
+                        var bar4th = 75
+                        var barLength = (timelineLength - 1100) / bar4th
+
+                        var segmentAuth = new function (timeframe) {
+                            this.main = function () {
+                                if (timeframe.duration > 1100 && timeframe.duration < timelineLength - barLength) timeframe.goTo((audioUrls[0][0].currentTime * 100) + 1100 << 0)
+                            }
+                            return this
+                        }(ctx.timeline.addon.timeframe)
+
+                        var data = {segment: {}}
+                        var actionPositions = [1500, 6200, 10200, 14200, 19500, 25400]
+                        for (let bi = 0; bi < timelineLength - 1100; bi += barLength) {
+                            data.segment[bi + 1100 << 0] = {Authority: segmentAuth}
+                        }
+                        ctx.timeline.addon.timeframe.timeline.seek.insert.insertAuthorities(data)
+
+                        playBut.style.width = '100%'
+                        playBut.style.height = '100%'
+                        playBut.style.position = 'fixed'
+                        playBut.style.top = 0
+                        playBut.style.left = 0
+                        playBut.style.background = 'none'
+                        playBut.style.border = 'none'
+                        playBut.addEventListener('click', playFeature)
+                        divElem.appendChild(playBut)
+                        div.appendChild(divElem)
+                    })
                 }
                 /*
+                timeline: 30976
                 drop.mp3 duration 1251.8
                 feature.mp3 5:14 duration 29876.7792 >
-                    0 JAHKOY - California Heaven - ft. ScHoolboy Q 0:00 - 0:50
-                    1 Nav - NAV 0:50 - 1:29
-                    2 Jay Whiss - Welcome To The Life 1:29 - 2:08
-                    3 Big Lean x Sick - Unforgettable 2:08 - 2:29
-                    4 Ebhoni - Killing Roses 2:29 - 4:00
-                    5 Pressa - Deadmihana 4:00 - 4:59
+                start 1100
+                    0 JAHKOY - California Heaven - ft. ScHoolboy Q 0:00 - 0:50 1500
+                    1 Nav - NAV 0:50 - 1:29 6200
+                    2 Jay Whiss - Welcome To The Life 1:29 - 2:08 10200
+                    3 Big Lean x Sick - Unforgettable 2:08 - 2:29 14200
+                    4 Ebhoni - Killing Roses 2:29 - 4:00 19500
+                    5 Pressa - Deadmihana 4:00 - 4:59 25400
                 */
             }
-            audioRequest.send()
+            if (ai == 0) audioRequest.send()
         }
         var genImgs = []
         ctx.globalAlpha = 0
@@ -82,8 +126,8 @@ this.canvas.app = new function (app, canvas, ctx) {
             img.yPos = y
             img.w = w
             img.h = h
-            let translateX = img.xPos * app.width - img.w / 2 << 0
-            let translateY = img.yPos * app.height - img.h / 2 << 0
+            // let translateX = img.xPos * app.width - img.w / 2 << 0
+            // let translateY = img.yPos * app.height - img.h / 2 << 0
             img.spin = 0
             img.scaleUp = 0
             img.rotate = rotate
@@ -143,8 +187,8 @@ this.canvas.app = new function (app, canvas, ctx) {
                 let zipper = (pointer.normal.x + 1) / 2
                 zipper = zipper < 0.1 ? 0.1 : zipper > 0.899 ? 0.899 : zipper
                 let frame = (timelineLength - 1100) * ((zipper - 0.1) / 0.8) + 1100 << 0
-                audioUrls[1][0].play()
-                audioUrls[1][0].currentTime = (frame - 1100) / 100
+                // audioUrls[0][0].play()
+                audioUrls[0][0].currentTime = (frame - 1100) / 100 << 0
                 timeframe.goTo(frame)
             } else { return }
 
@@ -222,40 +266,11 @@ this.canvas.app = new function (app, canvas, ctx) {
         }
     }
     ctx.rendering = function (frameDuration) {
-        // this.globalCompositeOperation = 'destination-over'
+        this.globalCompositeOperation = 'destination-over'
         this.save()
         this.clearRect(0, 0, canvas.app.width, canvas.app.height)
-
-        var iLen = imgs.length
-        if (frameDuration > 1100 && seeker.show != 1) {
-            iLen = 1
-
-            imgs[0].xPos = 0.8 * ((frameDuration - 1100) / (timelineLength - 1100)) + 0.1
-            // frameDuration = (timelineLength - 1100) * ((imgs[0].xPos - 0.1) / 0.8) + 1100
-            // console.log(frameDuration, imgs[0].xPos)
-        }
-        imgs[0].normal = {x: imgs[0].xPos * 2 - 1, y: 1 - imgs[0].yPos * 2}
-
-        for (let ii = 0; ii < iLen; ii++) {
-            if (imgs[ii].scaleUpTo) Math.lerpProp(imgs[ii], 'scaleUp', imgs[ii].scaleUpTo, 0.15)
-            let scale = imgs[ii].scale + imgs[ii].scaleUp
-            this.scale(scale, scale)
-            this.globalAlpha = imgs[ii].alpha
-            let halfWidth = imgs[ii].w / 2
-            let halfHeight = imgs[ii].h / 2
-            let translateX = imgs[ii].xPos * app.width * (1 / scale)
-            let translateY = imgs[ii].yPos * app.height * (1 / scale)
-            this.translate(translateX, translateY)
-            if (imgs[ii].spinTo) Math.lerpProp(imgs[ii], 'spin', imgs[ii].spinTo, 0.05)
-            this.rotate((imgs[ii].rotate + imgs[ii].spin) * Math.PI / 180)
-            this.translate(-halfWidth, -halfHeight)
-            this.drawImage(imgs[ii], (imgs[ii].w * imgs[ii].sprite), 0, imgs[ii].w, imgs[ii].h, 0, 0, imgs[ii].w, imgs[ii].h)
-            this.translate(halfWidth, halfHeight)
-            this.rotate(-(imgs[ii].rotate + imgs[ii].spin) * Math.PI / 180)
-            this.translate(-(translateX), -(translateY))
-            this.globalAlpha = 1
-            this.scale(1 / scale, 1 / scale)
-        }
+        this.scale(app.width / canvas.app.width, app.height / canvas.app.height)
+        this.restore()
 
         if (frameDuration > 606 && frameDuration < 706) {
             let frame = frameDuration - 606
@@ -285,8 +300,12 @@ this.canvas.app = new function (app, canvas, ctx) {
                 seeker.progress.show = 0
                 seeker.show = 0.5
                 if (audioUrls[1][0].paused && timeframe.duration > 1100) timeframe.goTo(1100)
-                audioUrls[1][0].play()
+                audioUrls[0][0].backupSrc = audioUrls[0][0].src
+                audioUrls[0][0].src = audioUrls[1][0].src
+                audioUrls[0][0].currentTime = 0
+                audioUrls[0][0].play()
             }
+
 
             Math.lerpProp(seeker, 'alpha', seeker.show, 0.05)
             this.fillStyle = 'rgba(255, 100, 0,' + seeker.alpha + ')'
@@ -306,11 +325,54 @@ this.canvas.app = new function (app, canvas, ctx) {
                 seeker.progress.height
             )
         } else {
+            if (audioUrls[0][0].backupSrc) {
+                audioUrls[0][0].src = audioUrls[0][0].backupSrc
+                audioUrls[0][0].backupSrc = null
+                delete audioUrls[0][0].backupSrc
+
+                audioUrls[0][0].currentTime = 0
+                audioUrls[0][0].play()
+            }
             seeker.show = seeker.progress.show = seeker.alpha = seeker.progress.alpha = 0
         }
 
-        this.scale(app.width / canvas.app.width, app.height / canvas.app.height)
-        this.restore()
+        var iLen = imgs.length
+        if (frameDuration > 1100 && seeker.show != 1) {
+            iLen = 1
+
+            imgs[0].xPos = 0.8 * ((frameDuration - 1100) / (timelineLength - 1100)) + 0.1
+            // frameDuration = (timelineLength - 1100) * ((imgs[0].xPos - 0.1) / 0.8) + 1100
+            // console.log(frameDuration, imgs[0].xPos)
+        }
+        imgs[0].normal = {x: imgs[0].xPos * 2 - 1, y: 1 - imgs[0].yPos * 2}
+        for (let ii = iLen - 1; ii > -1; ii--) {
+            if (imgs[ii].scaleUpTo) Math.lerpProp(imgs[ii], 'scaleUp', imgs[ii].scaleUpTo, 0.15)
+            let scale = imgs[ii].scale + imgs[ii].scaleUp
+            this.scale(scale, scale)
+            this.globalAlpha = imgs[ii].alpha
+            let halfWidth = imgs[ii].w / 2
+            let halfHeight = imgs[ii].h / 2
+            let translateX = imgs[ii].xPos * app.width * (1 / scale)
+            let translateY = imgs[ii].yPos * app.height * (1 / scale)
+            this.translate(translateX, translateY)
+            if (imgs[ii].spinTo) Math.lerpProp(imgs[ii], 'spin', imgs[ii].spinTo, 0.05)
+            this.rotate((imgs[ii].rotate + imgs[ii].spin) * Math.PI / 180)
+            this.translate(-halfWidth, -halfHeight)
+            this.drawImage(imgs[ii], (imgs[ii].w * imgs[ii].sprite), 0, imgs[ii].w, imgs[ii].h, 0, 0, imgs[ii].w, imgs[ii].h)
+            this.translate(halfWidth, halfHeight)
+            this.rotate(-(imgs[ii].rotate + imgs[ii].spin) * Math.PI / 180)
+            this.translate(-(translateX), -(translateY))
+            this.globalAlpha = 1
+            this.scale(1 / scale, 1 / scale)
+        }
+
+        if (frameDuration < 200) {
+            this.fillStyle = 'rgba(0, 0, 0,' + ((frameDuration - 1) / 200) + ')'
+            this.fillRect(0, 0, canvas.app.width, canvas.app.height)
+        } else {
+            this.fillStyle = 'black'
+            this.fillRect(0, 0, canvas.app.width, canvas.app.height)
+        }
     }
 
     ctx.compute = function () {
@@ -471,7 +533,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['scale', 0.2], ['scale', -0.3]]], [['easeOutQuad', 50]], imgs[ii].offset
+                        [imgs[ii]], [[['scale', 0.4], ['scale', -0.5]]], [['easeOutQuad', 50]], imgs[ii].offset
                         ]
                     ],
                 false)
@@ -503,19 +565,14 @@ this.canvas.app = new function (app, canvas, ctx) {
                 buffer.valIn('timeline', [imgs[ii]], ['alpha'], 0.00, 50 + 230 + imgs[ii].offset - (ii / 4 << 0), timelineLength)
             }
         }
-        var div = document.getElementById('info')
-        div.style.width = '100%'
-        var divInfoStyle = document.createElement('style')
-        divInfoStyle.id = 'infoStyle'
-        divInfoStyle.innerHTML = 'body { background: #000; } #info input, #info lable { float: right; } #info lable { color: #000; padding: 2px 0 0 0; }'
-        div.appendChild(divInfoStyle)
     }
-    function buildStream (stream) {
+    function buildStream (callback) {
         // build stream and prebuff from the binding DATA
         console.log('Finished Binding to stream - Building')
         ctx.timeline.build(function () {
             console.log('Finished Building - Initializing')
             ctx.timeline.addon.timeframe._init(window) // timeframe init has to be set to true for additional scripts to load
+            callback()
         })
     }
 }(this.app, this.canvas, this.ctx)
