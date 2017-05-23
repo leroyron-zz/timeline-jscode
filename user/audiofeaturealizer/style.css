@@ -1,0 +1,55 @@
+body, html, iframe, #lineup {width:100%; height:100%; margin: 0px; padding: 0px; overflow: hidden;}
+body {
+    -webkit-background-size: contain;
+    -moz-background-size: contain;
+    -o-background-size: contain;
+    background-size: contain; border: 0; background: #000;
+    background-image: url('assets/legend.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: top;
+}
+.freqDiv {
+    position: relative;
+    float: right;
+    width: 5%;
+    height: 100px;
+    padding: 0 2.5%;
+}
+.freqDiv div {
+    float: left;
+    -webkit-background-size: contain;
+    -moz-background-size: contain;
+    -o-background-size: contain;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    width: 100%;
+    height: 50%;
+    padding: 2px 0;
+    cursor: pointer;
+}
+.freqUp {
+    background-image: url('assets/frequp.gif');
+}
+.freqDown {
+    background-image: url('assets/freqdown.gif');
+}
+#lineup {
+    position: fixed;
+    -webkit-background-size: contain;
+    -moz-background-size: contain;
+    -o-background-size: contain;
+    background-size: contain;
+    background-image: url('assets/lineup.png');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: bottom;
+}
+#info, #coords {color:#fff; position: absolute; bottom: 0px; left: 0px; z-index: 1;}
+#coords {color: #000};
+input {right: left;}
+canvas, svg {top: 0px; left: 0px;}
+text {font-size: 12px; fill: #bbb}
+path, line {stroke: #aaa; fill: #FFF;}
+.dg.ac {z-index: 1!important}
