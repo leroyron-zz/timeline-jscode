@@ -190,25 +190,29 @@ this.canvas.app = new function (app, canvas, ctx) {
             freqUp.addEventListener('mousedown', function () {
                 ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
                 function dynamicData (effector) {
+                    if (!inject.output) {
+                        let midEase = Math.Poly.Medium.midEase(analyser.fftSizePiece * 2)
+                        let offset = analyser.fftSizePiece * inject.tenthRange
+                        offset -= analyser.fftSizePiece * 2 / 2
+                        let output = new Array(analyser.fftSize)
+                        if (offset < 0) {
+                            midEase.splice(0, analyser.fftSizePiece)
+                            output.splice(0, analyser.fftSizePiece, midEase)
+                        } else if (offset == analyser.fftSize) {
+                            midEase.splice(-analyser.fftSizePiece)
+                            output.splice(analyser.fftSize - analyser.fftSizePiece, analyser.fftSizePiece, midEase)
+                        } else {
+                            output.splice(midEase)
+                            output.splice(offset - analyser.fftSizePiece, analyser.fftSizePiece, midEase)
+                        }
+                        inject.output = output
+                    }
+
+                    // TO-DO - add effector
                     analyser.effect += effector
                     analyser.effect = analyser.effect > 1 ? 1 : analyser.effect
-                    let midEase = Math.Poly.Medium.midEase(analyser.fftSizePiece * 2)
-                    let offset = analyser.fftSizePiece * inject.tenthRange
-                    offset -= analyser.fftSizePiece * 2 / 2
-                    let output = new Array(analyser.fftSize)
-                    if (offset < 0) {
-                        midEase.splice(0, analyser.fftSizePiece)
-                        output.splice(0, analyser.fftSizePiece, midEase)
-                    } else if (offset == analyser.fftSize) {
-                        midEase.splice(-analyser.fftSizePiece)
-                        output.splice(analyser.fftSize - analyser.fftSizePiece, analyser.fftSizePiece, midEase)
-                    } else {
-                        output.splice(midEase)
-                        output.splice(offset - analyser.fftSizePiece, analyser.fftSizePiece, midEase)
-                    }
-                    
-                    console.log(output)
-                    return [0, 10, 30, 40, 50, 40, 30, 20, 10, 0]
+
+                    return inject.output
                 }
                 inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0.4, tenthRange: this.dataset.tenthRange << 0}
 
@@ -221,11 +225,11 @@ this.canvas.app = new function (app, canvas, ctx) {
                 function dynamicData (effector) {
                     analyser.effect -= effector
                     analyser.effect = analyser.effect < 0 ? 0 : analyser.effect
-                    
-                    console.log(analyser.effect)
-                    if (analyser.effect == 0) { return [] }
 
-                    return [0, 10, 30, 40, 50, 40, 30, 20, 10, 0]
+                    // TO-DO - add effector
+                    if (analyser.effect == 0) { inject.output = [] }
+
+                    return inject.output
                 }
                 inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0.18, tenthRange: this.dataset.tenthRange << 0}
 
