@@ -38,9 +38,9 @@ this.canvas.app = new function (app, canvas, ctx) {
                 inject.data = inject.dynamicData(inject.effector)
                 if (inject.data.length > 1) {
                     if (access == 'read') {
-                        this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, inject.data, timeFrame)
+                        this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, inject.data, timeFrame + lapse)// add lapse to see real time change
                     } else {
-                        this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, Math.Ploy.subtract('poly', inject.data, inject.deltaData), timeFrame)
+                        this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, Math.Ploy.subtract('poly', inject.data, inject.deltaData), timeFrame + lapse)// add lapse to see real time change
                         inject.deltaData = inject.data.concat()
                     }
                     return
@@ -73,16 +73,32 @@ this.canvas.app = new function (app, canvas, ctx) {
 
     }
 
+    var loadedFromFile = false
     ctx.rendering = function (timeFrame) {
         this.clearRect(0, 0, canvas.app.width, canvas.app.height)
         var frequencyWidth = (canvas.app.width / bufferLength)
         var frequencyHeight = 0
         var x = 0
 
+        if (loadedFromFile) {
+            for (let increment = 0; increment < bufferLength; increment++) {
+                frequencyHeight = (audio.frequency[increment] * (1 + audio.enhancement[increment])) * (canvas.app.height * 0.002) + (20 * audio.enhancement[increment])
+                this.fillStyle = 'rgba(0,255,0,0.5)'
+                this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
+
+                frequencyHeight = audio.frequency[increment] * (canvas.app.height * 0.002)
+                this.fillStyle = 'rgba(255,0,0,0.5)'
+                this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
+
+                x += frequencyWidth
+            }
+        }
+
+        else
         if (inject) {
             for (let increment = 0; increment < bufferLength; increment++) {
                 // MP3 data
-                frequencyHeight = (audioFreqData[increment] + audio.enhancement[increment]) * (canvas.app.height * 0.002)
+                frequencyHeight = (audioFreqData[increment] * (1 + audio.enhancement[increment])) * (canvas.app.height * 0.002) + (20 * audio.enhancement[increment])
                 this.fillStyle = 'rgba(0,255,0,0.5)'
                 this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
@@ -96,7 +112,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             for (let increment = 0; increment < bufferLength; increment++) {
                 // Streaming data
 
-                frequencyHeight = (audioFreqData[increment] + audio.enhancement[increment]) * (canvas.app.height * 0.002)
+                frequencyHeight = (audio.frequency[increment] * (1 + audio.enhancement[increment])) * (canvas.app.height * 0.002) + (20 * audio.enhancement[increment])
                 this.fillStyle = 'rgba(0,255,0,0.5)'
                 this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
@@ -139,7 +155,8 @@ this.canvas.app = new function (app, canvas, ctx) {
             analyser.maxDecibels = 0
             analyser.minDecibels = -120
             analyser.fftSize = 64
-            analyser.fftSizePiece = analyser.fftSize * 0.1 + 2 << 0
+            analyser.fftHalfSize = analyser.fftSize / 2
+            analyser.fftSizePiece = analyser.fftHalfSize * 0.1 + 2 << 0
             analyser.effect = 0
             audioSrc.connect(analyser)
             analyser.connect(audioCtx.destination)
@@ -156,7 +173,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                 ],
             [802],
             false,
-            1)
+            1) // 0 - 255
 
             bind(stream, [
             [audio.enhancement = {'poly': []}, 801]
@@ -166,8 +183,8 @@ this.canvas.app = new function (app, canvas, ctx) {
                 ],
             [802],
             false,
-            1)
-            // keep precision
+            100) // 0 - 100
+            // enhance precision
 
             buildStream()
 
@@ -190,29 +207,22 @@ this.canvas.app = new function (app, canvas, ctx) {
             freqUp.addEventListener('mousedown', function () {
                 ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
                 function dynamicData (effector) {
-                    if (!inject.output) {
-                        let midEase = Math.Poly.Medium.midEase(analyser.fftSizePiece * 2)
-                        let offset = analyser.fftSizePiece * inject.tenthRange
-                        offset -= analyser.fftSizePiece * 2 / 2
-                        let output = new Array(analyser.fftSize)
-                        if (offset < 0) {
-                            midEase.splice(0, analyser.fftSizePiece)
-                            output.splice(0, analyser.fftSizePiece, midEase)
-                        } else if (offset == analyser.fftSize) {
-                            midEase.splice(-analyser.fftSizePiece)
-                            output.splice(analyser.fftSize - analyser.fftSizePiece, analyser.fftSizePiece, midEase)
-                        } else {
-                            output.splice(midEase)
-                            output.splice(offset - analyser.fftSizePiece, analyser.fftSizePiece, midEase)
-                        }
-                        inject.output = output
-                    }
-
                     // TO-DO - add effector
                     analyser.effect += effector
                     analyser.effect = analyser.effect > 1 ? 1 : analyser.effect
 
-                    return inject.output
+                    if (!inject.output) {
+                        let midEase = Math.Poly.Medium.midEase(analyser.fftSizePiece * 2)
+                        let offset = analyser.fftSizePiece * inject.tenthRange - (inject.tenthRange * 1.5) << 0
+                        offset -= analyser.fftSizePiece * 2 / 2
+                        inject.output = new Array(analyser.fftHalfSize).fill(0).map(function (x, i) {
+                            return midEase[-offset + i] ? midEase[-offset + i] : 0
+                        })
+                    }
+
+                    return inject.output.map(function (x) {
+                        return x * analyser.effect
+                    })
                 }
                 inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0.4, tenthRange: this.dataset.tenthRange << 0}
 
@@ -229,9 +239,12 @@ this.canvas.app = new function (app, canvas, ctx) {
                     // TO-DO - add effector
                     if (analyser.effect == 0) { inject.output = [] }
 
-                    return inject.output
+                    return inject.output.map(function (x) {
+                        return x * analyser.effect
+                    })
                 }
-                inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0.18, tenthRange: this.dataset.tenthRange << 0}
+                inject.dynamicData = dynamicData
+                inject.effector = 0.18
 
                 injectRecordBut.className = 'rec'
                 injectRecordBut.innerHTML = 'Inject Audio Frequency Data &bull; Segment <span class="rec seg">0</span>'
@@ -246,8 +259,18 @@ this.canvas.app = new function (app, canvas, ctx) {
                     analyser.effect -= effector
                     analyser.effect = analyser.effect < -1 ? -1 : analyser.effect
                     
-                    console.log(analyser.effect)
-                    return [0, 10, 30, 40, 50, 40, 30, 20, 10, 0]
+                    if (!inject.output) {
+                        let midEase = Math.Poly.Medium.midEase(analyser.fftSizePiece * 2)
+                        let offset = analyser.fftSizePiece * inject.tenthRange - (inject.tenthRange * 1.5) << 0
+                        offset -= analyser.fftSizePiece * 2 / 2
+                        inject.output = new Array(analyser.fftHalfSize).fill(0).map(function (x, i) {
+                            return midEase[-offset + i] ? midEase[-offset + i] : 0
+                        })
+                    }
+
+                    return inject.output.map(function (x) {
+                        return x * analyser.effect
+                    })
                 }
                 inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0.4, tenthRange: this.dataset.tenthRange << 0}
 
@@ -261,12 +284,14 @@ this.canvas.app = new function (app, canvas, ctx) {
                     analyser.effect += effector
                     analyser.effect = analyser.effect > 0 ? 0 : analyser.effect
                     
-                    console.log(analyser.effect)
                     if (analyser.effect == 0) { return [] }
                     
-                    return [0, 10, 30, 40, 50, 40, 30, 20, 10, 0]
+                    return inject.output.map(function (x) {
+                        return x * analyser.effect
+                    })
                 }
-                inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0.18, tenthRange: this.dataset.tenthRange << 0}
+                inject.dynamicData = dynamicData
+                inject.effector = 0.18
 
                 injectRecordBut.className = 'rec'
                 injectRecordBut.innerHTML = 'Inject Audio Frequency Data &bull; Segment <span class="rec seg">0</span>'
@@ -375,6 +400,20 @@ this.canvas.app = new function (app, canvas, ctx) {
         })
         divElem.appendChild(syncTimeLineBut)
 
+        var getData = function (dataIn, length, offset) {
+            var data = new Int32Array(new ArrayBuffer(length * 4))
+            for (let bDI = offset; bDI < length + offset; bDI++) {
+                data[bDI - offset] = dataIn[bDI]
+            }
+            return data
+        }
+
+        var loadData = function (dataIn, data, offset) {
+            for (let bDI = 0; bDI < data.length; bDI++) {
+                dataIn[bDI + offset] = data[bDI]
+            }
+        }
+
         var saveMp3DataBut = document.createElement('button')
         saveMp3DataBut.innerHTML = 'Save MP3 Recorded Data'
         saveMp3DataBut.addEventListener('click', function () {
@@ -393,12 +432,38 @@ this.canvas.app = new function (app, canvas, ctx) {
                 }
             }())
 
-            var data = ctx.timeline.data
+            var data = getData(ctx.timeline.data, ctx.timeline.nodeDataLength, 0)
             var fileName = 'mp3.json'
 
             saveData(data, fileName)
         })
         divElem.appendChild(saveMp3DataBut)
+
+        var loadMp3DataBut = document.createElement('button')
+        loadMp3DataBut.innerHTML = 'Load MP3 Recorded Data'
+        loadMp3DataBut.addEventListener('click', function () {
+            var script = document.createElement('script')
+            script.type = 'text/javascript'
+            script.async = false
+            if (script.readyState) {  // IE
+                script.onreadystatechange = function () {
+                    if (script.readyState == 'loaded' ||
+                            script.readyState == 'complete') {
+                        script.onreadystatechange = null
+                        loadData(ctx.timeline.data, window.Authority,  0)
+                        loadedFromFile = true
+                    }
+                }
+            } else {  // Others
+                script.onload = function () {
+                    loadData(ctx.timeline.data, window.Authority, 0)
+                    loadedFromFile = true
+                }
+            }
+            script.src = '/user/audiofeaturealizer/assets/' + 'mp3Data.js'
+            document.getElementsByTagName('body')[0].appendChild(script)
+        })
+        divElem.appendChild(loadMp3DataBut)
 
         var saveEnhancementDataBut = document.createElement('button')
         saveEnhancementDataBut.innerHTML = 'Save Enhancement Recorded Data'
@@ -418,12 +483,36 @@ this.canvas.app = new function (app, canvas, ctx) {
                 }
             }())
 
-            var data = ctx.timeline.data
+            var data = getData(ctx.timeline.data, ctx.timeline.nodeDataLength, ctx.timeline.nodeDataLength)
             var fileName = 'enhancement.json'
 
             saveData(data, fileName)
         })
         divElem.appendChild(saveEnhancementDataBut)
+
+        var loadEnhancementDataBut = document.createElement('button')
+        loadEnhancementDataBut.innerHTML = 'Load Enhancement Recorded Data'
+        loadEnhancementDataBut.addEventListener('click', function () {
+            var script = document.createElement('script')
+            script.type = 'text/javascript'
+            script.async = false
+            if (script.readyState) {  // IE
+                script.onreadystatechange = function () {
+                    if (script.readyState == 'loaded' ||
+                            script.readyState == 'complete') {
+                        script.onreadystatechange = null
+                        loadData(ctx.timeline.data, window.Authority,  ctx.timeline.nodeDataLength)
+                    }
+                }
+            } else {  // Others
+                script.onload = function () {
+                    loadData(ctx.timeline.data, window.Authority, ctx.timeline.nodeDataLength)
+                }
+            }
+            script.src = '/user/audiofeaturealizer/assets/' + 'enhancementData.js'
+            document.getElementsByTagName('body')[0].appendChild(script)
+        })
+        divElem.appendChild(loadEnhancementDataBut)
 
         var divInfoStyle = document.createElement('style')
         divInfoStyle.innerHTML = 'body {background: #FFF}                #info {color:#000}                #info button {display:block}#freqRec.rec.on{border-color: #FFFFFF}                #freqRec.rec.on{border-color: #FF0000}                #freqRec.rec.on .bull {color:#FFFFFF;}                #freqRec.rec.on .bull {color:#FF0000;}'
