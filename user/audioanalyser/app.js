@@ -29,7 +29,7 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     ctx.timeline.addon.timeframe.process = function () {
-        ctx.process(this.access, this.frame.duration, this._timeFrame, this.lapse)// before timeFrame process
+        ctx.process(this.access, this.frame._duration, this._timeFrame, this.lapse)// before timeFrame process
     }
 
     var intermediateFrame = 0
@@ -40,9 +40,9 @@ this.canvas.app = new function (app, canvas, ctx) {
             if (inject.dynamicData) {
                 inject.data = inject.dynamicData(inject.effector)
                 if (inject.data.length > 1) {
-                    let writeFrame = timeFrame + (lapse / 5) // cut lapse in half for fast CPU better visibility
+                    let writeFrame = timeFrame + (lapse / 2) // cut lapse in half for fast CPU better visibility
                     if (duration > intermediateFrame) {
-                        intermediateFrame = duration + writeFrame - (duration - deltaDuration + 1)// rework injections after each write end for visibility during runtime
+                        intermediateFrame = duration + writeFrame - (duration - deltaDuration)// rework injections after each write end for visibility during runtime
                         if (access == 'read') {
                             this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, inject.data, writeFrame, true, inject.min, inject.max)// add lapse to see real time change
                         } else {
@@ -195,9 +195,13 @@ this.canvas.app = new function (app, canvas, ctx) {
 
             buildStream()
 
+            // injectRecordBut.click()
+            loadEnhancementDataBut.click()
+            loadMp3DataBut.click()
+            autoSyncBut.click()
             audio.play()
-
-            injectRecordBut.click()
+            // ctx.timeline.addon.timeframe.goTo(23500)
+            // audio.currentTime = ctx.timeline.addon.timeframe.duration / 100
         }
         audioRequest.send()
 
@@ -216,7 +220,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             freqUp.dataset.tenthRange = i
 
             var genFreqUpGain = function (elem) {
-                ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
+                // ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
                 function dynamicData (effector) {
                     // TO-DO - add effector
                     analyser.effect += effector
@@ -243,13 +247,13 @@ this.canvas.app = new function (app, canvas, ctx) {
             freqUp.addEventListener('mousedown', genFreqUpGain)
 
             var genFreqUpDrain = function () {
-                ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
+                // ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
                 function dynamicData (effector) {
                     analyser.effect -= effector
                     analyser.effect = analyser.effect < inject.min ? inject.min : analyser.effect
 
                     // TO-DO - add effector
-                    if (analyser.effect == inject.min) { inject.output = []; return inject.output }
+                    if (analyser.effect <= inject.min || !inject.output) { inject.output = []; return inject.output }
 
                     return inject.output.map(function (x) {
                         return x * analyser.effect
@@ -263,15 +267,42 @@ this.canvas.app = new function (app, canvas, ctx) {
             }
             freqUp.addEventListener('mouseup', genFreqUpDrain)
 
+            var freqCut = document.createElement('div')
+            freqCut.className = 'freqCut'
+            freqCut.dataset.tenthRange = i
+
+            var genFreqCut = function (elem) {
+                // ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
+                function dynamicData (effector) {
+                    // TO-DO - add effector
+                    if (!inject.output) {
+                        let midEase = Math.Poly.Medium.midEase(analyser.fftSizePiece * 2)
+                        let offset = analyser.fftSizePiece * inject.tenthRange - (inject.tenthRange * 1.5) << 0
+                        offset -= analyser.fftSizePiece * 2 / 2
+                        inject.output = new Array(analyser.fftHalfSize).fill(0).map(function (x, i) {
+                            return midEase[-offset + i] ? -9 : 0
+                        })
+                    }
+
+                    return inject.output
+                }
+                inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0, tenthRange: (elem.dataset ? elem.dataset.tenthRange : elem.currentTarget.dataset.tenthRange) << 0, min: 0, max: 1}
+
+                injectRecordBut.className = 'rec'
+                injectRecordBut.innerHTML = 'Inject Audio Frequency Data &bull; Segment <span class="rec seg">0</span>'
+            }
+            freqCut.addEventListener('mousedown', genFreqCut)
+            freqCut.addEventListener('mouseup', genFreqUpDrain)
+
             var freqDown = document.createElement('div')
             freqDown.className = 'freqDown'
             freqDown.dataset.tenthRange = i
 
             var genFreqDownGain = function (elem) {
-                ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
+                // ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
                 function dynamicData (effector) {
                     analyser.effect -= effector
-                    analyser.effect = analyser.effect < inject.max ? inject.max : analyser.effect
+                    analyser.effect = analyser.effect < inject.min ? inject.min : analyser.effect
 
                     if (!inject.output) {
                         let midEase = Math.Poly.Medium.midEase(analyser.fftSizePiece * 2)
@@ -286,7 +317,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                         return x * analyser.effect
                     })
                 }
-                inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0.4, tenthRange: (elem.dataset ? elem.dataset.tenthRange : elem.currentTarget.dataset.tenthRange) << 0, min: 0, max: -1}
+                inject = {stream: stream, nodes: [audio.enhancement], props: ['poly'], data: [], deltaData: [], dynamicData: dynamicData, effector: 0.4, tenthRange: (elem.dataset ? elem.dataset.tenthRange : elem.currentTarget.dataset.tenthRange) << 0, min: -1, max: 0}
 
                 injectRecordBut.className = 'rec'
                 injectRecordBut.innerHTML = 'Inject Audio Frequency Data &bull; Segment <span class="rec seg">0</span>'
@@ -294,12 +325,12 @@ this.canvas.app = new function (app, canvas, ctx) {
             freqDown.addEventListener('mousedown', genFreqDownGain)
 
             var genFreqDownDrain = function () {
-                ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
+                // ctx.timeline.addon.timeframe.goTo(audio.currentTime * 100 << 0)
                 function dynamicData (effector) {
                     analyser.effect += effector
-                    analyser.effect = analyser.effect > inject.min ? inject.min : analyser.effect
+                    analyser.effect = analyser.effect > inject.max ? inject.max : analyser.effect
 
-                    if (analyser.effect == inject.min) { inject.output = []; return inject.output }
+                    if (analyser.effect >= inject.max || !inject.output) { inject.output = []; return inject.output }
 
                     return inject.output.map(function (x) {
                         return x * analyser.effect
@@ -340,6 +371,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             topLeftKey.dataset.tenthRange = topRightKey.dataset.tenthRange = bottomLeftKey.dataset.tenthRange = freqUp.dataset.tenthRange = freqDown.dataset.tenthRange = i
 
             freqDiv.appendChild(freqUp)
+            freqDiv.appendChild(freqCut)
             freqDiv.appendChild(freqDown)
             parentNode.insertBefore(freqDiv, canvas.node.nextSibling)
         }

@@ -32,6 +32,11 @@ body {
 .freqUp {
     background-image: url('assets/frequp.gif');
 }
+.freqCut {
+    height: 20% !important;
+    background-image: url('assets/freqcut.gif');
+    background-position: center center;
+}
 .freqDown {
     background-image: url('assets/freqdown.gif');
 }
