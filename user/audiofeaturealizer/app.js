@@ -22,14 +22,16 @@ this.canvas.app = new function (app, canvas, ctx) {
     var timeframe = ctx.timeline.addon.timeframe
     var timelineLength = ctx.timeline.length
     var system
-    var audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-    var audio, audioSrc, analyser, bufferLength, audioFreqData, audioUrls
-    var inject = false
+    // !! All injections and enhancement done inside audioanalyser demo
+    // var audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    // var audio, audioSrc, analyser, bufferLength, audioFreqData,
+    var audio
+    // var inject = false
 
-    var imgs = this.imgs = [['zipper.png', 0.5, 0.1, 0, 0.5, 0, 250, 250, 'zipperhi.png'], ['zipperhi.png', 0.5, 0.1, 0, 0.5, 0, 250, 250], ['sunflare.png', 0.5, 0.1, 0, 1, 0, 650, 650], ['lightstreak.png', 0.5, 0.1, 0, 1, 0, 1300, 650], ['orb.png', 0, 0, 0, 0, 0, 89, 89]]
+    var imgs = ctx.imgs = this.imgs = [['zipper.png', 0.5, 0.1, 0, 0.5, 0, 250, 250, 'zipperhi.png'], ['zipperhi.png', 0.5, 0.1, 0, 0.5, 0, 250, 250], ['sunflare.png', 0.5, 0.1, 0, 1, 0, 650, 650], ['lightstreak.png', 0.5, 0.1, 0, 1, 0, 1300, 650], ['orb.png', 0, 0, 0, 0, 0, 89, 89]]
 
     function init () {
-        audioUrls = [[app.fileLocAssets + 'drop.mp3', 0], [app.fileLocAssets + 'features.mp3', 1100]]
+        audio = [[app.fileLocAssets + 'drop.mp3', 0], [app.fileLocAssets + 'features.mp3', 1100]]
         var div = document.getElementById('info')
         var divElem = document.createElement('div')
         var playBut = document.createElement('button')
@@ -37,38 +39,39 @@ this.canvas.app = new function (app, canvas, ctx) {
         var playFeature = function (e) {
             divElem.style.display = 'none'
 
-            audioUrls[0][0].play()
+            audio[0][0].play()
 
-            audioUrls[1][2].send()// load feature right after
+            audio[1][2].send()// load feature right after
 
             timeframe.run()
 
             playBut.removeEventListener('click', playFeature)
+
+            timeframe.clearRuntimeAuthority('segment', 0)
         }
-        for (let ai = 0; ai < audioUrls.length; ai++) {
-            var audioRequest = audioUrls[ai][2] = new window.XMLHttpRequest()
+        for (let ai = 0; ai < audio.length; ai++) {
+            var audioRequest = audio[ai][2] = new window.XMLHttpRequest()
             audioRequest.id = ai
-            audioRequest.open('GET', audioUrls[ai][0], true)
+            audioRequest.open('GET', audio[ai][0], true)
             audioRequest.responseType = 'blob'
 
             audioRequest.onload = function () {
-                audioUrls[this.id][0] = new window.Audio(window.URL.createObjectURL(this.response))
-                audioUrls[this.id][0].paused = true
+                audio[this.id][0] = new window.Audio(window.URL.createObjectURL(this.response))
+                audio[this.id][0].paused = true
                 if (this.id == 0) { // ////// Build Stream after feature mp3 loads:
                     buildStream(function () {
-                        ctx.timeline.addon.timeframe.timeline.destroy()
+                        // var actionPositions = [1500, 6200, 10200, 14200, 19500, 25400]
                         var bar4th = 75
                         var barLength = (timelineLength - 1100) / bar4th
 
                         var segmentAuth = new function (timeframe) {
                             this.main = function () {
-                                if (timeframe.duration > 1100 && timeframe.duration < timelineLength - barLength) timeframe.goTo((audioUrls[0][0].currentTime * 100) + 1100 << 0)
+                                if (timeframe.duration > 1100 && timeframe.duration < timelineLength - barLength) timeframe.goTo((audio[0][0].currentTime * 100) + 1100 << 0)
                             }
                             return this
                         }(ctx.timeline.addon.timeframe)
 
                         var data = {segment: {}}
-                        var actionPositions = [1500, 6200, 10200, 14200, 19500, 25400]
                         for (let bi = 0; bi < timelineLength - 1100; bi += barLength) {
                             data.segment[bi + 1100 << 0] = {Authority: segmentAuth}
                         }
@@ -153,14 +156,14 @@ this.canvas.app = new function (app, canvas, ctx) {
                         //   .Knob()// the pointer moves the knob, knob moves the cursor
                         //   .Subject()// node/object moves the cursor
                                     // .Marquee()// cursor draws the marquee
-                                    // .Grid()// the grid prepares the matrices to render textiles, boundaries, particles and collisions depending on cursor location
-                                           // .Parallax()// exploits grid data and cuts out necessary data for optimization, rendering and other various uses
+                                    // .Grid()// the grid prepares the matrices to render textiles, boundaries, particles and collisions depending on cursor, knob or subject location
+                                        //    .Parallax()// exploits grid data and cuts out necessary data for optimization, rendering and other various uses such as background movement
                                                     //   .Entity()// node/object collection optimized by parallax
                                                     //   .Physic()// chained physics optimized by parallax
                                                     //   .Bound()// utilizes the parallax exploits to resolve and utilize boundary matrices
                                                     //   .Collision()// utilizes the parallax exploits to resolve and utilize collision matrices
-                                                                //   .Particle()// entitys could emit particles, particle generation and behaviors affected by physics, boundaries and collisions
-                                                                //   .Rig()// rigging behaviors affected by entitys, physics, boundaries and collisions
+                                                                //   .Particle()// entities could emit particles, particle generation and behaviors affected by physics, boundaries and collisions
+                                                                //   .Rig()// rigging behaviors affected by entities, physics, boundaries and collisions
 
         system.Pointer
         .bind(app.pointers, canvas.node)
@@ -170,7 +173,6 @@ this.canvas.app = new function (app, canvas, ctx) {
                 imgs[0].scaleUpTo = 0.01
                 imgs[0].hold = false
             } else if (Math.distance2(pointer.normal, imgs[0].normal) < 0.15 && !imgs[0].hold) {
-                console.log('hovering')
                 imgs[0].swap = imgs[0].sec.src
                 imgs[0].scaleUpTo = 0.15
                 canvas.node.style.cursor = 'pointer'
@@ -179,7 +181,6 @@ this.canvas.app = new function (app, canvas, ctx) {
                     imgs[0].hold = true
                 }
             } else if (imgs[0].hover && !imgs[0].hold) {
-                console.log('hoverout')
                 imgs[0].swap = imgs[0].fst.src
                 imgs[0].scaleUpTo = 0.01
                 canvas.node.style.cursor = ''
@@ -187,8 +188,8 @@ this.canvas.app = new function (app, canvas, ctx) {
                 let zipper = (pointer.normal.x + 1) / 2
                 zipper = zipper < 0.1 ? 0.1 : zipper > 0.899 ? 0.899 : zipper
                 let frame = (timelineLength - 1100) * ((zipper - 0.1) / 0.8) + 1100 << 0
-                // audioUrls[0][0].play()
-                audioUrls[0][0].currentTime = (frame - 1100) / 100 << 0
+                // audio[0][0].play()
+                audio[0][0].currentTime = (frame - 1100) / 100 << 0
                 timeframe.goTo(frame)
             } else { return }
 
@@ -223,10 +224,10 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     ctx.timeline.addon.timeframe.process = function () {
-        ctx.process(this.access, this._timeFrame, this.lapse)// before timeFrame process
+        ctx.process(this.access, this.frame._duration, this._timeFrame, this.lapse)// before timeFrame process
     }
 
-    ctx.process = function (access, timeFrame, lapse) {
+    ctx.process = function (access, duration, timeFrame, lapse) {
         
     }
 
@@ -288,24 +289,23 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         if (frameDuration > 900) {
             seeker.show = seeker.show == 0 ? 1 : seeker.show
-            if (!audioUrls[1][0].play) {
+            if (!audio[1][0].play) {
                 seeker.progress.show = 1
-                audioUrls[1][0] = {play: 'halted'}
+                audio[1][0] = {play: 'halted'}
                 imgs[0].spinTo = imgs[1].spinTo = 50
-                audioUrls[1][2].onprogress = function (xhr) {
+                audio[1][2].onprogress = function (xhr) {
                     imgs[0].spinTo += imgs[1].spinTo += 50
                     seeker.progress.loaded = (xhr.loaded / (xhr.total || 7171451))
                 }
-            } else if (audioUrls[1][0].play != 'halted' && seeker.show == 1) {
+            } else if (audio[1][0].play != 'halted' && seeker.show == 1) {
                 seeker.progress.show = 0
                 seeker.show = 0.5
-                if (audioUrls[1][0].paused && timeframe.duration > 1100) timeframe.goTo(1100)
-                audioUrls[0][0].backupSrc = audioUrls[0][0].src
-                audioUrls[0][0].src = audioUrls[1][0].src
-                audioUrls[0][0].currentTime = 0
-                audioUrls[0][0].play()
+                if (audio[1][0].paused && timeframe.duration > 1100) timeframe.goTo(1100)
+                audio[0][0].backupSrc = audio[0][0].src
+                audio[0][0].src = audio[1][0].src
+                audio[0][0].currentTime = 0
+                audio[0][0].play()
             }
-
 
             Math.lerpProp(seeker, 'alpha', seeker.show, 0.05)
             this.fillStyle = 'rgba(255, 100, 0,' + seeker.alpha + ')'
@@ -325,13 +325,13 @@ this.canvas.app = new function (app, canvas, ctx) {
                 seeker.progress.height
             )
         } else {
-            if (audioUrls[0][0].backupSrc) {
-                audioUrls[0][0].src = audioUrls[0][0].backupSrc
-                audioUrls[0][0].backupSrc = null
-                delete audioUrls[0][0].backupSrc
+            if (audio[0][0].backupSrc) {
+                audio[0][0].src = audio[0][0].backupSrc
+                audio[0][0].backupSrc = null
+                delete audio[0][0].backupSrc
 
-                audioUrls[0][0].currentTime = 0
-                audioUrls[0][0].play()
+                audio[0][0].currentTime = 0
+                audio[0][0].play()
             }
             seeker.show = seeker.progress.show = seeker.alpha = seeker.progress.alpha = 0
         }
@@ -392,6 +392,28 @@ this.canvas.app = new function (app, canvas, ctx) {
         var addon = ctx[stream].addon
         var bind = addon.binding
         var buffer = addon.buffer
+
+        let audioFreqData = new Array(32).fill(0)
+        bind(stream, [
+        [audio[0][0].frequency = {'poly': []}, 780]
+        ],
+            [
+            ['poly', audioFreqData]
+            ],
+        [782],
+        false,
+        1) // 0 - 255
+
+        bind(stream, [
+        [audio[0][0].enhancement = {'poly': []}, 781]
+        ],
+            [
+            ['poly', audioFreqData]
+            ],
+        [782],
+        false,
+        100) // 0 - 100
+        // enhance precision
 
         // development staging
         for (let ii = 0; ii < imgs.length; ii++) {
@@ -457,7 +479,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                         ]
                     ],
                 false)
-                
+
                 buffer.valIn('timeline', [imgs[ii], imgs[1], imgs[3]], ['alpha'], 0.01, 900 + 175, timelineLength)
 
                 // zipper, zipperhi, sunflare, lightstreak
