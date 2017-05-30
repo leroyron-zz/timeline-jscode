@@ -5,9 +5,9 @@ window.Authority = new function (app, canvas, ctx) {
     var imgs = ctx.imgs
     var timeframe = ctx.timeline.addon.timeframe
 
-    timeframe.clearRuntimeAuthorityNear('segment', this.actionID, 200)
+    timeframe.clearRuntimeAuthoritiesNear('segment', this.actionID, 200)
 
-    timeframe.timeline.removeInsertNear('segment', this.actionID, 200)
+    timeframe.timeline.removeInsertsNear('segment', this.actionID, 200)
 
     this.main = function () {
         // used for reference, because it may get skipped over by mp3 syncing

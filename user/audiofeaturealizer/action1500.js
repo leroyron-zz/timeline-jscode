@@ -5,9 +5,9 @@ window.Authority = new function (app, canvas, ctx, buffer) {
     var imgs = ctx.imgs
     var timeframe = ctx.timeline.addon.timeframe
 
-    timeframe.clearRuntimeAuthorityNear('segment', this.actionID, 200)
+    timeframe.clearRuntimeAuthoritiesNear('segment', this.actionID, 200)
 
-    timeframe.timeline.removeInsertNear('segment', this.actionID, 200)
+    timeframe.timeline.removeInsertsNear('segment', this.actionID, 200)
     //timeframe.timeline.removeInsertAt('segment', this.actionID)
 
     /* for (let ii = 0; ii < imgs.length; ii++) {
