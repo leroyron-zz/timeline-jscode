@@ -115,15 +115,15 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     ctx.timeline.addon.timeframe.process = function () {
-        ctx.process(this.access, this._timeFrame, this.lapse)// before timeFrame process
+        ctx.process(this.access, this.frame._duration, this._timeFrame, this.lapse)// before timeFrame process
     }
 
-    ctx.process = function (access, timeFrame, lapse) {
+    ctx.process = function (access, duration, timeFrame, lapse) {
         if (inject) {
             if (access == 'read') {
-                this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, inject.elem.value, timeFrame + lapse)
+                this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, inject.elem.value, 0, timeFrame + lapse)
             } else {
-                this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, (inject.elem.title - inject.elem.value), timeFrame + lapse)
+                this.timeline.addon.buffer.injectData(inject.stream, inject.nodes, inject.props, (inject.elem.title - inject.elem.value), 0, timeFrame + lapse)
             }
             inject.elem.title = inject.elem.value
         }
@@ -148,13 +148,13 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     var first = 1
-    ctx.rendering = function (timeFrame) {
+    ctx.rendering = function (frameDuration) {
         this.globalCompositeOperation = 'destination-over'
         this.save()
         this.clearRect(0, 0, canvas.app.width, canvas.app.height)
         this.scale(canvas.app.width / 680, (canvas.app.height / 225))
-        if (!timeFrame || timeFrame < 60) {
-            this.globalAlpha = 1 - (timeFrame / 60)
+        if (!frameDuration || frameDuration < 60) {
+            this.globalAlpha = 1 - (frameDuration / 60)
             this.drawImage(imgs[1], (imgs[1].wSrc * imgs[1].sprite) + 1, imgs[1].yPos, imgs[1].wSrc, imgs[1].hSrc, imgs[1].xDes, imgs[1].yDes, imgs[1].wDes, imgs[1].hDes)
             this.globalAlpha = 1
         }

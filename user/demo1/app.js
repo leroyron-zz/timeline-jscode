@@ -21,10 +21,10 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     ctx.timeline.addon.timeframe.process = function () {
-        ctx.process(this.access, this._timeFrame, this.lapse)// before timeFrame process
+        ctx.process(this.access, this.frame._duration, this._timeFrame, this.lapse)// before timeFrame process
     }
 
-    ctx.process = function (access, timeFrame, lapse) {
+    ctx.process = function (access, duration, timeFrame, lapse) {
 
     }
 
