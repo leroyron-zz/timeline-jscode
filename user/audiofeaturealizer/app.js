@@ -28,7 +28,7 @@ this.canvas.app = new function (app, canvas, ctx) {
     var audio
     // var inject = false
 
-    var imgs = ctx.imgs = this.imgs = [['zipper.png', 0.5, 0.1, 0, 0.5, 0, 250, 250, 'zipperhi.png'], ['zipperhi.png', 0.5, 0.1, 0, 0.5, 0, 250, 250], ['sunflare.png', 0.5, 0.1, 0, 1, 0, 650, 650], ['lightstreak.png', 0.5, 0.1, 0, 1, 0, 1300, 650], ['orb.png', 0, 0, 0, 0, 0, 89, 89]]
+    var spts = ctx.spts = this.spts = [['zipper.png', 0.5, 0.1, '250px', '250px', 0, 0.5, 0], ['zipperhi.png', 0.5, 0.1, '250px', '250px', 0, 0.5, 0], ['sunflare.png', 0.5, 0.1, '650px', '650px', 0, 1, 0], ['lightstreak.png', 0.5, 0.1, '1300px', '650px', 0, 1, 0], ['orb.png', 0, 0, '89px', '89px', 0, 0, 0]]
 
     function init () {
         audio = [[app.fileLocAssets + 'drop.mp3', 0], [app.fileLocAssets + 'features.mp3', 1100]]
@@ -104,52 +104,59 @@ this.canvas.app = new function (app, canvas, ctx) {
             }
             if (ai == 0) audioRequest.send()
         }
-        var genImgs = []
+        var genSprites = []
         ctx.globalAlpha = 0
-        for (let ii = 0; ii < imgs.length; ii++) {
-            if (ii == 4) {
+        for (let si = 0; si < spts.length; si++) {
+            if (si == 4) {
                 for (var gi = 0; gi < 125; gi++) {
-                    genImgs.push(createImgs(ii, ii + gi, Math.randomFromTo(10, 90) / 100, Math.randomFromTo(60, 80) / 100, Math.randomFromTo(15, 30) / 100, Math.randomFromTo(gi * 5, 100)))
+                    genSprites.push(ctx.sprite(
+                        app.fileLocAssets + spts[si][0],
+                        Math.randomFromTo(10, 90) / 100, // random x 0.1 - 0.9
+                        Math.randomFromTo(60, 80) / 100, // random y 0.6 - 0.8
+                        spts[si][3], // width
+                        spts[si][4], // height
+                        spts[si][5], // rotate
+                        Math.randomFromTo(15, 30) / 100, // random scale 0.15 - 0.3
+                        spts[si][7], // alpha
+                        0,
+                        [
+                            ['spin', 0],
+                            ['scaleUp', 0],
+                            ['offset', Math.randomFromTo(gi * 5, 100)] // offset increment
+                        ],
+                        function () {
+                            // debugger
+                            // arguments
+                        },
+                        [1, 2, 3])
+                    )
                 }
             } else {
-                genImgs.push(createImgs(ii, gi, imgs[ii][1], imgs[ii][2], imgs[ii][4], 300))
+                genSprites.push(ctx.sprite(
+                    app.fileLocAssets + spts[si][0],
+                    spts[si][1], // x
+                    spts[si][2], // y
+                    spts[si][3], // width
+                    spts[si][4], // height
+                    spts[si][5], // rotate
+                    spts[si][6], // scale
+                    spts[si][7], // alpha
+                    0,
+                    [
+                        ['spin', 0],
+                        ['scaleUp', 0],
+                        ['offset', 300]
+                    ],
+                    function () {
+                        // debugger
+                        // arguments
+                    },
+                    [1, 2, 3])
+                )
             }
-        }
-        function createImgs (ii, gi, x, y, scale, offset) {
-            let name = /(.*)\.[^.]+$/.exec(imgs[ii][0])[1]
-            let src = imgs[ii][0]
-            let w = imgs[ii][6]
-            let h = imgs[ii][7]
-            let rotate = imgs[ii][3]
-            let alpha = imgs[ii][5]
-            let sec = imgs[ii][8]
-            let img = new window.Image()
-            img.name = name
-            img.xPos = x
-            img.yPos = y
-            img.w = w
-            img.h = h
-            // let translateX = img.xPos * app.width - img.w / 2 << 0
-            // let translateY = img.yPos * app.height - img.h / 2 << 0
-            img.spin = 0
-            img.scaleUp = 0
-            img.rotate = rotate
-            img.scale = scale
-            img.alpha = alpha
-            img.sprite = 0
-            img.secImg = sec ? app.fileLocAssets + sec : false
-            img.offset = offset || 0
-            img.onload = function () {
-                this.sec = new window.Image()
-                this.sec.src = this.secImg
-                img.onload = undefined
-            }
-            img.fst = {}
-            img.fst.src = img.src = app.fileLocAssets + src
-            return img
         }
 
-        imgs = genImgs
+        spts = genSprites
 
         system = new System()// start new system and start the down-line
                              .Pointer()// the pointer such as a mouse or touch moves the cursor
@@ -169,31 +176,29 @@ this.canvas.app = new function (app, canvas, ctx) {
         .bind(app.pointers, canvas.node)
         .result(function (pointer) {
             if (pointer.type == 'mouseup' || pointer.type == 'touchend') {
-                imgs[0].swap = imgs[0].fst.src
-                imgs[0].scaleUpTo = 0.01
-                imgs[0].hold = false
-            } else if (Math.distance2(pointer.normal, imgs[0].normal) < 0.15 && !imgs[0].hold) {
-                imgs[0].swap = imgs[0].sec.src
-                imgs[0].scaleUpTo = 0.15
+                spts[0].sprite = 0
+                spts[0].scaleUpTo = 0.01
+                spts[0].hold = false
+            } else if (Math.distance2(pointer.normal, spts[0].normal) < 0.15 && !spts[0].hold) {
+                spts[0].sprite = 1
+                spts[0].scaleUpTo = 0.15
                 canvas.node.style.cursor = 'pointer'
-                imgs[0].hover = true
+                spts[0].hover = true
                 if (pointer.type == 'mousedown' || pointer.type == 'touchstart') {
-                    imgs[0].hold = true
+                    spts[0].hold = true
                 }
-            } else if (imgs[0].hover && !imgs[0].hold) {
-                imgs[0].swap = imgs[0].fst.src
-                imgs[0].scaleUpTo = 0.01
+            } else if (spts[0].hover && !spts[0].hold) {
+                spts[0].sprite = 0
+                spts[0].scaleUpTo = 0.01
                 canvas.node.style.cursor = ''
-            } else if (imgs[0].hold) {
-                let zipper = (pointer.normal.x + 1) / 2
+            } else if (spts[0].hold) {
+                let zipper = pointer.normal.x
                 zipper = zipper < 0.1 ? 0.1 : zipper > 0.899 ? 0.899 : zipper
                 let frame = (timelineLength - 1100) * ((zipper - 0.1) / 0.8) + 1100 << 0
                 // audio[0][0].play()
                 audio[0][0].currentTime = (frame - 1100) / 100 << 0
                 timeframe.goTo(frame)
             } else { return }
-
-            imgs[0].src = imgs[0].swap
 
             if (app.pointers.inUse) {
 
@@ -202,7 +207,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         .init()
 
         /* system.Subject
-        .bind(imgs[0], app.pointers, 0.15)
+        .bind(spts[0], app.pointers, 0.15)
         .hover(function (subject, pointer) {
             subject.src = subject.sec.src
             subject.scaleUpTo = 0.15
@@ -211,7 +216,7 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         })
         .drag(function (subject, pointer) {
-            subject.xPos = 0
+            subject.position.x = 0
         })
         .drop(function (subject, pointer) {
 
@@ -221,6 +226,8 @@ this.canvas.app = new function (app, canvas, ctx) {
             subject.scaleUpTo = 0.01
         })
         .init() */
+
+        document.getElementsByTagName('link')[0].href = app.codeLoc + '/style.css?v=1.0'
     }
 
     ctx.timeline.addon.timeframe.process = function () {
@@ -251,18 +258,14 @@ this.canvas.app = new function (app, canvas, ctx) {
 
     var seeker = {
         show: false,
-        xPos: 0.1,
-        yPos: 0.837,
-        width: 0.8,
-        height: 1,
+        position: {x: 0.1, y: 0.837},
+        measure: {width: 0.8, height: 1},
         alpha: 0,
         progress: {
             loaded: 0,
             show: false,
-            xPos: 0.1,
-            yPos: 0.837,
-            width: 0.8,
-            height: 3,
+            position: {x: 0.1, y: 0.837},
+            measure: {width: 0.8, height: 1},
             alpha: 0
         }
     }
@@ -292,9 +295,9 @@ this.canvas.app = new function (app, canvas, ctx) {
             if (!audio[1][0].play) {
                 seeker.progress.show = 1
                 audio[1][0] = {play: 'halted'}
-                imgs[0].spinTo = imgs[1].spinTo = 50
+                spts[0].spinTo = spts[1].spinTo = 50
                 audio[1][2].onprogress = function (xhr) {
-                    imgs[0].spinTo += imgs[1].spinTo += 50
+                    spts[0].spinTo += spts[1].spinTo += 50
                     seeker.progress.loaded = (xhr.loaded / (xhr.total || 7171451))
                 }
             } else if (audio[1][0].play != 'halted' && seeker.show == 1) {
@@ -310,19 +313,19 @@ this.canvas.app = new function (app, canvas, ctx) {
             Math.lerpProp(seeker, 'alpha', seeker.show, 0.05)
             this.fillStyle = 'rgba(255, 100, 0,' + seeker.alpha + ')'
             this.fillRect(
-                canvas.app.width * seeker.xPos,
-                canvas.app.height * seeker.yPos,
-                canvas.app.width * seeker.width,
-                seeker.height
+                canvas.app.width * seeker.position.x,
+                canvas.app.height * seeker.position.y,
+                canvas.app.width * seeker.measure.width,
+                seeker.measure.height
             )
 
             Math.lerpProp(seeker.progress, 'alpha', seeker.progress.show, 0.05)
             this.strokeStyle = 'rgba(255, 255, 255,' + seeker.progress.alpha + ')'
             this.strokeRect(
-                canvas.app.width * seeker.progress.xPos,
-                canvas.app.height * seeker.progress.yPos - (seeker.progress.height / 2),
-                canvas.app.width * seeker.progress.width * seeker.progress.loaded,
-                seeker.progress.height
+                canvas.app.width * seeker.progress.position.x,
+                canvas.app.height * seeker.progress.position.y - (seeker.progress.measure.height / 2),
+                canvas.app.width * seeker.progress.measure.width * seeker.progress.loaded,
+                seeker.progress.measure.height
             )
         } else {
             if (audio[0][0].backupSrc) {
@@ -336,31 +339,31 @@ this.canvas.app = new function (app, canvas, ctx) {
             seeker.show = seeker.progress.show = seeker.alpha = seeker.progress.alpha = 0
         }
 
-        var iLen = imgs.length
+        var sLen = spts.length
         if (frameDuration > 1100 && seeker.show != 1) {
-            iLen = 1
+            sLen = 1
 
-            imgs[0].xPos = 0.8 * ((frameDuration - 1100) / (timelineLength - 1100)) + 0.1
-            // frameDuration = (timelineLength - 1100) * ((imgs[0].xPos - 0.1) / 0.8) + 1100
-            // console.log(frameDuration, imgs[0].xPos)
+            spts[0].position.x = 0.8 * ((frameDuration - 1100) / (timelineLength - 1100)) + 0.1
+            // frameDuration = (timelineLength - 1100) * ((spts[0].position.x - 0.1) / 0.8) + 1100
+            // console.log(frameDuration, spts[0].position.x)
         }
-        imgs[0].normal = {x: imgs[0].xPos * 2 - 1, y: 1 - imgs[0].yPos * 2}
-        for (let ii = iLen - 1; ii > -1; ii--) {
-            if (imgs[ii].scaleUpTo) Math.lerpProp(imgs[ii], 'scaleUp', imgs[ii].scaleUpTo, 0.15)
-            let scale = imgs[ii].scale + imgs[ii].scaleUp
+        spts[0].normal = {x: spts[0].position.x, y: spts[0].position.y}
+        for (let si = sLen - 1; si > -1; si--) {
+            if (spts[si].scaleUpTo) Math.lerpProp(spts[si], 'scaleUp', spts[si].scaleUpTo, 0.15)
+            let scale = spts[si].scale + spts[si].scaleUp
             this.scale(scale, scale)
-            this.globalAlpha = imgs[ii].alpha
-            let halfWidth = imgs[ii].w / 2
-            let halfHeight = imgs[ii].h / 2
-            let translateX = imgs[ii].xPos * app.width * (1 / scale)
-            let translateY = imgs[ii].yPos * app.height * (1 / scale)
+            this.globalAlpha = spts[si].alpha
+            let halfWidth = spts[si].measure.width / 2
+            let halfHeight = spts[si].measure.height / 2
+            let translateX = spts[si].position.x * app.width * (1 / scale)
+            let translateY = spts[si].position.y * app.height * (1 / scale)
             this.translate(translateX, translateY)
-            if (imgs[ii].spinTo) Math.lerpProp(imgs[ii], 'spin', imgs[ii].spinTo, 0.05)
-            this.rotate((imgs[ii].rotate + imgs[ii].spin) * Math.PI / 180)
+            if (spts[si].spinTo) Math.lerpProp(spts[si], 'spin', spts[si].spinTo, 0.05)
+            this.rotate((spts[si].rotate + spts[si].spin) * Math.PI / 180)
             this.translate(-halfWidth, -halfHeight)
-            this.drawImage(imgs[ii], (imgs[ii].w * imgs[ii].sprite), 0, imgs[ii].w, imgs[ii].h, 0, 0, imgs[ii].w, imgs[ii].h)
+            this.drawImage(spts[si], (spts[si].measure.width * spts[si].sprite), 0, spts[si].measure.width, spts[si].measure.height, 0, 0, spts[si].measure.width, spts[si].measure.height)
             this.translate(halfWidth, halfHeight)
-            this.rotate(-(imgs[ii].rotate + imgs[ii].spin) * Math.PI / 180)
+            this.rotate(-(spts[si].rotate + spts[si].spin) * Math.PI / 180)
             this.translate(-(translateX), -(translateY))
             this.globalAlpha = 1
             this.scale(1 / scale, 1 / scale)
@@ -416,47 +419,53 @@ this.canvas.app = new function (app, canvas, ctx) {
         // enhance precision
 
         // development staging
-        for (let ii = 0; ii < imgs.length; ii++) {
+        for (let si = 0; si < spts.length; si++) {
             // Only zipper
-            if (imgs[ii].name == 'zipper') {
+            if (spts[si].name == 'zipper') {
                 bind(stream, [
-                [imgs[ii]]
+                [spts[si]]
                 ],
                     [
-                    ['xPos', imgs[ii].xPos],
-                    ['yPos', imgs[ii].yPos],
-                    ['alpha', imgs[ii].alpha],
-                    ['rotate', imgs[ii].rotate, 6002],
-                    ['scale', imgs[ii].scale]
+                    ['alpha', spts[si].alpha],
+                    ['rotate', spts[si].rotate, 6002],
+                    ['scale', spts[si].scale]
                     ])
             } else {
                 bind(stream, [
-                [imgs[ii]]
+                [spts[si]]
                 ],
                     [
-                    ['xPos', imgs[ii].xPos],
-                    ['yPos', imgs[ii].yPos],
-                    ['alpha', imgs[ii].alpha],
-                    ['rotate', imgs[ii].rotate],
-                    ['scale', imgs[ii].scale]
+                    ['alpha', spts[si].alpha],
+                    ['rotate', spts[si].rotate],
+                    ['scale', spts[si].scale]
                     ])
             }
         }
-        for (let ii = 0; ii < imgs.length; ii++) {
-            if (imgs[ii].name == 'zipper') {
+        for (let si = 0; si < spts.length; si++) {
+            // Only zipper
+            bind(stream, [
+            [spts[si].position]
+            ],
+                [
+                ['x', spts[si].position.x],
+                ['y', spts[si].position.y]
+                ])
+        }
+        for (let si = 0; si < spts.length; si++) {
+            if (spts[si].name == 'zipper') {
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['alpha', 1 - imgs[ii].alpha]]], [['easeOutQuad', 300]], 400
+                        [spts[si]], [[['alpha', 1 - spts[si].alpha]]], [['easeOutQuad', 300]], 400
                         ]
                     ],
                 false)
-                buffer.valIn('timeline', [imgs[ii]], ['alpha'], 1, 300 + 200, timelineLength)
+                buffer.valIn('timeline', [spts[si]], ['alpha'], 1, 300 + 200, timelineLength)
 
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii], imgs[1]], [[['rotate', 12510 + imgs[ii].rotate]]], [['easeOutQuad', 1000]], 400
+                        [spts[si], spts[1]], [[['rotate', 12510 + spts[si].rotate]]], [['easeOutQuad', 1000]], 400
                         ]
                     ],
                 false)
@@ -464,38 +473,38 @@ this.canvas.app = new function (app, canvas, ctx) {
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['scale', -0.1]]], [['easeOutQuad', 100]], 1000
+                        [spts[si]], [[['scale', -0.1]]], [['easeOutQuad', 100]], 1000
                         ]
                     ],
                 false)
-                buffer.valIn('timeline', [imgs[ii]], ['scale'], 0.4, 1100, timelineLength)
+                buffer.valIn('timeline', [spts[si]], ['scale'], 0.4, 1100, timelineLength)
             }
 
-            if (imgs[ii].name == 'sunflare') {
+            if (spts[si].name == 'sunflare') {
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii], imgs[1], imgs[3]], [[['alpha', 1 - imgs[ii].alpha], ['alpha', 0], ['alpha', -2]]], [['easeOutQuad', 300]], 400
+                        [spts[si], spts[1], spts[3]], [[['alpha', 1 - spts[si].alpha], ['alpha', 0], ['alpha', -2]]], [['easeOutQuad', 300]], 400
                         ]
                     ],
                 false)
 
-                buffer.valIn('timeline', [imgs[ii], imgs[1], imgs[3]], ['alpha'], 0.01, 900 + 175, timelineLength)
-
-                // zipper, zipperhi, sunflare, lightstreak
-                buffer.eval('timeline',
-                    [
-                        [
-                        [imgs[ii], imgs[0], imgs[1], imgs[3]], [[['yPos', 0.05 - imgs[0].yPos]]], [['easeOutBounce', 120]], 220
-                        ]
-                    ],
-                false)
+                buffer.valIn('timeline', [spts[si], spts[1], spts[3]], ['alpha'], 0.01, 900 + 175, timelineLength)
 
                 // zipper, zipperhi, sunflare, lightstreak
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii], imgs[0], imgs[1], imgs[3]], [[['yPos', 1 - imgs[0].yPos]]], [['easeOutBounce', 300]], 500
+                        [spts[si].position, spts[0].position, spts[1].position, spts[3].position], [[['y', 0.05 - spts[0].position.y]]], [['easeOutBounce', 120]], 220
+                        ]
+                    ],
+                false)
+
+                // zipper, zipperhi, sunflare, lightstreak
+                buffer.eval('timeline',
+                    [
+                        [
+                        [spts[si].position, spts[0].position, spts[1].position, spts[3].position], [[['y', 1 - spts[0].position.y]]], [['easeOutBounce', 300]], 500
                         ]
                     ],
                 false)
@@ -503,59 +512,59 @@ this.canvas.app = new function (app, canvas, ctx) {
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii], imgs[0], imgs[1], imgs[3]], [[['xPos', 0.1 - imgs[0].xPos]]], [['easeOutQuad', 100]], 700
+                        [spts[si].position, spts[0].position, spts[1].position, spts[3].position], [[['x', 0.1 - spts[0].position.x]]], [['easeOutQuad', 100]], 700
                         ]
                     ],
                 false)
-                buffer.valIn('timeline', [imgs[ii], imgs[0], imgs[1], imgs[3]], ['yPos'], 0.937, 750, 150)
-                buffer.valIn('timeline', [imgs[ii], imgs[0], imgs[1], imgs[3]], ['xPos'], 0.1, 800, timelineLength)
+                buffer.valIn('timeline', [spts[si].position, spts[0].position, spts[1].position, spts[3].position], ['y'], 0.937, 750, 150)
+                buffer.valIn('timeline', [spts[si].position, spts[0].position, spts[1].position, spts[3].position], ['x'], 0.1, 800, timelineLength)
                 buffer.exec('timeline',
                     [
                         [
-                        [imgs[ii], imgs[0], imgs[1], imgs[3]], [[750, 'yPos', -0.1, 'easeOutQuad', 150, 0.937]]
+                        [spts[si].position, spts[0].position, spts[1].position, spts[3].position], [[750, 'y', -0.1, 'easeOutQuad', 150, 0.937]]
                         ]
                     ],
                 false)
-                buffer.valIn('timeline', [imgs[ii], imgs[0], imgs[1], imgs[3]], ['yPos'], 0.837, 900, timelineLength)
+                buffer.valIn('timeline', [spts[si].position, spts[0].position, spts[1].position, spts[3].position], ['y'], 0.837, 900, timelineLength)
             }
 
-            if (imgs[ii].name == 'orb') {
+            if (spts[si].name == 'orb') {
                 // Only orbs
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['alpha', 0.15]]], [['easeOutQuad', 50]], imgs[ii].offset
+                        [spts[si]], [[['alpha', 0.15]]], [['easeOutQuad', 50]], spts[si].offset
                         ]
                     ],
                 false)
-                buffer.valIn('timeline', [imgs[ii]], ['alpha'], 0.16, 50 + imgs[ii].offset, timelineLength)
+                buffer.valIn('timeline', [spts[si]], ['alpha'], 0.16, 50 + spts[si].offset, timelineLength)
 
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['xPos', 0.5 - imgs[ii].xPos]]], [['easeOutQuint', 100]], imgs[ii].offset
+                        [spts[si].position], [[['x', 0.5 - spts[si].position.x]]], [['easeOutQuint', 100]], spts[si].offset
                         ]
                     ],
                 false)
-                buffer.valIn('timeline', [imgs[ii]], ['xPos'], 0.5, 100 + imgs[ii].offset, timelineLength)
-                if (imgs[ii].offset > 225) buffer.execLerp('timeline', [imgs[ii]], ['xPos'], imgs[0], 'xPos', 1, 0.04, true, false, imgs[ii].offset, 1200, 'easeInQuint')
+                buffer.valIn('timeline', [spts[si].position], ['x'], 0.5, 100 + spts[si].offset, timelineLength)
+                if (spts[si].offset > 225) buffer.execLerp('timeline', [spts[si].position], ['x'], spts[0].position, 'x', 1, 0.04, true, false, spts[si].offset, 1200, 'easeInQuint')
 
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['yPos', 0.1 - imgs[ii].yPos]]], [['easeOutQuad', 100]], imgs[ii].offset
+                        [spts[si].position], [[['y', 0.1 - spts[si].position.y]]], [['easeOutQuad', 100]], spts[si].offset
                         ]
                     ],
                 false)
-                buffer.valIn('timeline', [imgs[ii]], ['yPos'], 0.1, 100 + imgs[ii].offset, timelineLength)
+                buffer.valIn('timeline', [spts[si].position], ['y'], 0.1, 100 + spts[si].offset, timelineLength)
                 // stream, nodes, props, refnode, refprop, flux, parallel, reach, from, to, ease, leapCallback, reassign, dispose, zeroIn, skipLeap
-                if (imgs[ii].offset > 225) buffer.execLerp('timeline', [imgs[ii]], ['yPos'], imgs[0], 'yPos', 1, 0.05, true, false, imgs[ii].offset, 1200, 'easeInQuint')
+                if (spts[si].offset > 225) buffer.execLerp('timeline', [spts[si].position], ['y'], spts[0].position, 'y', 1, 0.05, true, false, spts[si].offset, 1200, 'easeInQuint')
 
-                let scaleRandom = Math.randomFromTo(100, (10 * ii)) / 100 - imgs[ii].scale
+                let scaleRandom = Math.randomFromTo(100, (10 * si)) / 100 - spts[si].scale
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['scale', 0.4], ['scale', -0.5]]], [['easeOutQuad', 50]], imgs[ii].offset
+                        [spts[si]], [[['scale', 0.4], ['scale', -0.5]]], [['easeOutQuad', 50]], spts[si].offset
                         ]
                     ],
                 false)
@@ -563,7 +572,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['scale', scaleRandom], ['scale', -scaleRandom - 2]]], [['easeOutQuint', 25]], 200 + imgs[ii].offset
+                        [spts[si]], [[['scale', scaleRandom], ['scale', -scaleRandom - 2]]], [['easeOutQuint', 25]], 200 + spts[si].offset
                         ]
                     ],
                 false)
@@ -571,20 +580,20 @@ this.canvas.app = new function (app, canvas, ctx) {
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[3]], [[['alpha', 0.005], ['alpha', -0.005]]], [['easeOutQuint', 10]], 200 + imgs[ii].offset
+                        [spts[3]], [[['alpha', 0.005], ['alpha', -0.005]]], [['easeOutQuint', 10]], 200 + spts[si].offset
                         ]
                     ],
                 true)// bring in alpha for lightstreak blasts, using relative blending values
-                buffer.valIn('timeline', [imgs[ii]], ['scale'], 0.01, 200 + 200 + imgs[ii].offset, timelineLength)
+                buffer.valIn('timeline', [spts[si]], ['scale'], 0.01, 200 + 200 + spts[si].offset, timelineLength)
 
                 buffer.eval('timeline',
                     [
                         [
-                        [imgs[ii]], [[['alpha', 0.01]]], [['easeOutQuad', 50]], 230 + imgs[ii].offset - (ii / 4 << 0)
+                        [spts[si]], [[['alpha', 0.01]]], [['easeOutQuad', 50]], 230 + spts[si].offset - (si / 4 << 0)
                         ]
                     ],
                 false)
-                buffer.valIn('timeline', [imgs[ii]], ['alpha'], 0.00, 50 + 230 + imgs[ii].offset - (ii / 4 << 0), timelineLength)
+                buffer.valIn('timeline', [spts[si]], ['alpha'], 0.00, 50 + 230 + spts[si].offset - (si / 4 << 0), timelineLength)
             }
         }
     }
