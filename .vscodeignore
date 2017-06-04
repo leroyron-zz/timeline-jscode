@@ -12,3 +12,7 @@ vsc-extension-quickstart.md
 **/*.psd
 **/*.mtl
 **/*.blend
+**/lib/build/**
+**/lib/export/**
+**/lib/vendor/**
+**/lib/pipeline/**
