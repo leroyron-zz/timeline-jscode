@@ -1,182 +1,182 @@
-window.Authority = new function (app, canvas, ctx, buffer) {
+window.Authority = new function (app, canvas, ctx, bind, buffer) {
     this.actionID = 1500
 
-    var timelineLength = ctx.timeline.length
-    var imgs = ctx.imgs
+    var stream = 'timeline'
+    var startLength = this.actionID
+    var endLength = 6200
     var timeframe = ctx.timeline.addon.timeframe
 
-    timeframe.clearRuntimeAuthoritiesNear('segment', this.actionID, 200)
+    timeframe.clearRuntimeAuthoritiesNear('segment', startLength, 200)
 
-    timeframe.timeline.removeInsertsNear('segment', this.actionID, 200)
-    //timeframe.timeline.removeInsertAt('segment', this.actionID)
-
-    /* for (let ii = 0; ii < imgs.length; ii++) {
-        if (imgs[ii].name == 'zipper') {
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii]], [[['alpha', 1 - imgs[ii].alpha]]], [['easeOutQuad', 300]], 400
-                    ]
-                ],
-            false)
-            buffer.valIn('timeline', [imgs[ii]], ['alpha'], 1, 300 + 200, timelineLength)
-
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii], imgs[1]], [[['rotate', 12510 + imgs[ii].rotate]]], [['easeOutQuad', 1000]], 400
-                    ]
-                ],
-            false)
-
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii]], [[['scale', -0.1]]], [['easeOutQuad', 100]], 1000
-                    ]
-                ],
-            false)
-            buffer.valIn('timeline', [imgs[ii]], ['scale'], 0.4, 1100, timelineLength)
-        }
-
-        if (imgs[ii].name == 'sunflare') {
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii], imgs[1], imgs[3]], [[['alpha', 1 - imgs[ii].alpha], ['alpha', 0], ['alpha', -2]]], [['easeOutQuad', 300]], 400
-                    ]
-                ],
-            false)
-
-            buffer.valIn('timeline', [imgs[ii], imgs[1], imgs[3]], ['alpha'], 0.01, 900 + 175, timelineLength)
-
-            // zipper, zipperhi, sunflare, lightstreak
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii], imgs[0], imgs[1], imgs[3]], [[['yPos', 0.05 - imgs[0].yPos]]], [['easeOutBounce', 120]], 220
-                    ]
-                ],
-            false)
-
-            // zipper, zipperhi, sunflare, lightstreak
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii], imgs[0], imgs[1], imgs[3]], [[['yPos', 1 - imgs[0].yPos]]], [['easeOutBounce', 300]], 500
-                    ]
-                ],
-            false)
-
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii], imgs[0], imgs[1], imgs[3]], [[['xPos', 0.1 - imgs[0].xPos]]], [['easeOutQuad', 100]], 700
-                    ]
-                ],
-            false)
-            buffer.valIn('timeline', [imgs[ii], imgs[0], imgs[1], imgs[3]], ['yPos'], 0.937, 750, 150)
-            buffer.valIn('timeline', [imgs[ii], imgs[0], imgs[1], imgs[3]], ['xPos'], 0.1, 800, timelineLength)
-            buffer.exec('timeline',
-                [
-                    [
-                    [imgs[ii], imgs[0], imgs[1], imgs[3]], [[750, 'yPos', -0.1, 'easeOutQuad', 150, 0.937]]
-                    ]
-                ],
-            false)
-            buffer.valIn('timeline', [imgs[ii], imgs[0], imgs[1], imgs[3]], ['yPos'], 0.837, 900, timelineLength)
-        }
-
-        if (imgs[ii].name == 'orb') {
-            // Only orbs
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii]], [[['alpha', 0.15]]], [['easeOutQuad', 50]], imgs[ii].offset
-                    ]
-                ],
-            false)
-            buffer.valIn('timeline', [imgs[ii]], ['alpha'], 0.16, 50 + imgs[ii].offset, timelineLength)
-
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii]], [[['xPos', 0.5 - imgs[ii].xPos]]], [['easeOutQuint', 100]], imgs[ii].offset
-                    ]
-                ],
-            false)
-            buffer.valIn('timeline', [imgs[ii]], ['xPos'], 0.5, 100 + imgs[ii].offset, timelineLength)
-            if (imgs[ii].offset > 225) buffer.execLerp('timeline', [imgs[ii]], ['xPos'], imgs[0], 'xPos', 1, 0.04, true, false, imgs[ii].offset, 1200, 'easeInQuint')
-
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii]], [[['yPos', 0.1 - imgs[ii].yPos]]], [['easeOutQuad', 100]], imgs[ii].offset
-                    ]
-                ],
-            false)
-            buffer.valIn('timeline', [imgs[ii]], ['yPos'], 0.1, 100 + imgs[ii].offset, timelineLength)
-            // stream, nodes, props, refnode, refprop, flux, parallel, reach, from, to, ease, leapCallback, reassign, dispose, zeroIn, skipLeap
-            if (imgs[ii].offset > 225) buffer.execLerp('timeline', [imgs[ii]], ['yPos'], imgs[0], 'yPos', 1, 0.05, true, false, imgs[ii].offset, 1200, 'easeInQuint')
-
-            let scaleRandom = Math.randomFromTo(100, (10 * ii)) / 100 - imgs[ii].scale
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii]], [[['scale', 0.4], ['scale', -0.5]]], [['easeOutQuad', 50]], imgs[ii].offset
-                    ]
-                ],
-            false)
-
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii]], [[['scale', scaleRandom], ['scale', -scaleRandom - 2]]], [['easeOutQuint', 25]], 200 + imgs[ii].offset
-                    ]
-                ],
-            false)
-
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[3]], [[['alpha', 0.005], ['alpha', -0.005]]], [['easeOutQuint', 10]], 200 + imgs[ii].offset
-                    ]
-                ],
-            true)// bring in alpha for lightstreak blasts, using relative blending values
-            buffer.valIn('timeline', [imgs[ii]], ['scale'], 0.01, 200 + 200 + imgs[ii].offset, timelineLength)
-
-            buffer.eval('timeline',
-                [
-                    [
-                    [imgs[ii]], [[['alpha', 0.01]]], [['easeOutQuad', 50]], 230 + imgs[ii].offset - (ii / 4 << 0)
-                    ]
-                ],
-            false)
-            buffer.valIn('timeline', [imgs[ii]], ['alpha'], 0.00, 50 + 230 + imgs[ii].offset - (ii / 4 << 0), timelineLength)
-        }
-    } */
-
-    this.main = function () {
-        // used for reference, because it may get skipped over by mp3 syncing
-        ctx.timeline.addon.timeframe.process = function () {
-            ctx.process(this.access, this.frame._duration, this._timeFrame, this.lapse)// before timeFrame process
-        }
-
-        ctx.process = function (access, duration, timeFrame, lapse) {
-
-        }
-
-        ctx.calc = function (lapse, access) {
-
-        }
-
-        ctx.rendering = function (timeFrame) {
-
-        }
-
-        ctx.compute = function () {
-
+    timeframe.timeline.removeInsertsNear('segment', startLength, 200)
+    // timeframe.timeline.removeInsertAt('segment', startLength)
+    ctx['action' + startLength] = function (timeFrame) {
+        // let spts = this['action' + 1500].prototype.spts
+        if (timeFrame > 1500 && timeFrame < 6200) spts.control = spts.length; else spts.control = 0
+        for (let si = spts.control - 1; si > -1; si--) {
+            let spt = spts[si]
+            let scale = spt.scale.value + spt.scaleUp || 0
+            this.scale(scale, scale)
+            this.globalAlpha = spt.alpha.value
+            let halfWidth = spt.measure.width / 2
+            let halfHeight = spt.measure.height / 2
+            let translateX = spt.position.x * app.width * (1 / scale)
+            let translateY = spt.position.y * app.height * (1 / scale)
+            this.translate(translateX, translateY)
+            this.rotate(spt.rotate.value)
+            this.translate(-halfWidth, -halfHeight)
+            this.drawImage(spt, (spt.measure.width * spt.sprite.value), 0, spt.measure.width, spt.measure.height, 0, 0, spt.measure.width, spt.measure.height)
+            this.translate(halfWidth, halfHeight)
+            this.rotate(-spt.rotate.value)
+            this.translate(-(translateX), -(translateY))
+            this.globalAlpha = 1
+            this.scale(1 / scale, 1 / scale)
         }
     }
+    var spts = ctx['action' + startLength].prototype.spts = [['0/bg.jpg', 0.5, 0.5, '1334px', '750px', 0, app.width / 1334, 0]/*, ['0/palm1.png', 0.9, 0.8, '390px', '540px', 0, 0.8, 0], ['0/palm1glow.png', 0.9, 0.8, '390px', '540px', 0, 0.8, 0], ['zipperhi.png', 0.5, 0.1, '250px', '250px', 0, 0.5, 0], ['sunflare.png', 0.5, 0.1, '650px', '650px', 0, 1, 0], ['lightstreak.png', 0.5, 0.1, '1300px', '650px', 0, 1, 0], ['orb.png', 0, 0, '89px', '89px', 0, 0, 0.0] */]
+    var genSprites = []
+    for (let si = 0; si < spts.length; si++) {
+        if (si > 9) {
+            for (var gi = 0; gi < 125; gi++) {
+                genSprites.push(ctx.sprite(
+                    app.fileLocAssets + spts[si][0],
+                    Math.randomFromTo(10, 90) / 100, // random x 0.1 to 0.9
+                    Math.randomFromTo(60, 80) / 100, // random y 0.6 to 0.8
+                    spts[si][3], // width
+                    spts[si][4], // height
+                    spts[si][5], // rotate
+                    Math.randomFromTo(15, 30) / 100, // random scale 0.15 to 0.3
+                    spts[si][7], // alpha
+                    0,
+                    [
+                        // increment
+                    ],
+                    function () {
+                        // debugger
+                        // arguments
+                    },
+                    [1, 2, 3])
+                )
+            }
+        } else {
+            let modProps = spts[si].name == 'bg' ? [['scaleUp', 0]] : [undefined]
+            genSprites.push(ctx.sprite(
+                app.fileLocAssets + spts[si][0],
+                spts[si][1], // x
+                spts[si][2], // y
+                spts[si][3], // width
+                spts[si][4], // height
+                spts[si][5], // rotate
+                spts[si][6], // scale
+                spts[si][7], // alpha
+                0,
+                [['scaleUp', 0]],
+                function () {
+                    if (this.name == 'bg') {
+                        this._resize = function () {
+                            this.scale.value = app.width / 1334
+                        }
+                        window.resizeCalls.push(this)
+                    }
+                },
+                [1, 2, 3])
+            )
+        }
+    }
+    spts = genSprites
+    ctx['action' + startLength].prototype.spts = spts
+
+    // binding
+    for (let si = 0; si < spts.length; si++) {
+        let modProps = spts[si].name == 'bg'
+        ? [['alpha', spts[si].alpha.value], ['scaleUp', spts[si].scaleUp]]
+        : [['alpha', spts[si].alpha.value], ['scale', spts[si].scale.value]]
+        bind.queue(stream, [
+        [spts[si]]
+        ],
+            modProps
+        )
+    }
+    for (let si = 0; si < spts.length; si++) {
+        //if (spts[si].name != 'bg') {
+            bind.queue(stream, [
+            [spts[si].position]
+            ],
+                [
+                ['x', spts[si].position.x],
+                ['y', spts[si].position.y]
+                ])
+        //}
+    }
+    for (let si = 0; si < spts.length; si++) {
+        // debugger
+        if (spts[si].name != 'bg') {
+            bind.queue(stream, [
+            [spts[si].rotate]
+            ],
+                [
+                ['value', spts[si].rotate.value]
+                ])
+        }
+    }
+
+    for (let si = 0; si < spts.length; si++) {
+        buffer.queue('eval', stream,
+            [
+                [
+                [spts[si]], [[['alpha', 1 - spts[si].alpha.value]]], [['easeOutQuad', 300]], startLength
+                ]
+            ],
+        false)
+        buffer.queue('valIn', stream, [spts[si]], ['alpha'], 1, 300 + startLength, endLength)
+
+        if (spts[si].name == 'bg') {
+            buffer.queue('eval', stream,
+                [
+                    [
+                    [spts[si]], [[['scaleUp', 0.50 - spts[si].scaleUp]]], [['easeOutQuad', endLength - startLength]], startLength
+                    ]
+                ],
+            false)
+
+            buffer.queue('eval', stream,
+                [
+                    [
+                    [spts[si].position], [[['x', 0.7 - spts[si].position.x]]], [['easeOutQuad', endLength - startLength]], startLength
+                    ]
+                ],
+            false)
+            // buffer.queue('valIn', stream, [spts[si]], ['alpha'], 1, 300 + startLength, endLength)
+        }
+    }
+
+    ctx.calc.prototype[startLength] = function (timeFrame) {
+    }
+
+    ctx.compute.prototype[startLength] = function () {
+        
+    }
+
+    this.main = function () {
+        timeframe.goTo((ctx.audio[0][0].currentTime * 100) + 1100 << 0)
+        // used for reference, because it may get skipped over by mp3 syncing
+        // ctx.calc = ctx.calc[startLength]
+        // ctx.compute = ctx.compute[startLength]
+        ctx.timeline.addon.timeframe.invoke = function () {
+            ctx.calc(this.frame.duration, this.lapse, this.access)// before render
+            ctx.gui(this.frame.duration)// gui render
+            // run all action renders within timeframe conditions
+            ctx['action' + 1500](this.frame.duration)
+            ctx['action' + 6200](this.frame.duration)
+            ctx['action' + 10200](this.frame.duration)
+            ctx['action' + 14200](this.frame.duration)
+            ctx['action' + 19500](this.frame.duration)
+            ctx['action' + 25400](this.frame.duration)
+            ctx.rendering(this.frame.duration)
+            ctx.background(this.frame.duration)// after render
+            ctx.compute()// after render
+        }
+        ctx.timeline.addon.timeframe.update()
+    }
     return this
-}(this.app, this.canvas, this.ctx, this.ctx.timeline.addon.buffer)
+}(this.app, this.canvas, this.ctx, this.ctx.timeline.addon.binding, this.ctx.timeline.addon.buffer)
