@@ -107,7 +107,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         camera.position.copy(camera.move)
         camera.lookAt(camera.orbital.position)
 
-        ctx.timeline.addon.binding(stream, [
+        ctx.timeline.addon.binding.init(stream, [
         [camera.position, 884] // unique key (position)
         ],
             [
@@ -118,7 +118,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         [801, 802, 803],
         false)
 
-        ctx.timeline.addon.binding(stream, [
+        ctx.timeline.addon.binding.init(stream, [
         [camera.rotation, 885] // unique key (rotation)
         ],
             [
@@ -129,7 +129,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         [804, 805, 806],
         false)
 
-        ctx.timeline.addon.binding(stream, [
+        ctx.timeline.addon.binding.init(stream, [
         [camera.orbital.position, 886] // unique key (position)
         ],
             [
@@ -207,7 +207,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 craft.move.sub(craft.offset)
                 craft.position.copy(craft.move)
 
-                ctx[stream].addon.binding(stream, [
+                ctx[stream].addon.binding.init(stream, [
                 [craft.position, 894]
                 ],
                     [
@@ -218,7 +218,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 [801, 802, 803],
                 false)
 
-                ctx[stream].addon.binding(stream, [
+                ctx[stream].addon.binding.init(stream, [
                 [craft.rotation, 895]
                 ],
                     [
@@ -393,7 +393,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
     function bindNodeToStream (stream, node, addTo, position, bindPositionID, rotation, bindRotationID) {
         if (bindPositionID) {
-            ctx[stream].addon.binding(stream, [
+            ctx[stream].addon.binding.init(stream, [
             [addTo.nodes[node].position, bindPositionID]
             ],
                 [
@@ -406,7 +406,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         }
 
         if (bindRotationID) {
-            ctx[stream].addon.binding(stream, [
+            ctx[stream].addon.binding.init(stream, [
             [addTo.nodes[node].rotation, bindRotationID]
             ],
                 [

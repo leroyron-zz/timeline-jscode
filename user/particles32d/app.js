@@ -58,7 +58,7 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         var element = {position: {x: 0, y: 0}, variable: variable}
         // // Simple Bind and Buffering
-        bind(stream, [
+        bind.init(stream, [
         [element.position, 800]
         ],
             [
@@ -81,7 +81,7 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         // // Complex Bind and Buffering
         var obj = {position: {type: 'position'}, rotation: {type: 'rotation'}}
-        element.nodes = bind(stream, [
+        element.nodes = bind.init(stream, [
         [obj.position, 800], [obj.rotation, 801]
         ],
             [

@@ -348,7 +348,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                 lable.appendChild(input)
                 div.appendChild(lable)
             }
-            bind(stream, [
+            bind.init(stream, [
             [props[ei][9][props[ei][8]] = {value: props[ei][3]}, 800 + ei]
             ],
                 [

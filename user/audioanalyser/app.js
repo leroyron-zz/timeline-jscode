@@ -26,6 +26,8 @@ this.canvas.app = new function (app, canvas, ctx) {
         audioUrl = '/user/audiofeaturealizer/assets/' + 'features.mp3'
         var tickUrl = app.fileLocAssets + 'Tick.mp3'
         tickSound = new window.Audio(tickUrl)
+
+        document.getElementsByTagName('link')[0].href = '/user/audiofeaturealizer/' + 'style.css?v=1.0'
     }
 
     ctx.timeline.addon.timeframe.process = function () {
@@ -172,7 +174,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             audioFreqData = new Uint8Array(bufferLength)
 
             // // Simple Bind and Buffering
-            bind(stream, [
+            bind.init(stream, [
             [audio.frequency = {'poly': []}, 800]
             ],
                 [
@@ -182,7 +184,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             false,
             1) // 0 - 255
 
-            bind(stream, [
+            bind.init(stream, [
             [audio.enhancement = {'poly': []}, 801]
             ],
                 [

@@ -87,7 +87,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         var bind = ctx[stream].addon.binding
         var buffer = ctx.timeline.addon.buffer
 
-        bind(stream, [
+        bind.init(stream, [
         [earth, 804]
         ],
             [
@@ -96,7 +96,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         [801],
         false)
 
-        moon.nodes = ctx[stream].addon.binding(stream, [
+        moon.nodes = ctx[stream].addon.binding.init(stream, [
         [moon, 805]
         ],
             [

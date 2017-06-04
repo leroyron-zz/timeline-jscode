@@ -158,7 +158,6 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
     function createGFXBindNodesToStream (stream) {
         console.log('Binding objects to stream - Starting')
-
         var bind = ctx[stream].addon.binding
 
         // LIGHTS
@@ -174,7 +173,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
         var camera = ctx.camera
 
-        bind(stream, [
+        bind.init(stream, [
         [camera.position, 800]
         ],
             [
