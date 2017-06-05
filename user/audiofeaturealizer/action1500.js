@@ -12,6 +12,22 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
     // timeframe.timeline.removeInsertAt('segment', startLength)
     ctx['action' + startLength] = function (timeFrame) {
         // let spts = this['action' + 1500].prototype.spts
+        if (timeFrame > 1500 && timeFrame < 6200) {
+            var frequencyWidth = (canvas.app.width / 32)
+            var frequencyHeight = 0
+            var x = 0
+            for (let increment = 0; increment < 32; increment++) {
+                frequencyHeight = (ctx.audio[0][2].frequency[increment] * (1 + ctx.audio[0][2].enhancement[increment])) * (canvas.app.height * 0.002) + (20 * ctx.audio[0][2].enhancement[increment])
+                this.fillStyle = 'rgba(0,255,0,0.5)'
+                this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
+
+                frequencyHeight = ctx.audio[0][2].frequency[increment] * (canvas.app.height * 0.002)
+                this.fillStyle = 'rgba(255,0,0,0.5)'
+                this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
+
+                x += frequencyWidth
+            }
+        }
         if (timeFrame > 1500 && timeFrame < 6200) spts.control = spts.length; else spts.control = 0
         for (let si = spts.control - 1; si > -1; si--) {
             let spt = spts[si]

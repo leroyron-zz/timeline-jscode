@@ -40,16 +40,17 @@ this.canvas.app = new function (app, canvas, ctx) {
             var addon = ctx.timeline.addon
             addon.binding.start()
             addon.buffer.start()
+            addon.buffer.loaddata('timeline', app.fileLocAssets + 'mp3Data956097_29876.js', 956097, 29876, 1100)// nodeDataLength(956097) propDataLength(29876) also duration of audio analyser demo which produces the file,
+            addon.buffer.loaddata('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 956097, 29876, 1100)
             buildStream(function () {
                 divElem.style.display = 'none'
 
                 ctx.audio[1][2].send()// load feature right after
-                ctx.audio[0][0].play()
+                ctx.audio[0][0].currentTime = 0
                 ctx.play = function () {
                     setTimeout(function () {
                         if (timeframe.duration > 1100) {
                             ctx.audio[0][0].currentTime = 0
-                            ctx.audio[0][0].play()
                             timeframe.goTo(1100)
                         } else {
                             ctx.play()
@@ -100,7 +101,10 @@ this.canvas.app = new function (app, canvas, ctx) {
                     playBut.style.background = 'none'
                     playBut.style.border = 'none'
                     playBut.style.cursor = 'pointer'
-                    playBut.addEventListener('click', playFeature)
+                    playBut.addEventListener('click', function () {
+                        ctx.audio[0][0].play()
+                        playFeature()
+                    })
                     divElem.appendChild(playBut)
                     div.appendChild(divElem)
                 }
@@ -435,22 +439,22 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         let audioFreqData = new Array(32).fill(0)
         bind.queue(stream, [
-        [ctx.audio[0][0].frequency = {'poly': []}, 780]
+        [ctx.audio[0][2].frequency = {'poly': []}, 800]
         ],
             [
             ['poly', audioFreqData]
             ],
-        [782],
+        [802],
         false,
         1) // 0 - 255
 
         bind.queue(stream, [
-        [ctx.audio[0][0].enhancement = {'poly': []}, 781]
+        [ctx.audio[0][2].enhancement = {'poly': []}, 801]
         ],
             [
             ['poly', audioFreqData]
             ],
-        [782],
+        [802],
         false,
         100) // 0 - 100
         // enhance precision
