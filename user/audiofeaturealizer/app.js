@@ -28,7 +28,7 @@ this.canvas.app = new function (app, canvas, ctx) {
     window.Array.prototype.control = 0// Array control sprites
     // var inject = false
 
-    var spts = ctx.spts = this.spts = [['zipper.png', 0.5, 0.1, '250px', '250px', 0, 0.5, 0], ['zipperhi.png', 0.5, 0.1, '250px', '250px', 0, 0.5, 0], ['sunflare.png', 0.5, 0.1, '650px', '650px', 0, 1, 0], ['lightstreak.png', 0.5, 0.1, '1300px', '650px', 0, 1, 0], ['orb.png', 0, 0, '89px', '89px', 0, 0, 0.0]]
+    var spts = ctx.spts = this.spts = [['zipper.png', 0.5, 0.1, '250px', '250px', 'center', 0, 0.5, 0], ['zipperhi.png', 0.5, 0.1, '250px', '250px', 'center', 0, 0.5, 0], ['sunflare.png', 0.5, 0.1, '650px', '650px', 'center', 0, 1, 0], ['lightstreak.png', 0.5, 0.1, '1300px', '650px', 'center', 0, 1, 0], ['orb.png', 0, 0, '89px', '89px', 'center', 0, 0, 0.0]]
 
     function init () {
         ctx.audio = [[app.fileLocAssets + 'drop.mp3', 0], [app.fileLocAssets + 'features.mp3', 1100]]
@@ -38,10 +38,12 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         var playFeature = function (e) {
             var addon = ctx.timeline.addon
-            addon.binding.start()
-            addon.buffer.start()
-            addon.buffer.loaddata('timeline', app.fileLocAssets + 'mp3Data956097_29876.js', 956097, 29876, 1100)// nodeDataLength(956097) propDataLength(29876) also duration of audio analyser demo which produces the file,
-            addon.buffer.loaddata('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 956097, 29876, 1100)
+            addon.binding.start(function () {
+                addon.buffer.loaddata('timeline', app.fileLocAssets + 'mp3Data956097_29876.js', 1100 /* , 956097, 29876 */)// nodeDataLength(956097) propDataLength(29876) also duration of audio analyser demo which produces the file,
+                addon.buffer.loaddata('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 1100, function () {
+                    addon.buffer.start()
+                } /* , 956097, 29876 */)
+            })
             buildStream(function () {
                 divElem.style.display = 'none'
 
@@ -134,9 +136,10 @@ this.canvas.app = new function (app, canvas, ctx) {
                         Math.randomFromTo(60, 80) / 100, // random y 0.6 to 0.8
                         spts[si][3], // width
                         spts[si][4], // height
-                        spts[si][5], // rotate
+                        spts[si][5], // align
+                        spts[si][6], // rotate
                         Math.randomFromTo(15, 30) / 100, // random scale 0.15 to 0.3
-                        spts[si][7], // alpha
+                        spts[si][8], // alpha
                         0,
                         [
                             ['offset', Math.randomFromTo(gi * 5, 100)] // offset increment
@@ -155,9 +158,10 @@ this.canvas.app = new function (app, canvas, ctx) {
                     spts[si][2], // y
                     spts[si][3], // width
                     spts[si][4], // height
-                    spts[si][5], // rotate
-                    spts[si][6], // scale
-                    spts[si][7], // alpha
+                    spts[si][5], // align
+                    spts[si][6], // rotate
+                    spts[si][7], // scale
+                    spts[si][8], // alpha
                     0,
                     [
                         ['spin', 0],
@@ -371,16 +375,14 @@ this.canvas.app = new function (app, canvas, ctx) {
         let scale = spt.scale.value + spt.scaleUp
         this.scale(scale, scale)
         this.globalAlpha = spt.alpha.value
-        let halfWidth = spt.measure.width / 2
-        let halfHeight = spt.measure.height / 2
         let translateX = spt.position.x * app.width * (1 / scale)
         let translateY = spt.position.y * app.height * (1 / scale)
         this.translate(translateX, translateY)
         if (spt.spinTo) Math.lerpProp(spt, 'spin', spt.spinTo, 0.05)
         this.rotate(spt.rotate.value + (spt.spin * Math.PI / 180))
-        this.translate(-halfWidth, -halfHeight)
+        this.translate(-spt.position.offset.left, -spt.position.offset.top)
         this.drawImage(spt, (spt.measure.width * spt.sprite.value), 0, spt.measure.width, spt.measure.height, 0, 0, spt.measure.width, spt.measure.height)
-        this.translate(halfWidth, halfHeight)
+        this.translate(spt.position.offset.left, spt.position.offset.top)
         this.rotate(-(spt.rotate.value + (spt.spin * Math.PI / 180)))
         this.translate(-(translateX), -(translateY))
         this.globalAlpha = 1
@@ -393,15 +395,13 @@ this.canvas.app = new function (app, canvas, ctx) {
             let scale = spt.scale.value
             this.scale(scale, scale)
             this.globalAlpha = spt.alpha.value
-            let halfWidth = spt.measure.width / 2
-            let halfHeight = spt.measure.height / 2
             let translateX = spt.position.x * app.width * (1 / scale)
             let translateY = spt.position.y * app.height * (1 / scale)
             this.translate(translateX, translateY)
             this.rotate(spt.rotate.value)
-            this.translate(-halfWidth, -halfHeight)
+            this.translate(-spt.position.offset.left, -spt.position.offset.top)
             this.drawImage(spt, (spt.measure.width * spt.sprite.value), 0, spt.measure.width, spt.measure.height, 0, 0, spt.measure.width, spt.measure.height)
-            this.translate(halfWidth, halfHeight)
+            this.translate(spt.position.offset.left, spt.position.offset.top)
             this.rotate(-spt.rotate.value)
             this.translate(-(translateX), -(translateY))
             this.globalAlpha = 1
