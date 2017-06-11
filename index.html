@@ -14,13 +14,14 @@
             <div id="lineup"></div>
             <div id="info">
                 <select name="select" id="select">
-                    <option value="audiofeaturealizer">Audio Feature Visualization (for a website)</option>
+                    <option value="Beta-audiofeaturealizer">Audio Feature Visualization (for a website Beta)</option>
+                    <option value="Beta-templateV2">TemplateV2 (Template For Beta)</option>
                     <option value="three2d">2D Parallax (THREE.Js - 2D Scene)</option>
                     <option value="audioanalyser">Audio Analyser (Test Injection - APP/BROWSER ONLY)</option>
                     <option value="game1">Game1 (Challenge THREE.Js Bindings and Interaction) </option>
                     <option value="demo1">Demo1 (Challenge Template)</option>
                     <option value="slinkygoogle">Slinky Google (Challenge Buffers and Leap)</option>
-                    <option value="particles32d">Particles (THREE.Js - 2D Scene Particles)</option>
+                    <option value="templateV1">TemplateV1</option>
                 </select> 
             </div>
             <div id="fps"></div>   
@@ -75,7 +76,7 @@
         var select = app.vscode.select || {
                     "game1": {mode: "3d", duration: 2200,// 00:22sec
                         preload: []
-                    }, 
+                    },
                     "demo1": {mode: "2d", duration: 2200,// 00:22sec
                         preload: []
                     },
@@ -85,13 +86,19 @@
                     "audioanalyser": {mode: "2d", duration: 29876,// 03:23.31
                         preload: []
                     },
-                    "audiofeaturealizer": {mode: "2d", duration: 30976,// 05:14.00
+                    "Beta-audiofeaturealizer": {mode: "2d", duration: 30976,// 05:14.00
                         preload: []
                     },
                     "three2d": {mode: "3d", duration: 2200,// 00:22sec
                         preload: []
                     },
-                    "particles32d": {mode: "3d", duration: 2200,// 00:22sec
+                    "templateV1": {mode: "2d", duration: 2200,// 00:22sec
+                        preload: []
+                    },
+                    "three2dBounds": {mode: "3d", duration: 2200,// 00:22sec
+                        preload: []
+                    },
+                    "Beta-templateV2": {mode: "2d", duration: 2200,// 00:22sec
                         preload: []
                     }
                     }

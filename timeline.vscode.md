@@ -12,7 +12,7 @@
     </body>
     <script type="text/javascript">
         // game1(challenge, ThreeJS), demo1, slinkygoogle (challenge buffers and leap values)
-        app.codesetting = 'audiofeaturealizer' 
+        app.codesetting = 'templateV1' 
         var select = {
                     "game1": {mode: "3d", duration: 2200,
                         preload: []
@@ -23,19 +23,22 @@
                     "slinkygoogle": {mode: "2d", duration: 1050,
                         preload: []
                     },
-                    "audioanalyser": {mode: "2d", duration: 20331,
+                    "audioanalyser": {mode: "2d", duration: 29876,
                         preload: []
                     },
-                    "audiofeaturealizer": {mode: "2d", duration: 30976,
+                    "Beta-audiofeaturealizer": {mode: "2d", duration: 30976,
                         preload: []
                     },
                     "three2d": {mode: "3d", duration: 2200,
                         preload: []
                     },
-                    "particles32d": {mode: "3d", duration: 2200,
+                    "templateV1": {mode: "2d", duration: 2200,
                         preload: []
                     },
                     "three2dBounds": {mode: "3d", duration: 2200,
+                        preload: []
+                    },
+                    "Beta-templateV2": {mode: "2d", duration: 2200,
                         preload: []
                     }
                     }// !end // don't remove/modify!
