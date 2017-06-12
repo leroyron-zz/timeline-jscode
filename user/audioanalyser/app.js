@@ -23,11 +23,11 @@ this.canvas.app = new function (app, canvas, ctx) {
     var tickSound
 
     function init () {
-        audioUrl = '/user/audiofeaturealizer/assets/' + 'features.mp3'
+        audioUrl = '/user/Beta-audiofeaturealizer/assets/' + 'features.mp3'
         var tickUrl = app.fileLocAssets + 'Tick.mp3'
         tickSound = new window.Audio(tickUrl)
 
-        document.getElementsByTagName('link')[0].href = '/user/audiofeaturealizer/' + 'style.css?v=1.0'
+        document.getElementsByTagName('link')[0].href = '/user/Beta-audiofeaturealizer/' + 'style.css?v=1.0'
     }
 
     ctx.timeline.addon.timeframe.process = function () {
@@ -475,117 +475,34 @@ this.canvas.app = new function (app, canvas, ctx) {
         })
         divElem.appendChild(syncTimeLineBut)
 
-        var getData = function (dataIn, length, offset) {
-            var data = new Int32Array(new ArrayBuffer(length * 4))
-            for (let bDI = offset; bDI < length + offset; bDI++) {
-                data[bDI - offset] = dataIn[bDI]
-            }
-            return data
-        }
-
-        var loadData = function (dataIn, data, offset) {
-            for (let bDI = 0; bDI < data.length; bDI++) {
-                dataIn[bDI + offset] = data[bDI]
-            }
-        }
-
         var saveMp3DataBut = document.createElement('button')
         saveMp3DataBut.innerHTML = 'Save MP3 Recorded Data'
         saveMp3DataBut.addEventListener('click', function () {
-            var saveData = (function () {
-                var a = document.createElement('a')
-                document.body.appendChild(a)
-                a.style = 'display: none'
-                return function (data, fileName) {
-                    var json = [data]
-                    var blob = new window.Blob([json], {type: 'octet/stream'})
-                    var url = window.URL.createObjectURL(blob)
-                    a.href = url
-                    a.download = fileName
-                    a.click()
-                    window.URL.revokeObjectURL(url)
-                }
-            }())
-
-            var data = getData(ctx.timeline.data, ctx.timeline.nodeDataLength, 0)
-            var fileName = 'mp3.json'
-
-            saveData(data, fileName)
+            var data = ctx.timeline.addon.buffer.getData('timeline', [audio.frequency] /* propSet[default: all] <-from(default: 0) to(default: propDataLength = 29876) , 956097, 29876 */)
+            ctx.timeline.addon.buffer.saveData(data, 'mp3.js')
         })
         divElem.appendChild(saveMp3DataBut)
 
         var loadMp3DataBut = document.createElement('button')
         loadMp3DataBut.innerHTML = 'Load MP3 Recorded Data'
         loadMp3DataBut.addEventListener('click', function () {
-            var script = document.createElement('script')
-            script.type = 'text/javascript'
-            script.async = false
-            if (script.readyState) {  // IE
-                script.onreadystatechange = function () {
-                    if (script.readyState == 'loaded' ||
-                            script.readyState == 'complete') {
-                        script.onreadystatechange = null
-                        loadData(ctx.timeline.data, window.Authority, 0)
-                        loadedFromFile = true
-                    }
-                }
-            } else {  // Others
-                script.onload = function () {
-                    loadData(ctx.timeline.data, window.Authority, 0)
-                    loadedFromFile = true
-                }
-            }
-            script.src = '/user/audiofeaturealizer/assets/' + 'mp3Data.js'
-            document.getElementsByTagName('body')[0].appendChild(script)
+            loadedFromFile = true
+            ctx.timeline.addon.buffer.loadData('timeline', '/user/Beta-audiofeaturealizer/assets/' + 'mp3Data956097_29876.js', 0 /* <-offset(default: 0) , 956097, 29876 */)
         })
         divElem.appendChild(loadMp3DataBut)
 
         var saveEnhancementDataBut = document.createElement('button')
         saveEnhancementDataBut.innerHTML = 'Save Enhancement Recorded Data'
         saveEnhancementDataBut.addEventListener('click', function () {
-            var saveData = (function () {
-                var a = document.createElement('a')
-                document.body.appendChild(a)
-                a.style = 'display: none'
-                return function (data, fileName) {
-                    var json = [data]
-                    var blob = new window.Blob([json], {type: 'octet/stream'})
-                    var url = window.URL.createObjectURL(blob)
-                    a.href = url
-                    a.download = fileName
-                    a.click()
-                    window.URL.revokeObjectURL(url)
-                }
-            }())
-
-            var data = getData(ctx.timeline.data, ctx.timeline.nodeDataLength, ctx.timeline.nodeDataLength)
-            var fileName = 'enhancement.json'
-
-            saveData(data, fileName)
+            var data = ctx.timeline.addon.buffer.getData('timeline', [audio.enhancement] /* propSet[default: all] <-from(default: 0) to(default: propDataLength = 29876) , 956097, 29876 */)
+            ctx.timeline.addon.buffer.saveData(data, 'enhancement.js')
         })
         divElem.appendChild(saveEnhancementDataBut)
 
         var loadEnhancementDataBut = document.createElement('button')
         loadEnhancementDataBut.innerHTML = 'Load Enhancement Recorded Data'
         loadEnhancementDataBut.addEventListener('click', function () {
-            var script = document.createElement('script')
-            script.type = 'text/javascript'
-            script.async = false
-            if (script.readyState) {  // IE
-                script.onreadystatechange = function () {
-                    if (script.readyState == 'loaded' ||
-                            script.readyState == 'complete') {
-                        script.onreadystatechange = null
-                        loadData(ctx.timeline.data, window.Authority, ctx.timeline.nodeDataLength)
-                    }
-                }
-            } else {  // Others
-                script.onload = function () {
-                    loadData(ctx.timeline.data, window.Authority, ctx.timeline.nodeDataLength)
-                }
-            }
-            script.src = '/user/audiofeaturealizer/assets/' + 'enhancementData.js'
-            document.getElementsByTagName('body')[0].appendChild(script)
+            ctx.timeline.addon.buffer.loadData('timeline', '/user/Beta-audiofeaturealizer/assets/' + 'enhancementData956097_29876.js', 0 /* , 956097, 29876 */)
         })
         divElem.appendChild(loadEnhancementDataBut)
 

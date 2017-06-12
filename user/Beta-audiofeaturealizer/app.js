@@ -37,33 +37,37 @@ this.canvas.app = new function (app, canvas, ctx) {
         var playBut = document.createElement('button')
 
         var playFeature = function (e) {
+            ctx.audio[0][0].pause()
+            divElem.style.display = 'none'
+
             var addon = ctx.timeline.addon
+            addon.buffer.loadData('timeline', app.fileLocAssets + 'mp3Data956097_29876.js', 1100 /* , 956097, 29876 */)// nodeDataLength(956097) propDataLength(29876) also duration of audio analyser demo which produces the file,
             addon.binding.start(function () {
-                addon.buffer.loaddata('timeline', app.fileLocAssets + 'mp3Data956097_29876.js', 1100 /* , 956097, 29876 */)// nodeDataLength(956097) propDataLength(29876) also duration of audio analyser demo which produces the file,
-                addon.buffer.loaddata('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 1100, function () {
-                    addon.buffer.start()
-                } /* , 956097, 29876 */)
-            })
-            buildStream(function () {
-                divElem.style.display = 'none'
-
-                ctx.audio[1][2].send()// load feature right after
-                ctx.audio[0][0].currentTime = 0
-                ctx.play = function () {
-                    setTimeout(function () {
-                        if (timeframe.duration > 1100) {
-                            ctx.audio[0][0].currentTime = 0
-                            timeframe.goTo(1100)
-                        } else {
-                            ctx.play()
+                // addon.buffer.loadData('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 1100, function () {
+                addon.buffer.start(function () {
+                    // return
+                    buildStream(function () {
+                        ctx.audio[1][2].send()// load feature right after
+                        ctx.audio[0][0].currentTime = 0
+                        ctx.play = function () {
+                            setTimeout(function () {
+                                if (timeframe.duration > 1100) {
+                                    ctx.audio[0][0].currentTime = 0
+                                    timeframe.goTo(1100)
+                                } else {
+                                    ctx.play()
+                                }
+                            }, 500)
                         }
-                    }, 500)
-                }
-                timeframe.run()
-                ctx.play()
-                playBut.removeEventListener('click', playFeature)
+                        timeframe.run()
+                        ctx.audio[0][0].play()
+                        ctx.play()
+                        playBut.removeEventListener('click', playFeature)
 
-                timeframe.clearRuntimeAuthority('segment', 0)
+                        timeframe.clearRuntimeAuthority('segment', 0)
+                    })
+                })
+                // } /* , 956097, 29876 */)
             })
         }
         for (let ai = 0; ai < ctx.audio.length; ai++) {
@@ -82,18 +86,17 @@ this.canvas.app = new function (app, canvas, ctx) {
 
                     var segmentAuth = new function (timeframe) {
                         this.main = function () {
-                            if (timeframe.duration > 1100 && timeframe.duration < timelineLength - barLength) timeframe.goTo((ctx.audio[0][0].currentTime * 100) + 1100 << 0)
+                            if (timeframe.duration > 1100 && timeframe.duration < timelineLength - barLength) syncTimelineWithAudio()
                         }
                         return this
-                    }(ctx.timeline.addon.timeframe)
+                    }(timeframe)
 
                     var data = {segment: {}}
                     for (let bi = 0; bi < timelineLength - 1100; bi += barLength) {
                         data.segment[bi + 1100 << 0] = {Authority: segmentAuth, position: (bi + 1100 << 0) / timelineLength * 100}
                     }
-                    // debugger
-                    ctx.timeline.addon.timeframe.timeline.seek.insert.insertAuthorities(data)
-                    ctx.timeline.addon.timeframe._forceInit(window) // make sure window is fully loaded
+                    timeframe._forceInit(window) // force initialization so inserts could be added early
+                    timeframe.timeline.seek.insert.insertAuthorities(data)
 
                     playBut.style.width = '100%'
                     playBut.style.height = '100%'
@@ -248,18 +251,22 @@ this.canvas.app = new function (app, canvas, ctx) {
         })
         .init() */
 
+        var syncTimelineWithAudio = function () {
+            timeframe.goTo((ctx.audio[0][0].currentTime * 100) + 1100 << 0)
+        }
+
         document.getElementsByTagName('link')[0].href = app.codeLoc + '/style.css?v=1.0'
     }
 
-    ctx.timeline.addon.timeframe.process = function () {
+    timeframe.process = function () {
         ctx.process(this.access, this.frame._duration, this._timeFrame, this.lapse)// before timeFrame process
     }
 
     ctx.process = function (access, duration, timeFrame, lapse) {
-        
+
     }
 
-    ctx.timeline.addon.timeframe.invoke = function () {
+    timeframe.invoke = function () {
         ctx.calc(this.frame.duration, this.lapse, this.access)// before render
         ctx.rendering(this.frame.duration)
         ctx.gui(this.frame.duration)// gui render
@@ -433,7 +440,7 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     function queueBindingsNodesToStream (stream) {
-        console.log('Queue objects bindings for stream')
+        console.log('Objects being queued for Binding - Collecting')
         var addon = ctx[stream].addon
         var bind = addon.binding
 
@@ -448,7 +455,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         false,
         1) // 0 - 255
 
-        bind.queue(stream, [
+        /* bind.queue(stream, [
         [ctx.audio[0][2].enhancement = {'poly': []}, 801]
         ],
             [
@@ -457,7 +464,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         [802],
         false,
         100) // 0 - 100
-        // enhance precision
+        // enhance precision */
 
         // binding staging
         for (let si = 0; si < spts.length; si++) {
@@ -490,7 +497,7 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     function queueBufferGFXBindNodesToStream (stream) {
-        console.log('Queue buffing for binded objects in stream - Starting')
+        console.log('Objects being queued for Buffing - Collecting')
         var addon = ctx[stream].addon
         var buffer = addon.buffer
 
@@ -642,11 +649,11 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
     function buildStream (callback) {
         // build stream and prebuff from the binding DATA
-        console.log('Finished Binding to stream - Building')
+        console.log('Starting Build')
         ctx.timeline.build(function () {
-            console.log('Finished Building - Initializing')
+            console.log('Finished Build - Initializing')
             // already forced init after load
-            // ctx.timeline.addon.timeframe._init(window) // timeframe init has to be set to true for additional scripts to load
+            // timeframe._init(window) // timeframe init has to be set to true for additional scripts to load
             callback()
         })
     }

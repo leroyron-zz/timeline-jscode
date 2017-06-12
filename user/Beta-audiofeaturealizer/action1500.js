@@ -17,19 +17,14 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
             var frequencyHeight = 0
             var x = 0
             for (let increment = 0; increment < 32; increment++) {
-                frequencyHeight = (ctx.audio[0][2].frequency[increment] * (1 + ctx.audio[0][2].enhancement[increment])) * (canvas.app.height * 0.002) + (20 * ctx.audio[0][2].enhancement[increment])
-                this.fillStyle = 'rgba(0,255,0,0.5)'
-                this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
-
                 frequencyHeight = ctx.audio[0][2].frequency[increment] * (canvas.app.height * 0.002)
-                this.fillStyle = 'rgba(255,0,0,0.5)'
+                this.fillStyle = 'rgba(205,102,0,0.5)'
                 this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
                 x += frequencyWidth
             }
-            // spts[2].alpha.value = ctx.audio[0][2].enhancement[0]
-        }
-        if (timeFrame > 1500 && timeFrame < 6200) spts.control = spts.length; else spts.control = 0
+            spts.control = spts.length
+        } else spts.control = 0
         for (let si = spts.control - 1; si > -1; si--) {
             let spt = spts[si]
             let scale = spt.scale.value + (spt.scaleUp || 0)
@@ -72,7 +67,7 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
                 ['y', this.position.y]
                 ]
             )
-            
+
             // debugger
             buffer.queue('eval', stream,
                 [
@@ -90,19 +85,7 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
                 ],
             false)
         }],
-        ['0/voice.png', 1.0, 0.0, '465px', '750px', 'TR', 0, app.height / 750, 0, 0, undefined, function () {
-            this._resize = function () {
-                this.scale.value = app.height / 750
-            }
-            window.resizeCalls.push(this)
-
-            bind.queue(stream, [
-            [this]
-            ],
-                [['alpha', this.alpha.value]]
-            )
-        }],
-        ['0/bass.png', 0.0, 0.0, '594px', '750px', 'TL', 0, app.height / 750, 0, 0, undefined, function () {
+        ['0/text.png', 1.0, 0.0, '465px', '750px', 'TR', 0, app.height / 750, 0, 0, undefined, function () {
             this._resize = function () {
                 this.scale.value = app.height / 750
             }
@@ -114,31 +97,7 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
                 [['alpha', this.alpha.value]]
             )
 
-            buffer.queue('execLerp', stream, [this], ['alpha'], ctx.audio[0][2].enhancement, '0', 1, 0.5, true, false, startLength, endLength)
-        }],
-        ['0/bass1.png', 0.0, 0.0, '445px', '641px', 'TL', 0, app.height / 641, 0, 0, undefined, function () {
-            this._resize = function () {
-                this.scale.value = app.height / 641
-            }
-            window.resizeCalls.push(this)
-
-            bind.queue(stream, [
-            [this]
-            ],
-                [['alpha', this.alpha.value]]
-            )
-        }],
-        ['0/criptic.png', 0.5, 1.0, '1334px', '594px', 'BC', 0, app.width / 1334, 0, 0, undefined, function () {
-            this._resize = function () {
-                this.scale.value = app.width / 1334
-            }
-            window.resizeCalls.push(this)
-
-            bind.queue(stream, [
-            [this]
-            ],
-                [['alpha', this.alpha.value]]
-            )
+            // buffer.queue('execLerp', stream, [this], ['alpha'], ctx.audio[0][2].enhancement, '18', 1, 0.24, true, false, startLength, endLength, 'linear', 5)
         }]
     ]
     var genSprites = []
@@ -199,7 +158,7 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
     }
 
     ctx.compute.prototype[startLength] = function () {
-        
+
     }
 
     this.main = function () {

@@ -1,17 +1,18 @@
 this.canvas.app = new function (app, canvas, ctx) {
     // Public
-    this.width = 680
-    this.height = 225
+    this.Xres = this.width = 680
+    this.Yres = this.height = 225
     this.aspect = Math.aspectRatio(this.height, this.width)
     this.resolution = function (app) {
         // Screen resize adjustments
         canvas.node.width = this.width = app.width
-        canvas.node.height = this.height = this.aspect * this.width
+        canvas.node.height = this.height = this.aspect * app.width
         canvas.node.style.width = canvas.node.width + 'px'
         canvas.node.style.height = canvas.node.height + 'px'
 
-        this.resX = 680 / this.width
-        this.resY = 225 / this.height
+        // Unit scaling
+        this.resX = this.Xres / canvas.node.width
+        this.resY = this.Yres / canvas.node.height
     }
     this.resolution(app)
 
