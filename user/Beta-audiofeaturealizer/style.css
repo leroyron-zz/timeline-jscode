@@ -1,4 +1,4 @@
-body, html, iframe, #lineup {width:100%; height:100%; margin: 0px; padding: 0px; overflow: hidden;}
+body, html, iframe, #loading, #lineup {width:100%; height:100%; margin: 0px; padding: 0px; overflow: hidden;}
 body {
     -webkit-background-size: contain;
     -moz-background-size: contain;
@@ -41,7 +41,6 @@ body {
     background-image: url('assets/freqdown.gif');
 }
 #lineup {
-    z-index: -1;
     position: fixed;
     -webkit-background-size: contain;
     -moz-background-size: contain;
@@ -52,10 +51,23 @@ body {
     background-attachment: fixed;
     background-position: bottom;
 }
+#loading {
+    position: fixed;
+    background-image: url('assets/press.gif');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+}
+#loading.show {
+    background-image: url('assets/loading.gif');
+}
+#loading.clear {
+    background-image: none;
+}
 #info, #coords {color:#fff; position: absolute; bottom: 0px; left: 0px; z-index: 1;}
 #coords {color: #000};
 input {right: left;}
-canvas, svg {top: 0px; left: 0px;}
+canvas, svg {position: fixed; top: 0px; left: 0px;}
 text {font-size: 12px; fill: #bbb}
 path, line {stroke: #aaa; fill: #FFF;}
 .dg.ac {z-index: 1!important}

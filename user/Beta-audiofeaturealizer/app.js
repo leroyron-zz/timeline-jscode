@@ -32,43 +32,63 @@ this.canvas.app = new function (app, canvas, ctx) {
 
     function init () {
         ctx.audio = [[app.fileLocAssets + 'drop.mp3', 0], [app.fileLocAssets + 'features.mp3', 1100]]
-        var div = document.getElementById('info')
+        var appDiv = document.getElementById('app')
+        var infoDiv = document.getElementById('info')
+        var loadingElem = document.createElement('div')
+        loadingElem.id = 'loading'
+        var lineupElem = document.createElement('div')
+        lineupElem.id = 'lineup'
+        appDiv.insertBefore(lineupElem, appDiv.childNodes[0])
+        appDiv.insertBefore(loadingElem, appDiv.childNodes[0])
         var divElem = document.createElement('div')
         var playBut = document.createElement('button')
-
+        var launched = false
         var playFeature = function (e) {
-            ctx.audio[0][0].pause()
-            divElem.style.display = 'none'
-
-            var addon = ctx.timeline.addon
-            addon.buffer.loadData('timeline', app.fileLocAssets + 'mp3Data956097_29876.js', 1100 /* , 956097, 29876 */)// nodeDataLength(956097) propDataLength(29876) also duration of audio analyser demo which produces the file,
-            addon.binding.start(function () {
-                // addon.buffer.loadData('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 1100, function () {
-                addon.buffer.start(function () {
-                    // return
-                    buildStream(function () {
-                        ctx.audio[1][2].send()// load feature right after
-                        ctx.audio[0][0].currentTime = 0
-                        ctx.play = function () {
-                            setTimeout(function () {
-                                if (timeframe.duration > 1100) {
-                                    ctx.audio[0][0].currentTime = 0
-                                    timeframe.goTo(1100)
-                                } else {
-                                    ctx.play()
-                                }
-                            }, 500)
-                        }
-                        timeframe.run()
-                        ctx.audio[0][0].play()
-                        ctx.play()
-                        playBut.removeEventListener('click', playFeature)
-
-                        timeframe.clearRuntimeAuthority('segment', 0)
-                    })
-                })
-                // } /* , 956097, 29876 */)
+            if (launched) return
+            
+            loadingElem.className = 'show'
+            launched = true
+            playBut.addEventListener('click', function () {
+                window.launchFullscreen(document.documentElement)
+                loadingElem.className = 'show'
+                // divElem.style.display = 'none'
             })
+            setTimeout(function () {
+                ctx.audio[0][0].pause()
+
+                var addon = ctx.timeline.addon
+                addon.buffer.loadData('timeline', app.fileLocAssets + 'mp3Data956097_29876.js', 1100 /* , 956097, 29876 */)// nodeDataLength(956097) propDataLength(29876) also duration of audio analyser demo which produces the file,
+                addon.binding.start(function () {
+                    // addon.buffer.loadData('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 1100, function () {
+                    addon.buffer.start(function () {
+                        // return
+                        buildStream(function () {
+                            ctx.audio[1][2].send()// load feature right after
+                            ctx.audio[0][0].currentTime = 0
+                            ctx.play = function () {
+                                setTimeout(function () {
+                                    if (timeframe.duration > 1100) {
+                                        ctx.audio[0][0].currentTime = 0
+                                        timeframe.goTo(1100)
+                                    } else {
+                                        ctx.play()
+                                    }
+                                }, 500)
+                            }
+                            timeframe.run()
+                            ctx.audio[0][0].play()
+                            ctx.play()
+
+                            divElem.style.display = 'none'
+                            playBut.removeEventListener('click')
+
+                            timeframe.clearRuntimeAuthority('segment', 0)
+                            setTimeout(function () { loadingElem.className = 'clear' }, 3000)
+                        })
+                    })
+                    // } /* , 956097, 29876 */)
+                })
+            }, 1000)
         }
         for (let ai = 0; ai < ctx.audio.length; ai++) {
             var audioRequest = ctx.audio[ai][2] = new window.XMLHttpRequest()
@@ -111,7 +131,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                         playFeature()
                     })
                     divElem.appendChild(playBut)
-                    div.appendChild(divElem)
+                    infoDiv.appendChild(divElem)
                 }
                 /*
                 timeline: 30976
@@ -320,23 +340,32 @@ this.canvas.app = new function (app, canvas, ctx) {
 
     ctx.gui = function (frameDuration) {
         if (frameDuration > 1100) {
+            let time = frameDuration - 1100
+            let sec = (time / 100) % 60 << 0 // sec
+            let min = ((time / (100 * 60)) % 60) << 0 // minute
+            sec = sec < 10 ? '0' + sec : sec
+            min = min < 10 ? '0' + min : min
+            this.font = '12px Arial'
+            this.textAlign = 'center'
+            this.fillStyle = 'white'
+            this.fillText(min + ':' + sec, spts[0].normal.x * app.width - spts[0].position.x, 0.9 * app.height)
             seeker.show = seeker.show == 0 ? 1 : seeker.show
-            if (!ctx.audio[1][0].play) {
+            if (!this.audio[1][0].play) {
                 seeker.progress.show = 1
-                ctx.audio[1][0] = {play: 'halted'}
+                this.audio[1][0] = {play: 'halted'}
                 spts[0].spinTo = spts[1].spinTo = 50
-                ctx.audio[1][2].onprogress = function (xhr) {
+                this.audio[1][2].onprogress = function (xhr) {
                     spts[0].spinTo += spts[1].spinTo += 50
                     seeker.progress.loaded = (xhr.loaded / (xhr.total || 7171451))
                 }
-            } else if (ctx.audio[1][0].play != 'halted' && seeker.show == 1) {
+            } else if (this.audio[1][0].play != 'halted' && seeker.show == 1) {
                 seeker.progress.show = 0
                 seeker.show = 0.5
-                if (ctx.audio[1][0].paused && timeframe.duration > 1100) timeframe.goTo(1100)
-                ctx.audio[0][0].backupSrc = ctx.audio[0][0].src
-                ctx.audio[0][0].src = ctx.audio[1][0].src
-                ctx.audio[0][0].currentTime = 0
-                ctx.audio[0][0].play()
+                if (this.audio[1][0].paused && timeframe.duration > 1100) timeframe.goTo(1100)
+                this.audio[0][0].backupSrc = this.audio[0][0].src
+                this.audio[0][0].src = this.audio[1][0].src
+                this.audio[0][0].currentTime = 0
+                this.audio[0][0].play()
             }
             Math.lerpProp(seeker.alpha, 'value', seeker.show, 0.05)
             this.fillStyle = 'rgba(255, 100, 0,' + seeker.alpha.value + ')'
@@ -356,13 +385,13 @@ this.canvas.app = new function (app, canvas, ctx) {
                 seeker.progress.measure.height
             )
         } else {
-            if (ctx.audio[0][0].backupSrc) {
-                ctx.audio[0][0].src = ctx.audio[0][0].backupSrc
-                ctx.audio[0][0].backupSrc = null
-                delete ctx.audio[0][0].backupSrc
+            if (this.audio[0][0].backupSrc) {
+                this.audio[0][0].src = this.audio[0][0].backupSrc
+                this.audio[0][0].backupSrc = null
+                delete this.audio[0][0].backupSrc
 
-                ctx.audio[0][0].currentTime = 0
-                ctx.audio[0][0].play()
+                this.audio[0][0].currentTime = 0
+                this.audio[0][0].play()
             }
             seeker.show = seeker.progress.show = seeker.alpha.value = seeker.progress.alpha.value = 0
         }
