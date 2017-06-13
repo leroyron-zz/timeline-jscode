@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Timeline JSCode</title>
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="description" content="Timeline for scalable storyboard application development" />
+        <meta name="author" content="Leroy Thompson" />
+        <meta name="editor" content="Alex Hutton" />
+        <link rel="stylesheet" href="style.css?v=1.0" />
+    </head>
+    <body>
+        <div id="app">
+            <div id="info">
+                <select style="display: none" name="select" id="select">
+                    <option value="Beta-audiofeaturealizer">Audio Feature Visualization (for a website Beta)</option>
+                </select> 
+            </div>
+            <div id="fps"></div>   
+        </div>
+    </body>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/threejs/r84/three.min.js"></script>
+
+    <script type="text/javascript" src="lib/export/Streaming.min.js"></script>
+    <script type="text/javascript">
+        // user code/setting
+        var dropdownSelect = document.getElementById('select')
+        app.codesetting = Utils.vscodeSelectDropDown(app.vscode.codesetting, dropdownSelect) ||
+                          app.vscode.codesetting ||
+                          Utils.userSelectDropDown(dropdownSelect);
+        var select = app.vscode.select || {
+                    "game1": {mode: "3d", duration: 2200,// 00:22sec
+                        preload: []
+                    },
+                    "demo1": {mode: "2d", duration: 2200,// 00:22sec
+                        preload: []
+                    },
+                    "slinkygoogle": {mode: "2d", duration: 1050,// 00:10.50ms
+                        preload: []
+                    },
+                    "audioanalyser": {mode: "2d", duration: 29876,// 03:23.31
+                        preload: []
+                    },
+                    "Beta-audiofeaturealizer": {mode: "2d", duration: 30976,// 05:14.00
+                        preload: []
+                    },
+                    "three2d": {mode: "3d", duration: 2200,// 00:22sec
+                        preload: []
+                    },
+                    "templateV1": {mode: "2d", duration: 2200,// 00:22sec
+                        preload: []
+                    },
+                    "three2dBounds": {mode: "3d", duration: 2200,// 00:22sec
+                        preload: []
+                    },
+                    "Beta-templateV2": {mode: "2d", duration: 2200,// 00:22sec
+                        preload: []
+                    }
+                    }
+        select = select[app.codesetting];
+        context('app', 'fps');
+        this.canvas = createCanvas(select.mode);
+        this.ctx = canvas.context;
+        console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
+        // Get the Streaming class
+        this.stream = new Streaming(select.duration);
+        // prepare stream and exploit access to context, addons, data and GUI
+        // timeline context with Streaming
+        ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
+        // user setting
+        var script = document.createElement('script');
+        script.src = "user/"+app.codesetting+"/app.js";// THREE scene and stream bindings//
+        script.onload = function () {
+            // setup binding data for Streaming for the canvas
+            canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');     
+        }
+        document.body.appendChild(script); //or something of the likes
+        //setTimeout(function(){ location.reload(); }, 20000);
+    </script>
+    <script type="text/javascript" src="lib/export/ctx.min.js"></script>
+    <script type="text/javascript" src="lib/export/Streaming.no.gui.min.preview.js"></script>
+</html>

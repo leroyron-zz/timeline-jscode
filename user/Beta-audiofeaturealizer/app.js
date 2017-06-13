@@ -36,6 +36,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         var infoDiv = document.getElementById('info')
         var loadingElem = document.createElement('div')
         loadingElem.id = 'loading'
+        loadingElem.style.display = 'none'
         var lineupElem = document.createElement('div')
         lineupElem.id = 'lineup'
         appDiv.insertBefore(lineupElem, appDiv.childNodes[0])
@@ -50,8 +51,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             launched = true
             playBut.addEventListener('click', function () {
                 window.launchFullscreen(document.documentElement)
-                loadingElem.className = 'show'
-                // divElem.style.display = 'none'
+                divElem.style.display = 'none'
             })
             setTimeout(function () {
                 ctx.audio[0][0].pause()
@@ -78,12 +78,14 @@ this.canvas.app = new function (app, canvas, ctx) {
                             timeframe.run()
                             ctx.audio[0][0].play()
                             ctx.play()
+                            setTimeout(function () { loadingElem.className = 'clear' }, 3000)
 
                             divElem.style.display = 'none'
                             playBut.removeEventListener('click')
 
                             timeframe.clearRuntimeAuthority('segment', 0)
-                            setTimeout(function () { loadingElem.className = 'clear' }, 3000)
+
+                            window.onresize()
                         })
                     })
                     // } /* , 956097, 29876 */)
@@ -106,6 +108,7 @@ this.canvas.app = new function (app, canvas, ctx) {
 
                     var segmentAuth = new function (timeframe) {
                         this.main = function () {
+                            window.onresize()
                             if (timeframe.duration > 1100 && timeframe.duration < timelineLength - barLength) syncTimelineWithAudio()
                         }
                         return this
@@ -118,18 +121,23 @@ this.canvas.app = new function (app, canvas, ctx) {
                     timeframe._forceInit(window) // force initialization so inserts could be added early
                     timeframe.timeline.seek.insert.insertAuthorities(data)
 
-                    playBut.style.width = '100%'
-                    playBut.style.height = '100%'
-                    playBut.style.position = 'fixed'
-                    playBut.style.top = 0
-                    playBut.style.left = 0
-                    playBut.style.background = 'none'
-                    playBut.style.border = 'none'
-                    playBut.style.cursor = 'pointer'
-                    playBut.addEventListener('click', function () {
-                        ctx.audio[0][0].play()
-                        playFeature()
-                    })
+                    var autoRefresh = setTimeout(function () { window.location.reload() }, 8000)
+                    window.onload = function () {
+                        loadingElem.style.display = ''
+                        playBut.style.width = '100%'
+                        playBut.style.height = '100%'
+                        playBut.style.position = 'fixed'
+                        playBut.style.top = 0
+                        playBut.style.left = 0
+                        playBut.style.background = 'none'
+                        playBut.style.border = 'none'
+                        playBut.style.cursor = 'pointer'
+                        playBut.addEventListener('click', function () {
+                            ctx.audio[0][0].play()
+                            playFeature()
+                            clearTimeout(autoRefresh)
+                        })
+                    }
                     divElem.appendChild(playBut)
                     infoDiv.appendChild(divElem)
                 }
