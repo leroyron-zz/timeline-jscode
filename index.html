@@ -66,23 +66,26 @@
         select = select[app.codesetting];
         context('app', 'fps');
         this.canvas = createCanvas(select.mode);
-        this.ctx = canvas.context;
-        console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
-        // Get the Streaming class
-        this.stream = new Streaming(select.duration);
-        // prepare stream and exploit access to context, addons, data and GUI
-        // timeline context with Streaming
-        ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
-        // user setting
         var script = document.createElement('script');
-        script.src = "user/"+app.codesetting+"/app.js";// THREE scene and stream bindings//
-        script.onload = function () {
-            // setup binding data for Streaming for the canvas
-            canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');     
-        }
-        document.body.appendChild(script); //or something of the likes
-        //setTimeout(function(){ location.reload(); }, 20000);
+        this.ctx = buildContext(canvas.context, "lib/export/ctx.min.js", function () {
+
+            console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
+            // Get the Streaming class
+            this.stream = new Streaming(select.duration);
+            // prepare stream and exploit access to context, addons, data and GUI
+            // timeline context with Streaming
+            ctx.timeline = stream.access(true, 0, 0, 0, true, 0, -999999, false);
+            // user setting
+            
+            script.src = "user/"+app.codesetting+"/app.js";// THREE scene and stream bindings//
+            script.onload = function () {
+                // setup binding data for Streaming for the canvas
+                canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline'); 
+            }
+            document.body.appendChild(script); //or something of the likes
+            //setTimeout(function(){ location.reload(); }, 20000);
+        });
+
     </script>
-    <script type="text/javascript" src="lib/export/CTX.min.js"></script>
     <script type="text/javascript" src="lib/export/Streaming.no.gui.min.js"></script>
 </html>

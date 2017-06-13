@@ -372,7 +372,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                 if (this.audio[1][0].paused && timeframe.duration > 1100) timeframe.goTo(1100)
                 this.audio[0][0].backupSrc = this.audio[0][0].src
                 this.audio[0][0].src = this.audio[1][0].src
-                this.audio[0][0].currentTime = 0
+                // this.audio[0][0].currentTime = this.audio[0][0].currentTime > 0 ? 0 : this.audio[0][0].currentTime
                 this.audio[0][0].play()
             }
             Math.lerpProp(seeker.alpha, 'value', seeker.show, 0.05)
