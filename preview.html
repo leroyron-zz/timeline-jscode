@@ -65,10 +65,8 @@
             // user setting
             
             ctx.loadScript("user/"+app.codesetting+"/app.js", function () {
-                ctx.loadScript("node_modules/exdat/build/dat.gui.js", function () {
-                    ctx.loadScript("lib/export/Streaming.no.gui.min.preview.js", function () {
-                        canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');
-                    })
+                ctx.loadScript("lib/export/Streaming.no.gui.min.preview.js", function () {
+                    canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');
                 })
             })
         });
