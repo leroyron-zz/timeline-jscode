@@ -161,12 +161,12 @@
         deaccumulation_acceleration([craft.drive.thunder.stokes, craft.drive.thunder.diaphragm.move])
     }
     function accumilate_acceleration (aquire) {
-        for (var a = 1, alen = aquire.length; a < alen; a++) {
+        for (let a = 1, alen = aquire.length; a < alen; a++) {
             craft.acceleration.vector.x *= craft.drive.thunder.stokes * aquire[a]++
         }
     }
     function deaccumulation_acceleration (aquire) {
-        for (var a = 1, alen = aquire.length; a < alen; a++) {
+        for (let a = 1, alen = aquire.length; a < alen; a++) {
             craft.acceleration.vector.x *= craft.drive.thunder.stokes * aquire[a]--
         }
     }

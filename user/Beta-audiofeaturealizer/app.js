@@ -46,7 +46,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         var launched = false
         var playFeature = function (e) {
             if (launched) return
-            
+
             loadingElem.className = 'show'
             launched = true
             playBut.addEventListener('click', function () {
@@ -62,6 +62,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                     // addon.buffer.loadData('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 1100, function () {
                     addon.buffer.start(function () {
                         // return
+                        window.onresize()
                         buildStream(function () {
                             ctx.audio[1][2].send()// load feature right after
                             ctx.audio[0][0].currentTime = 0
@@ -84,8 +85,6 @@ this.canvas.app = new function (app, canvas, ctx) {
                             playBut.removeEventListener('click')
 
                             timeframe.clearRuntimeAuthority('segment', 0)
-
-                            window.onresize()
                         })
                     })
                     // } /* , 956097, 29876 */)
@@ -108,7 +107,6 @@ this.canvas.app = new function (app, canvas, ctx) {
 
                     var segmentAuth = new function (timeframe) {
                         this.main = function () {
-                            window.onresize()
                             if (timeframe.duration > 1100 && timeframe.duration < timelineLength - barLength) syncTimelineWithAudio()
                         }
                         return this
@@ -160,7 +158,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         ctx.globalAlpha = 0
         for (let si = 0; si < spts.length; si++) {
             if (si == 4) {
-                for (var gi = 0; gi < 125; gi++) {
+                for (let gi = 0; gi < 125; gi++) {
                     genSprites.push(ctx.sprite(
                         app.fileLocAssets + spts[si][0],
                         Math.randomFromTo(10, 90) / 100, // random x 0.1 to 0.9

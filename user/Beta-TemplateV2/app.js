@@ -64,6 +64,11 @@ this.canvas.app = new function (app, canvas, ctx) {
                                                     //   .Collision()// utilizes the parallax exploits to resolve and utilize collision matrices
                                                                 //   .Particle()// entities could emit particles, particle generation and behaviors affected by physics, boundaries and collisions
                                                                 //   .Rig()// rigging behaviors affected by entities, physics, boundaries and collisions
+
+        window.onload = function () {
+
+        }
+        document.getElementsByTagName('link')[0].href = app.codeLoc + '/style.css?v=1.0'
     }
 
     timeframe.process = function () {

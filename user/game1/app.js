@@ -432,7 +432,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         var textureLoader = new THREE.TextureLoader()
 
         var textures = []
-        for (var u = 0, ulen = urls.length; u < ulen; u++) {
+        for (let u = 0, ulen = urls.length; u < ulen; u++) {
             textures.push(textureLoader.load(app.fileLocAssets + urls[u],
             function () {}, // Function called when download progresses
             function (xhr) {

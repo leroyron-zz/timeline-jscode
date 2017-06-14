@@ -103,7 +103,7 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
     var genSprites = []
     for (let si = 0; si < spts.length; si++) {
         if (si > 9) {
-            for (var gi = 0; gi < 125; gi++) {
+            for (let gi = 0; gi < 125; gi++) {
                 genSprites.push(ctx.sprite(
                     app.fileLocAssets + spts[si][0],
                     Math.randomFromTo(10, 90) / 100, // random x 0.1 to 0.9

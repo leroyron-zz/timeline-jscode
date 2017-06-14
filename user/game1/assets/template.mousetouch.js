@@ -8,7 +8,7 @@ canvas.node.onmousemove = canvas.node.ontouchmove = function (e) {
         app.pointers[0].update(e.pageX, e.pageY)
         console.log('press move: mouse')
     } else {
-        for (var tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
+        for (let tm = 0, dlen = e.changedTouches.length; tm < dlen; tm++) {
             if (typeof app.pointers[e.changedTouches[tm].identifier] == 'undefined') { //  fail-safe
                 app.pointers[e.changedTouches[tm].identifier] = e
             }
