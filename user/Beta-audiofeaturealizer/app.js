@@ -58,9 +58,9 @@ this.canvas.app = new function (app, canvas, ctx) {
 
                 var addon = ctx.timeline.addon
                 addon.buffer.loadData('timeline', app.fileLocAssets + 'mp3Data956097_29876.js', 1100 /* , 956097, 29876 */)// nodeDataLength(956097) propDataLength(29876) also duration of audio analyser demo which produces the file,
-                addon.binding.start(function () {
+                addon.binding.run(function () {
                     // addon.buffer.loadData('timeline', app.fileLocAssets + 'enhancementData956097_29876.js', 1100, function () {
-                    addon.buffer.start(function () {
+                    addon.buffer.run(function () {
                         // return
                         window.onresize()
                         buildStream(function () {

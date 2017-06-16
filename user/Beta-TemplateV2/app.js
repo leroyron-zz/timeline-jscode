@@ -90,7 +90,7 @@ this.canvas.app = new function (app, canvas, ctx) {
     }
 
     ctx.rendering = function (timeFrame) {
-
+        console.log('Rendering @ app.js')
     }
 
     ctx.compute = function () {
@@ -162,8 +162,8 @@ this.canvas.app = new function (app, canvas, ctx) {
         false)// false for non-relative values for timeframe reading
     }
     function buildStream (callback) {
-        addon.binding.start(function () { // start processing queues
-            addon.buffer.start()
+        addon.binding.run(function () { // run the queues
+            addon.buffer.run()
         })
         timeframe._forceInit(window) // make sure window is fully loaded
         // build stream and prebuff from the binding DATA

@@ -10,9 +10,9 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
 
     timeframe.timeline.removeInsertsNear('segment', startLength, 200)
     // timeframe.timeline.removeInsertAt('segment', startLength)
-    ctx['action' + startLength] = function (timeFrame) {
+    ctx['action' + startLength] = function (duration) {
         // let spts = this['action' + 19500].prototype.spts
-        if (timeFrame > 19500 && timeFrame < 25400) {
+        if (duration > 19500 && duration < 25400) {
             var frequencyWidth = (canvas.app.width / 32)
             var frequencyHeight = 0
             var x = 0
@@ -153,7 +153,7 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
         buffer.queue('valIn', stream, [spts[si]], ['alpha'], 1, 300 + startLength, endLength)
     }
 
-    ctx.calc.prototype[startLength] = function (timeFrame) {
+    ctx.calc.prototype[startLength] = function (duration) {
     }
 
     ctx.compute.prototype[startLength] = function () {

@@ -10,9 +10,9 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
 
     timeframe.timeline.removeInsertsNear('segment', startLength, 200)
     // timeframe.timeline.removeInsertAt('segment', startLength)
-    ctx['action' + startLength] = function (timeFrame) {
+    ctx['action' + startLength] = function (duration) {
         // let spts = this['action' + 1500].prototype.spts
-        if (timeFrame > 1500 && timeFrame < 6200) {
+        if (duration > 1500 && duration < 6200) {
             var frequencyWidth = (canvas.app.width / 32)
             var frequencyHeight = 0
             var x = 0
@@ -154,7 +154,7 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
         buffer.queue('valIn', stream, [spts[si]], ['alpha'], 1, 300 + startLength, endLength)
     }
 
-    ctx.calc.prototype[startLength] = function (timeFrame) {
+    ctx.calc.prototype[startLength] = function (duration) {
     }
 
     ctx.compute.prototype[startLength] = function () {
@@ -170,12 +170,14 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
             ctx.calc(this.frame.duration, this.lapse, this.access)// before render
             ctx.gui(this.frame.duration)// gui render
             // run all action renders within timeframe conditions
+            debugger
             ctx['action' + 1500](this.frame.duration)
             ctx['action' + 6200](this.frame.duration)
             ctx['action' + 10200](this.frame.duration)
             ctx['action' + 14200](this.frame.duration)
             ctx['action' + 19500](this.frame.duration)
             ctx['action' + 25400](this.frame.duration)
+            }
             ctx.rendering(this.frame.duration)
             ctx.background(this.frame.duration)// after render
             ctx.compute()// after render
