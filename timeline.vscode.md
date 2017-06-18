@@ -12,7 +12,7 @@
     </body>
     <script type="text/javascript">
         // game1(challenge, ThreeJS), demo1, slinkygoogle (challenge buffers and leap values)
-        app.codesetting = 'Beta-templateV2' 
+        app.codesetting = 'Beta-Introduction' 
         var select = {
                     "game1": {mode: "3d", duration: 2200,
                         preload: []
@@ -39,6 +39,9 @@
                         preload: []
                     },
                     "Beta-templateV2": {mode: "2d", duration: 2200,
+                        preload: []
+                    },
+                    "Beta-Introduction": {mode: "2d", duration: 2200,
                         preload: []
                     }
                     }// !end // don't remove/modify!

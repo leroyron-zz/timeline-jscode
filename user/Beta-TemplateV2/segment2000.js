@@ -1,12 +1,12 @@
 window.Authority = new function (app, timeline, timeframe, buffer, binding, ctx) {
-    this.segmentID = 1800
+    this.segmentID = 2000
 
-    this.currentColor = [192, 108, 133]
-    this.nextColor = [242, 114, 128]
+    this.currentColor = [242, 114, 128]
+    this.nextColor = [248, 177, 146]
     this.diffColor = Math.Poly.subtract(this.currentColor, this.nextColor)
 
     this.enterFrame = function (This, duration) {
-        let change = ((duration - 1800) / (2000 - 1800))
+        let change = ((duration - 2000) / (2190 - 2000))
         let changeColor = Math.Poly.subtract(This.currentColor, Math.Poly.multiplyScalar(This.diffColor, change))
         this.fillStyle = 'rgb(' + (changeColor[0] << 0) + ', ' + (changeColor[1] << 0) + ', ' + (changeColor[2] << 0) + ')'
         this.fillRect(0, 0, app.width, app.height)

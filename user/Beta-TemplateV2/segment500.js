@@ -1,18 +1,26 @@
-window.Authority = new function (timeline, timeframe, buffer, binding, ctx) {
+window.Authority = new function (app, timeline, timeframe, buffer, binding, ctx) {
     this.segmentID = 500
 
-    this.enterFrame = function (duration) {
-        console.log('Segment ' + this.segment + '\'s context')
+    this.currentColor = [52, 93, 126]
+    this.nextColor = [108, 92, 124]
+    this.diffColor = Math.Poly.subtract(this.currentColor, this.nextColor)
+
+    this.enterFrame = function (This, duration) {
+        let change = ((duration - 500) / (1100 - 500))
+        let changeColor = Math.Poly.subtract(This.currentColor, Math.Poly.multiplyScalar(This.diffColor, change))
+        this.fillStyle = 'rgb(' + (changeColor[0] << 0) + ', ' + (changeColor[1] << 0) + ', ' + (changeColor[2] << 0) + ')'
+        this.fillRect(0, 0, app.width, app.height)
+        // console.log('Segment ' + this.segment.segmentID + '\'s context')
     }
 
     this.main = function () {
         // ASSIGN
-        ctx.segment = this.segmentID
+        ctx.segment = this
         ctx.enterFrame = this.enterFrame
 
         timeframe.invoke = function () {
             ctx.calc(this.lapse, this.access)// before render
-            ctx.enterFrame(this.frame.duration) // this segment's renders
+            ctx.enterFrame(ctx.segment, this.frame.duration) // this segment's renders
             ctx.rendering(this._timeFrame)
             ctx.compute()// after render
         }
@@ -33,4 +41,4 @@ window.Authority = new function (timeline, timeframe, buffer, binding, ctx) {
         timeframe.update()
     }
     return this
-}(this.ctx.timeline, this.ctx.timeline.addon.timeframe, this.ctx.timeline.addon.buffer, this.ctx.timeline.addon.binding, this.ctx)
+}(this.app, this.ctx.timeline, this.ctx.timeline.addon.timeframe, this.ctx.timeline.addon.buffer, this.ctx.timeline.addon.binding, this.ctx)

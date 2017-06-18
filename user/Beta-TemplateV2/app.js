@@ -81,16 +81,33 @@ this.canvas.app = new function (app, canvas, ctx) {
 
     timeframe.invoke = function () {
         ctx.calc(this.lapse, this.access)// before render
+        ctx.enterFrame(canvas.app, this.frame.duration) // this segment's renders
         ctx.rendering(this._timeFrame)
         ctx.compute()// after render
     }
 
     ctx.calc = function (lapse, access) {
+        this.globalCompositeOperation = 'destination-over'
+        this.save()
+        this.clearRect(0, 0, canvas.app.width, canvas.app.height)
+        this.scale(app.width / canvas.app.width, app.height / canvas.app.height)
+        this.restore()
+    }
+    
+    this.currentColor = [248, 177, 146]
+    this.nextColor = [52, 93, 126]
+    this.diffColor = Math.Poly.subtract(this.currentColor, this.nextColor)
 
+    ctx.enterFrame = function (This, duration) {
+        let change = (duration / 500)
+        let changeColor = Math.Poly.subtract(This.currentColor, Math.Poly.multiplyScalar(This.diffColor, change))
+        this.fillStyle = 'rgb(' + (changeColor[0] << 0) + ', ' + (changeColor[1] << 0) + ', ' + (changeColor[2] << 0) + ')'
+        this.fillRect(0, 0, app.width, app.height)
+        console.log('App \'s context')
     }
 
     ctx.rendering = function (timeFrame) {
-        console.log('Rendering @ app.js')
+        
     }
 
     ctx.compute = function () {
