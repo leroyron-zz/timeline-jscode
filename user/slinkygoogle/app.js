@@ -321,8 +321,8 @@ this.canvas.app = new function (app, canvas, ctx) {
         div.style.bottom = '33%'
         for (let ei = 0; ei < props.length; ei++) {
             if (ei > 3) {
-                let lable = document.createElement('lable')// Create a <lable>
-                lable.innerHTML = props[ei][0]
+                let label = document.createElement('label')// Create a <label>
+                label.innerHTML = props[ei][0]
                 var input = document.createElement('input')// Create a <input> element
                 input.id = props[ei][1]
                 input.title = props[ei][3]
@@ -346,8 +346,8 @@ this.canvas.app = new function (app, canvas, ctx) {
                     /// / Binding
                     // doing this will keep overwriting timeline stream object on canvas.app / canvas.app.spring
                     // providing propsery length to 1
-                lable.appendChild(input)
-                div.appendChild(lable)
+                label.appendChild(input)
+                div.appendChild(label)
             }
             bind.init(stream, [
             [props[ei][9][props[ei][8]] = {value: props[ei][3]}, 800 + ei]
@@ -362,7 +362,7 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         var divInfoStyle = document.createElement('style')
         divInfoStyle.id = 'infoStyle'
-        divInfoStyle.innerHTML = 'body { background: #fff; } #info input, #info lable { float: right; } #info lable { color: #000; padding: 2px 0 0 0; }'
+        divInfoStyle.innerHTML = 'body { background: #fff; } #info input, #info label { float: right; } #info label { color: #000; padding: 2px 0 0 0; }'
         div.appendChild(divInfoStyle)
     }
     function buildStream (stream) {

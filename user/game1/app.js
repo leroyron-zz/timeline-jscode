@@ -78,8 +78,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
     function createThumbControls () {
         ctx.controller = {
             joy: {
-                left: {id: 0, x: 0, y: 0, pad: canvas.app.canvasSprite(['LRevolvingLable.png'], 0.43, 0.43, -0.66, -0.66, 0, true), knob: canvas.app.canvasSprite(['knob.png'], 0.25, 0.25, -0.66, -0.66, 0, true)},
-                right: {id: 1, x: 0, y: 0, pad: canvas.app.canvasSprite(['RShiftingLable.png'], 0.43, 0.43, 0.66, -0.66, 0, true), knob: canvas.app.canvasSprite(['knob.png'], 0.25, 0.25, 0.66, -0.66, 0, true)}
+                left: {id: 0, x: 0, y: 0, pad: canvas.app.canvasSprite(['LRevolvingLabel.png'], 0.43, 0.43, -0.66, -0.66, 0, true), knob: canvas.app.canvasSprite(['knob.png'], 0.25, 0.25, -0.66, -0.66, 0, true)},
+                right: {id: 1, x: 0, y: 0, pad: canvas.app.canvasSprite(['RShiftingLabel.png'], 0.43, 0.43, 0.66, -0.66, 0, true), knob: canvas.app.canvasSprite(['knob.png'], 0.25, 0.25, 0.66, -0.66, 0, true)}
             }
         }
         ctx.controller.joy.left.pad.material.uniforms.alpha.value =
