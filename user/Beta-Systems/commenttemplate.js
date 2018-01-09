@@ -6,28 +6,21 @@ window.Authority = new function (app, timeline) {
     <div style='font-size: 14px;
     background: #fffbee;
     width: 100%;
-    padding: 10px 22px;
     margin: 8px 0;
     display: inline-block;
-    border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    '>
-    Timeline-JSCode offers intuitive design allowing functionality for code storyboarding, scaling of frameworks and applications.
-    </div>
+    '></div>
     `
 
     this.label =
     `
-    Template V2 for Beta &nbsp;
     `
 
-    this.style =
-    `
+    this.style = `
     #comment {position: relative; color: #000; font: 11px "Lucida Grande",sans-serif; left: 105px; top: 102px; width: 75%; z-index: 21;}
     #comment, .CM div {float: left; width: 100%;}
     .CM label {
-        padding-bottom: 3px;
         font-size: 14px;
         text-indent: 5px;
         float: left;
@@ -49,7 +42,7 @@ window.Authority = new function (app, timeline) {
         content: document.createElement('div'),
         _resize: function () {
             this.element.style.width = (app.width - 392) + 'px'
-            // this.element.style.paddingRight = 20 + 'px'
+            this.element.style.paddingRight = 20 + 'px'
             this.element.style.maxHeight = (app.height - 155) + 'px'
             this.content.style.maxHeight = (app.height - 140) + 'px'
         }

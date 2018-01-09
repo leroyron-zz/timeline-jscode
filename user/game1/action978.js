@@ -8,6 +8,136 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
 
     var leftJoy = ctx.controller.joy.left
     var rightJoy = ctx.controller.joy.right
+    craft.view = {
+        camera: ctx.view.camera,
+        current: 'thirdclockpit',
+        get change () {
+            return this.current
+        },
+        set change (view) {
+            this.current = view
+            switch (this.current) {
+            case 'clockpit' :
+                this.reset()
+                ctx.rendering = function () {
+                    craft.view.fullClockpit()
+                }
+                break
+            case 'third' :
+                this.reset()
+                ctx.rendering = function () {
+                    craft.geometry.attributes.uv.sprite[0].V = craft.geometry.attributes.uv.sprite[0].V + 1
+                    craft.geometry.attributes.uv.sprite[1].V = craft.geometry.attributes.uv.sprite[1].V + 1
+                    craft.geometry.attributes.uv.sprite[2].V = craft.geometry.attributes.uv.sprite[2].V + 1
+                    craft.geometry.attributes.uv.sprite[3].V = craft.geometry.attributes.uv.sprite[3].V + 1
+                    craft.geometry.attributes.uv.sprite[4].V = craft.geometry.attributes.uv.sprite[4].V + 1
+                    craft.geometry.attributes.uv.sprite[5].V = craft.geometry.attributes.uv.sprite[5].V + 1
+
+                    craft.geometry.attributes.uv.needsUpdate = true
+
+                    var proj = craft.view.toScreenPosition(ctx.scene.nodes.craft2, camera)
+
+                    window.divElem.style.left = proj.x + 'px'
+                    window.divElem.style.top = proj.y + 'px'
+
+                    craft.view.fullThirdPreson()
+                }
+                break
+            case 'thirdclockpit' :
+                ctx.rendering = function () {
+                    craft.view.reset()
+                    craft.view.fullThirdPreson()
+                    craft.view.mini()
+                    craft.view.smallClockpit()
+                }
+                break
+            case 'clockpitthird' :
+                ctx.rendering = function () {
+                    craft.view.reset()
+                    craft.view.fullClockpit()
+                    craft.view.mini()
+                    craft.view.smallThirdPreson()
+                }
+                break
+            default:
+                this.current = 'clockpit'
+                this.reset()
+                ctx.rendering = function () {
+                    craft.view.fullClockpit()
+                }
+            }
+        },
+        reset: function () {
+            this.left = 0
+            this.top = 0
+            this.width = Math.floor(canvas.node.width)
+            this.height = Math.floor(canvas.node.height)
+            canvas.renderer.setViewport(this.left, this.top, this.width, this.height)
+            canvas.renderer.setScissor(this.left, this.top, this.width, this.height)
+            camera.orbital.reticle.material.uniforms.alpha.value =
+            camera.orbital.reticle.tee.material.uniforms.alpha.value =
+            leftJoy.pad.material.uniforms.alpha.value =
+            leftJoy.knob.material.uniforms.alpha.value =
+            rightJoy.pad.material.uniforms.alpha.value =
+            rightJoy.knob.material.uniforms.alpha.value = camera.aspect = ctx.view.camera.aspect = 1
+        },
+        mini: function () {
+            this.left = 0
+            this.top = 0
+            this.width = 0.35
+            this.height = 0.35
+            this.left = Math.floor(canvas.node.width * this.left)
+            this.top = Math.floor(canvas.node.height * this.top)
+            this.width = Math.floor(canvas.node.width * this.width)
+            this.height = Math.floor(canvas.node.height * this.height)
+            canvas.renderer.setViewport(this.left, this.top, this.width, this.height)
+            canvas.renderer.setScissor(this.left, this.top, this.width, this.height)
+            canvas.renderer.setScissorTest(true)
+
+            camera.orbital.reticle.material.uniforms.alpha.value =
+            camera.orbital.reticle.tee.material.uniforms.alpha.value =
+            leftJoy.pad.material.uniforms.alpha.value =
+            leftJoy.knob.material.uniforms.alpha.value =
+            rightJoy.pad.material.uniforms.alpha.value =
+            rightJoy.knob.material.uniforms.alpha.value = 0
+        },
+        fullClockpit: function () {
+            canvas.renderer.render(ctx.scene, ctx.view.camera)
+        },
+        fullThirdPreson: function () {
+            canvas.renderer.render(ctx.scene, camera)
+        },
+        smallClockpit: function () {
+            // debugger
+            ctx.view.camera.aspect = this.width / this.height
+            ctx.view.camera.updateProjectionMatrix()
+            canvas.renderer.render(ctx.scene, ctx.view.camera)
+        },
+        smallThirdPreson: function () {
+            camera.aspect = this.width / this.height
+            camera.updateProjectionMatrix()
+            canvas.renderer.render(ctx.scene, camera)
+        },
+        projectVector: new THREE.Vector3(),
+        toScreenPosition: function (obj, camera) {
+            // TODO: need to update this when resize window
+            var widthHalf = 0.5 * this.width
+            var heightHalf = 0.5 * this.height
+
+            obj.updateMatrixWorld()
+            this.projectVector.setFromMatrixPosition(obj.matrixWorld)
+            this.projectVector.project(camera)
+
+            this.projectVector.x = (this.projectVector.x * widthHalf) + widthHalf
+            this.projectVector.y = -(this.projectVector.y * heightHalf) + heightHalf
+
+            return {
+                x: this.projectVector.x,
+                y: this.projectVector.y
+            }
+        }
+
+    }
 
     craft.ctrl = {
         velocity:
@@ -286,6 +416,8 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
     this.main = function () {
         camera.ease = 0.005
         // before render
+        var viewChanged = false
+
         ctx.calc = function () {
             ctx.scene.nodes.starwall.material.materials[0].map.offset.x += 0.002
             craft.nodes.LTorch.material.materials[0].map.offset.x =
@@ -315,6 +447,7 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
                 craft.quaternion.copy(camera.quaternion)
                 craft.rotation.z -= 1.1 * camera.orbital.reticle.position.x //* camera.ease
                 craft.rotation.blockCallback = false
+                if (!viewChanged) { craft.view.change = craft.view.current; viewChanged = true }
             } else {
                 camera.ease += 0.01
                 camera.move.copy(camera.orbital.position)
@@ -322,6 +455,14 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
                 camera.move.sub(camera.position)
                 camera.move.multiplyScalar(camera.ease)
                 camera.position.add(camera.move)
+
+                craft.move.copy(camera.orbital.position)
+                craft.move.add(camera.offset)
+                craft.move.sub(camera.position)
+                // beginning clockpit mode
+                craft.move.multiplyScalar(camera.ease + 0.12)
+                // craft.move.multiplyScalar((camera.ease + 0.135))
+                craft.position.add(craft.move)
 
                 camera.orbital.reticle.material.uniforms.alpha.value =
                 camera.orbital.reticle.tee.material.uniforms.alpha.value =
@@ -339,6 +480,13 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
                 }
             }
         }
+
+        window.divElem = document.createElement('div')
+        window.divElem.innerHTML = '-'
+        window.divElem.style.color = 'red'
+        window.divElem.style.position = 'absolute'
+        window.divElem.style.zIndex = 999
+        document.body.appendChild(window.divElem)
 
          // after render
         ctx.compute = function () {

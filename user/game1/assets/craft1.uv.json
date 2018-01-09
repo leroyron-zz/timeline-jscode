@@ -1,0 +1,8 @@
+{
+"sprite0":{"uin":0, "uout":0.05, "vin":1, "vout":0.95},
+"sprite1":{"uin":0.05, "uout":0.1, "vin":1, "vout":0.95},
+"sprite2":{"uin":0.1, "uout":0.125, "vin":1, "vout":0.975},
+"sprite3":{"uin":0.125, "uout":0.15, "vin":1, "vout":0.975},
+"sprite4":{"uin":0.15, "uout":0.175, "vin":1, "vout":0.95},
+"sprite5":{"uin":0.175, "uout":0.225, "vin":1, "vout":0.95}
+}

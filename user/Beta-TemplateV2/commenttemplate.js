@@ -48,7 +48,7 @@ window.Authority = new function (app, timeline) {
         content: document.createElement('div'),
         _resize: function () {
             this.element.style.width = (app.width - 392) + 'px'
-            this.element.style.paddingRight = 20 + 'px'
+            // this.element.style.paddingRight = 20 + 'px'
             this.element.style.maxHeight = (app.height - 155) + 'px'
             this.content.style.maxHeight = (app.height - 140) + 'px'
         }

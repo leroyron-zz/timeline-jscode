@@ -16,7 +16,7 @@
         "doubleSided":true,
         "DbgIndex":0,
         "depthTest":true,
-        "colorSpecular":[0.0,0.0,0.0],
+        "colorSpecular":[0.5,0.5,0.5],
         "colorDiffuse":[1,1,1],
         "transparent":false,
         "mapDiffuseRepeat":[1,1],

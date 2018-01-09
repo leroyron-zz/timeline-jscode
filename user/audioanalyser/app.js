@@ -27,7 +27,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         var tickUrl = app.fileLocAssets + 'Tick.mp3'
         tickSound = new window.Audio(tickUrl)
 
-        document.getElementsByTagName('link')[0].href = '/user/Beta-audiofeaturealizer/' + 'style.css?v=1.0'
+        document.getElementsByTagName('link')[0].href = app.codeLoc + '/style.css?v=1.0'
     }
 
     ctx.timeline.addon.timeframe.process = function () {

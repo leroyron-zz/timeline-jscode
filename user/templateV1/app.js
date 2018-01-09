@@ -59,7 +59,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         var element = {position: {x: 0, y: 0}, variable: variable}
         // // Simple Bind and Buffering
         bind.init(stream, [
-        [element.position, 800]
+        [element.position, 100]
         ],
             [
             ['x', 100],
@@ -80,9 +80,22 @@ this.canvas.app = new function (app, canvas, ctx) {
         false)
 
         // // Complex Bind and Buffering
-        var obj = {position: {type: 'position'}, rotation: {type: 'rotation'}}
-        element.nodes = bind.init(stream, [
-        [obj.position, 800], [obj.rotation, 801]
+        var obj1 = {position: {type: 'position'}, rotation: {type: 'rotation'}}
+        element.nodes = bind.queue(stream, [
+        [obj1.position, 900], [obj1.rotation, 901]
+        ],
+            [
+            ['x', 100],
+            ['y', 50, 100],
+            ['z', 50, 100]
+            ],
+        [902, 903, 904],
+        false)
+
+        // // Complex Bind and Buffering
+        var obj2 = {position: {type: 'position'}, rotation: {type: 'rotation'}}
+        element.nodes = bind.queue(stream, [
+        [obj2.position, 200], [obj2.rotation, 801]
         ],
             [
             ['x', 100],
@@ -97,6 +110,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         // element.nodes[0 or 1].rotation.x
         // element.nodes[0 or 1].rotation.
         var last = element.nodes[0].y + 140 - 280
+        bind.run() // .
         buffer.eval('timeline',
             [
                                                                     // even out formula ( stream.length / (displacements * eases ) )

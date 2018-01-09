@@ -60,8 +60,42 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         */
     }
 
+    // Viewport
+    ctx.view = {
+        left: 0,
+        top: 0,
+        width: 0.35,
+        height: 0.35,
+        background: new THREE.Color().setRGB(0.5, 0.7, 0.7),
+        eye: [ 1400, 800, 1400 ],
+        up: [ 0, 1, 0 ],
+        fov: 60
+    }
+    ctx.view.camera = new THREE.PerspectiveCamera(ctx.view.fov, window.innerWidth / window.innerHeight, 1, 100000)
+
     ctx.rendering = function () {
+        var left = Math.floor(canvas.node.width)
+        var top = Math.floor(canvas.node.height)
+        var width = Math.floor(canvas.node.width)
+        var height = Math.floor(canvas.node.height)
+
+        canvas.renderer.setViewport(0, 0, width, height)
+        canvas.renderer.setScissor(0, 0, width, height)
         canvas.renderer.render(ctx.scene, ctx.camera)
+
+        // Viewport
+        left = Math.floor(canvas.node.width * ctx.view.left)
+        top = Math.floor(canvas.node.height * ctx.view.top)
+        width = Math.floor(canvas.node.width * ctx.view.width)
+        height = Math.floor(canvas.node.height * ctx.view.height)
+
+        canvas.renderer.setViewport(left, top, width, height)
+        canvas.renderer.setScissor(left, top, width, height)
+        canvas.renderer.setScissorTest(true)
+
+        ctx.view.camera.aspect = width / height
+        ctx.view.camera.updateProjectionMatrix()
+        canvas.renderer.render(ctx.scene, ctx.view.camera)
     }
 
     this.SetupContextBindsForStreamAndBuildAfterLoad = function () {
@@ -188,7 +222,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             {x: 0, y: 0, z: -10}, // don't buff position
             {x: random360(), y: random360(), z: random360()},
             {x: 1, y: 1, z: 1},
-            app.fileLocAssets + 'craft1.json',
+            app.fileLocAssets + 'craft4.json',
             true,
             true,
             stream,
@@ -232,7 +266,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 createSceneMeshNodeFromJSONForInit(craft, 'CTorch',
                     {x: 0, y: 0, z: 0},
                     {x: 0, y: 0, z: 0},
-                    {x: 1, y: 1, z: 0.01},
+                    {x: 0, y: 0, z: 0},
                     app.fileLocAssets + 'CTorch.json',
                     true,
                     true,
@@ -250,7 +284,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 createSceneMeshNodeFromJSONForInit(craft, 'LTorch',
                     {x: -4.250, y: 0.460, z: 3.760},
                     {x: 0, y: 0, z: 0},
-                    {x: 0.01, y: 1, z: 1},
+                    {x: 0, y: 0, z: 0},
                     app.fileLocAssets + 'LTorch.json',
                     true,
                     true,
@@ -268,7 +302,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 createSceneMeshNodeFromJSONForInit(craft, 'RTorch',
                     {x: 4.250, y: 0.460, z: 3.760},
                     {x: 0, y: 0, z: 0},
-                    {x: 0.01, y: 1, z: 1},
+                    {x: 0, y: 0, z: 0},
                     app.fileLocAssets + 'RTorch.json',
                     true,
                     true,
@@ -282,6 +316,8 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                         torch.material.materials[0].blending = 5
                     }
                 )
+                ctx.view.camera.position.fromArray([0, 0.37, -4.3])
+                craft.add(ctx.view.camera)
 
                 // particle blasts// slow in IE
                 /*
@@ -348,6 +384,12 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 if (buff) {
                     geometry = new THREE.BufferGeometry().fromGeometry(geometry)
                 }
+                if (node == 'craft1') {
+                    if (!geometry.attributes.uv.sprite) {
+                        window.Utils.Optimize.UVSpritesFromJSON(geometry, app.fileLocAssets + node + '.uv.json')
+                    }
+                }
+
                 var material = new THREE.MultiMaterial(materials)
                 object = new THREE.Mesh(geometry, material)
                 object.doubleSided = doubleSide
@@ -357,6 +399,41 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                     Math.radians(rotation.y),
                     Math.radians(rotation.z)
                 ])
+                if (node == 'craft1') {
+                    window.Utils.bindKeyPressUseFunction('q', function () {
+                        for (var i = 0; i < geometry.attributes.uv.sprite.length; i++) geometry.attributes.uv.sprite[i].effect = 'left'
+                    }, [])
+                    window.Utils.bindKeyPressUseFunction('e', function () {
+                        for (var i = 0; i < geometry.attributes.uv.sprite.length; i++) geometry.attributes.uv.sprite[i].effect = 'right'
+                    }, [])
+                    window.Utils.bindKeyPressUseFunction('w', function () {
+                        for (var i = 0; i < geometry.attributes.uv.sprite.length; i++) geometry.attributes.uv.sprite[i].effect = 'all'
+                    }, [])
+                    window.Utils.bindKeyPressUseFunction('z', function () {
+                        geometry.attributes.uv.sprite[0].V = geometry.attributes.uv.sprite[0].V + 1
+                        geometry.attributes.uv.needsUpdate = true
+                    }, [])
+                    window.Utils.bindKeyPressUseFunction('x', function () {
+                        geometry.attributes.uv.sprite[1].V = geometry.attributes.uv.sprite[1].V + 1
+                        geometry.attributes.uv.needsUpdate = true
+                    }, [])
+                    window.Utils.bindKeyPressUseFunction('c', function () {
+                        geometry.attributes.uv.sprite[2].V = geometry.attributes.uv.sprite[2].V + 1
+                        geometry.attributes.uv.needsUpdate = true
+                    }, [])
+                    window.Utils.bindKeyPressUseFunction('v', function () {
+                        geometry.attributes.uv.sprite[3].V = geometry.attributes.uv.sprite[3].V + 1
+                        geometry.attributes.uv.needsUpdate = true
+                    }, [])
+                    window.Utils.bindKeyPressUseFunction('b', function () {
+                        geometry.attributes.uv.sprite[4].V = geometry.attributes.uv.sprite[4].V + 1
+                        geometry.attributes.uv.needsUpdate = true
+                    }, [])
+                    window.Utils.bindKeyPressUseFunction('n', function () {
+                        geometry.attributes.uv.sprite[5].V = geometry.attributes.uv.sprite[5].V + 1
+                        geometry.attributes.uv.needsUpdate = true
+                    }, [])
+                }
 
                 object.scale.copy(scale)
 
@@ -485,7 +562,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
 
         bindNodeToStream(stream, node, addTo, position, bindPositionID)
     }
-
+    var sizeQual = {value: 1.0}
     this.createParticles = function () {
         var geometries = []
         var textureLoader = new THREE.TextureLoader()
@@ -579,6 +656,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             let size = parameters[i][2]
             materials[i] = new THREE.PointsMaterial({
                 size: size,
+                sizeQual: sizeQual,
                 map: sprite,
                 blending: THREE[blending],
                 blendSrc: THREE[src[2]],
@@ -691,9 +769,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         var dst = [ 'ZeroFactor', 'OneFactor', 'SrcColorFactor', 'OneMinusSrcColorFactor', 'SrcAlphaFactor', 'OneMinusSrcAlphaFactor', 'DstAlphaFactor', 'OneMinusDstAlphaFactor' ]
         //          '200'         '201'        '208'             '203'                     '204'             '205'                     '206'             '207'
         var blending = 'CustomBlending'
-
         var object = new THREE.Points(geometry, new THREE.PointsMaterial({
             size: size,
+            sizeQual: sizeQual,
             map: sprite,
             blending: THREE[blending],
             blendSrc: THREE[src[2]],
@@ -703,6 +781,9 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             depthWrite: false,
             transparent: true
         }))
+        
+        object.size = 0.01
+        object.material.needsUpdate = true
 
         ctx.scene.add(object)
 

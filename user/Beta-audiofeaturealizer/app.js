@@ -603,12 +603,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                 false)
                 buffer.queue('valIn', stream, [spts[si].position, spts[0].position, spts[1].position, spts[3].position], ['y'], 0.937, 750, 150)
                 buffer.queue('valIn', stream, [spts[si].position, spts[0].position, spts[1].position, spts[3].position], ['x'], 0.1, 800, timelineLength)
-                buffer.queue('exec', stream,
-                    [
-                        [
-                        [spts[si].position, spts[0].position, spts[1].position, spts[3].position], [[750, 'y', -0.1, 'easeOutQuad', 150, 0.937]]
-                        ]
-                    ],
+                buffer.queue('exec', stream, [[[spts[si].position, spts[0].position, spts[1].position, spts[3].position], [[750, 'y', -0.1, 0.937, 'easeOutQuad', 150]]]],
                 false)
                 buffer.queue('valIn', stream, [spts[si].position, spts[0].position, spts[1].position, spts[3].position], ['y'], 0.837, 900, timelineLength)
             }

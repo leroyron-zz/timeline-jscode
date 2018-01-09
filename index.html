@@ -15,12 +15,14 @@
                     <option value="Beta-Introduction">Beta Introduction</option>
                     <option value="Beta-audiofeaturealizer">Audio Feature Visualization (for a website Beta)</option>
                     <option value="Beta-templateV2">TemplateV2 (Template For Beta)</option>
+                    <option value="Beta-Systems">Systems (System Downlines For Beta)</option>
                     <option value="three2d">2D Parallax (THREE.Js - 2D Scene)</option>
                     <option value="audioanalyser">Audio Analyser (Test Injection - APP/BROWSER ONLY)</option>
                     <option value="game1">Game1 (Challenge THREE.Js Bindings and Interaction) </option>
                     <option value="demo1">Demo1 (Challenge Template)</option>
                     <option value="slinkygoogle">Slinky Google (Challenge Buffers and Leap)</option>
                     <option value="templateV1">TemplateV1</option>
+                    <option value="EmissaryOfOne">Emissary Of One Belief</option>
                 </select> 
             </div>
             <div id="fps"></div>   
@@ -29,6 +31,8 @@
     <script type="text/javascript" src="node_modules/three/build/three.js"></script>
     <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script>
     <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
+
+    <script type="text/javascript" src="lib/array.addon.js"></script>
 
     <script type="text/javascript" src="lib/math.addon.js"></script>
     <script type="text/javascript" src="lib/math.addon.type.js"></script>
@@ -66,6 +70,7 @@
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.segment.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.action.js"></script>
     <script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
+    <script type="text/javascript" src="lib/Streaming.addon.easeofuse.js"></script>
     <script type="text/javascript">
         // user code/setting
         var dropdownSelect = document.getElementById('select')
@@ -102,11 +107,15 @@
                     },
                     "Beta-Introduction": {mode: "2d", duration: 2200,
                         preload: []
+                    },
+                    "EmissaryOfOne": {mode: "2d", duration: 2000,
+                        preload: []
                     }
                     }
         select = select[app.codesetting];
         context('app', 'fps');
         this.canvas = createCanvas(select.mode);
+        
         this.ctx = buildContext(canvas.context, "lib/ctx.addon.js", function () {
 
             console.log('Chrome Version:' + getChromeVersionPerfomanceGL(canvas))
