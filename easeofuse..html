@@ -52,11 +52,7 @@
 		<script type="text/javascript" src="lib/Streaming.addon.easeofuse.js"></script>
 		
 		<script>
-			// continuance, skip, rCount, tCount, revert, mCount, leap, reset
-            var timeline = new Streaming(1000).access(true, 0, 0, 0, true, 0, -999999, false)
-			timeline.timeframe.switchTo = 'thrust'   // switch to timeframe thrusting
-			var mode = timeline.timeframe.switchTo
-
+			var timeline = new Streaming(1000).access()
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
@@ -64,55 +60,27 @@
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
 
-			var box_geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 			var material = new THREE.MeshBasicMaterial( { color: 0xf1ff11 } );
-			var box = new THREE.Mesh( box_geometry, material );
-			scene.add( box );
+			var cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
 
-			box.position.x = -3
+            timeline.take( cube );// position and rotation x y z properties
 
-            timeline.take( box );// position and rotation x y z properties
+            timeline.ready( renderer/* window// canvas*/ )
+
+			cube.rotation.timeline.x(360, 'easeInQuad', 400).wait(100).then(-360, 'easeOutQuad', 500)
+
+			cube.position.y = 4
+			cube.position.timeline.y(-2, 'easeInQuad', 300).then(-2, 'easeOutBounce', 100).wait(100).then(4, 'easeOutQuad', 500)
 			
-            timeline.ready( renderer/* window// canvas*/)
-
-			var cone_geometry = new THREE.ConeGeometry( 0.05, 0.20, 0.32 );
-			var cone = []
-            box.rotation.timeline.y(360, 'easeInOutQuad', 500, function () {
-				var spawn = 10 + cone.length;
-				for (let ci = cone.length; ci < spawn; ci++) {
-					cone[ci] = new THREE.Mesh( cone_geometry, material );
-					scene.add( cone[ci] );
-
-					cone[ci].position.copy(box.position)
-				}
-			}, false, false ).then(-360, 'easeInOutQuad', 490, function () {
-				var spawn = 10 + cone.length;
-				for (let ci = cone.length; ci < spawn; ci++) {
-					cone[ci] = new THREE.Mesh( cone_geometry, material );
-					scene.add( cone[ci] );
-
-					cone[ci].position.copy(box.position)
-				}
-			}, false, false )
-
-			// @exec val, ease, duration, leapCallback, reassign, dispose, zeroIn, skipLeap
-            box.rotation.timeline.x(360, 'easeInOutQuad', 500).then(-360, 'easeInOutQuad', 500)
-
-			box.position.timeline.x(4, 'easeInBounce', 1000)
-
 			camera.position.z = 5;
-            
-			timeline.timeframe.process = function () {
-                if (cone.length) {
-					for (let ci = 0; ci < cone.length; ci++) {
-						cone[ci].position.x += (Math.random() -Math.random())/2
-						cone[ci].position.y += (Math.random() -Math.random())/2
-						cone[ci].position.z += (Math.random() -Math.random())/2
-					}
-				}
+			
+            timeline.addon.timeframe.process = function () {
+                
             }
 
-            timeline.timeframe.invoke = function () {
+            timeline.addon.timeframe.invoke = function () {
                 renderer.render(scene, camera);
             }
 		</script>
