@@ -50,7 +50,6 @@
 		<script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.action.js"></script>
 		<script type="text/javascript" src="lib/Streaming.addon.runtime.timeframe.sound.js"></script>
 		<script type="text/javascript" src="lib/Streaming.addon.easeofuse.js"></script>
-		
 		<script>
 			var timeline = new Streaming(1000).access()
 			var scene = new THREE.Scene();
@@ -67,21 +66,43 @@
 
             timeline.take( cube );// position and rotation x y z properties
 
-            timeline.ready( renderer/* window// canvas*/ )
+			timeline.ready( renderer/* window// canvas*/ )
 
 			cube.rotation.timeline.x(360, 'easeInQuad', 400).wait(100).then(-360, 'easeOutQuad', 500)
 
-			cube.position.y = 4
-			cube.position.timeline.y(-2, 'easeInQuad', 300).then(-2, 'easeOutBounce', 100).wait(100).then(4, 'easeOutQuad', 500)
+			cube.position.x = -4
+
+			var cube_x = cube.position.timeline.x
+			cube_x.then(4, 'easeInQuad', 400).wait(100).then(4, 'easeOutQuad', 500)
+
+			var cube_y = cube.position.timeline.y
+			cube_y.at(300).then(1.5, 'easeInQuad', 100).wait(100).then(-1.5, 'easeOutQuad', 100)
 			
 			camera.position.z = 5;
 			
             timeline.addon.timeframe.process = function () {
-                
+				// before frame data
+				console.log(
+					'"cube_x" value at frame:',
+					'('+this.frame._duration +'='+ cube_x.at().value + ')',
+					'(250=' + cube_x.at(250).value + ')',
+					'(500=' + cube_x.at(500).value + ')',
+					'(750=' + cube_x.at(750).value + ')'
+				)
+				console.log(this.frame._duration, this._timeFrame, this.lapse)
             }
 
             timeline.addon.timeframe.invoke = function () {
-                renderer.render(scene, camera);
+				renderer.render(scene, camera); 
+				// after frame data
+				console.log(
+					'"cube_x" value at frame:',
+					'('+this.frame.duration +'='+ cube_x.at().value + ')',
+					'(250=' + cube_x.at(250).value + ')',
+					'(500=' + cube_x.at(500).value + ')',
+					'(750=' + cube_x.at(750).value + ')'
+				)
+				console.log(this.frame._duration, this._timeFrame, this.lapse)
             }
 		</script>
 		<script type="text/javascript" src="lib/ctx.addon.js"></script>
