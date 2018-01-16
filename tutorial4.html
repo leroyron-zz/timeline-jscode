@@ -4,9 +4,15 @@
 		<style>
 			body { margin: 0; }
 			canvas { width: 100%; height: 100% }
+			#output {
+				position: fixed;
+				top: 0px;
+				color: #fff;
+			}
 		</style>
 	</head>
 	<body>
+		<div id='output'></div>
 		<script src="https://ajax.googleapis.com/ajax/libs/threejs/r84/three.min.js"></script>
         <script src="lib/export/Streaming.js"></script>
 		<script>
@@ -19,51 +25,54 @@
 			document.body.appendChild( renderer.domElement );
 
 			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-			var material = new THREE.MeshBasicMaterial( { color: 0xf1ff11 } );
+			var material = new THREE.MeshBasicMaterial( { color: 0x3febf7 } );
 			var cube = new THREE.Mesh( geometry, material );
 			scene.add( cube );
 
-            timeline.take( cube );// position and rotation x y z properties
+			timeline.take( cube );// position and rotation x y z properties
 
 			timeline.ready( renderer/* window// canvas*/ )
-			// cube.position.timeline.x.at() // after frame data
 
-			cube.rotation.timeline.x(360, 'easeInQuad', 400).wait(100).then(-360, 'easeOutQuad', 500)
+			cube.rotation.timeline.x(360, 'easeInQuad', 400)
+			   .wait(100)
+			   .then(-360, 'easeOutQuad', 500)
 
 			cube.position.x = -4
 
 			var cube_x = cube.position.timeline.x
-			cube_x.then(4, 'easeInQuad', 400).wait(100).then(4, 'easeOutQuad', 500)
+			cube_x.then(4, 'easeInQuad', 400)
+			     .wait(100)
+			     .then(4, 'easeOutQuad', 500)
 
 			var cube_y = cube.position.timeline.y
-			cube_y.at(300).then(1.5, 'easeInQuad', 100).wait(100).then(-1.5, 'easeOutQuad', 100)
-			
+			cube_y.at(300) // at 3sec
+			     .then(1.5, 'easeInQuad', 100)
+			     .wait(100)
+			     .then(-1.5, 'easeOutQuad', 100)
+
 			camera.position.z = 5;
 
-            timeline.addon.timeframe.process = function () {
-				// before frame data
-				console.log(
-					'"cube_x" value at frame:',
-					'('+this.frame._duration +'='+ cube_x.at().value + ')',
-					'(250=' + cube_x.at(250).value + ')',
-					'(500=' + cube_x.at(500).value + ')',
-					'(750=' + cube_x.at(750).value + ')'
-				)
-				console.log(this.frame._duration, this._timeFrame, this.lapse)
-            }
+			var output = document.getElementById('output')
+			timeline.addon.timeframe.process = function () {
+			 // before frame data assignments 
+			 // this._timeFrame (process cpu delay tick count)
+			}
 
-            timeline.addon.timeframe.invoke = function () {
-				renderer.render(scene, camera); 
-				// after frame data
-				console.log(
-					'"cube_x" value at frame:',
-					'('+this.frame.duration +'='+ cube_x.at().value + ')',
-					'(250=' + cube_x.at(250).value + ')',
-					'(500=' + cube_x.at(500).value + ')',
-					'(750=' + cube_x.at(750).value + ')'
-				)
-				console.log(this.frame._duration, this._timeFrame, this.lapse)
-            }
+			timeline.addon.timeframe.invoke = function () {
+			renderer.render(scene, camera); 
+			// after frame data
+			output.innerHTML = ([
+				'"cube_y" value at frame:',
+			   ''+this.frame._duration +'='+ cube_y.at().value + ',',
+			   '250=' + cube_y.at(250).value + ',',
+			   '500=' + cube_y.at(500).value + ',',
+			   '750=' + cube_y.at(750).value + ',',
+			   'duration=' + this.frame._duration + ',',
+			   '_timeFrame=' + this._timeFrame + ',',
+			   'lapse=' + this.lapse + ','
+			].join('<br>'))
+			 // using cube_y? I will fix offsets soon ...
+			}
 		</script>
 	</body>
 </html>
