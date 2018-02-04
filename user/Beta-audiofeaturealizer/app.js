@@ -117,6 +117,7 @@ this.canvas.app = new function (app, canvas, ctx) {
                         data.segment[bi + 1100 << 0] = {Authority: segmentAuth, position: (bi + 1100 << 0) / timelineLength * 100}
                     }
                     timeframe._forceInit(window) // force initialization so inserts could be added early
+                    timeframe.ready = false // set ready back to false to start the app
                     timeframe.timeline.seek.insert.insertAuthorities(data)
 
                     var autoRefresh = setTimeout(function () { window.location.reload() }, 8000)
@@ -468,6 +469,7 @@ this.canvas.app = new function (app, canvas, ctx) {
     this.SetupContextBindsForStreamAndBuildAfterLoad = function () {
         app.codeLoc = 'user/' + app.codesetting
         app.fileLocAssets = app.vscode._fileLocal + app.codeLoc + '/assets/'
+
         init()
         queueBindingsNodesToStream('timeline')
         queueBufferGFXBindNodesToStream('timeline')

@@ -7,6 +7,14 @@
 		</style>
 	</head>
 	<body>
+		<style>
+		#output {
+			position: fixed;
+			top: 0px;
+			color: #fff;
+		}
+		</style>
+		<div id="output"></div>
 		<script type="text/javascript" src="node_modules/three/build/three.js"></script>
 		<script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script>
 		<script type="text/javascript" src="lib/vendor/CSPL.js"></script>
@@ -52,62 +60,116 @@
 		<script type="text/javascript" src="lib/Streaming.addon.easeofuse.js"></script>
 		<script>
 			var timeline = new Streaming(1000).access()
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-
-			var renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
-
-			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-			var material = new THREE.MeshBasicMaterial( { color: 0x3febf7 } );
-			var cube = new THREE.Mesh( geometry, material );
-			scene.add( cube );
-
-			timeline.take( cube );// position and rotation x y z properties
-
-			timeline.ready( renderer/* window// canvas*/ )
-
-			cube.rotation.timeline.x(360, 'easeInQuad', 400)
-			   .wait(100)
-			   .then(-360, 'easeOutQuad', 500)
-
-			cube.position.x = -4
-
+			var scene = new THREE.Scene()
+			var camera = new THREE.PerspectiveCamera(
+				75,
+				window.innerWidth / window.innerHeight,
+				0.1,
+				1000
+			)
+			camera.position.z = 5
+			
+			var renderer = new THREE.WebGLRenderer()
+			renderer.setSize(window.innerWidth, window.innerHeight)
+			
+			document.body.appendChild(renderer.domElement)
+			
+			var geometry = new THREE.BoxGeometry(1, 1, 1)
+			var material = new THREE.MeshBasicMaterial({ color: 0x95ff00 })
+			var cube = new THREE.Mesh(geometry, material)
+			scene.add(cube)
+			
+			timeline.take(cube) // position and rotation x y z properties
+			timeline.ready(renderer /* window// canvas */)
+			
+			cube.rotation.timeline
+				.x(360, 'easeInQuad', 400)
+				.wait(100)
+				.then(-360, 'easeOutQuad', 500)
+			
 			var cube_x = cube.position.timeline.x
-			cube_x.then(4, 'easeInQuad', 400)
-			     .wait(100)
-			     .then(4, 'easeOutQuad', 500)
-
 			var cube_y = cube.position.timeline.y
-			cube_y.at(300) // at 3sec
-			     .then(1.5, 'easeInQuad', 100)
-			     .wait(100)
-			     .then(-1.5, 'easeOutQuad', 100)
-
-			camera.position.z = 5;
-
+			var cube_z = cube.position.timeline.z
+			cube.position.x = -4
+			cube_x
+				.then(4, 'easeInQuad', 500)
+				.then(-4, 'easeInQuad', 499)
+				.keep() // keep floods the rest of the timeline
+			
+			cube_y
+				.at(300) // at 3sec
+				.then(1.5, 'easeInQuad', 100)
+				.wait(100)
+				.then(-1.5, 'easeOutQuad', 100)
+			
+			trace(0x222222)
+			// var held = cube_x.hold(200).array
+			// you could hold the data
+			// * or put back the data at once
+			cube_x.hold(200, function () {
+				// hold the cube for 2sec, and trigger function pass the 2sec
+				this.x.pair(this.array) // then put back the held data
+				// retrace to see results w/ points
+				trace(0x555555, 0x888888, 'linepoint')
+			})
+			// retrace to see results w/ points
+			trace(0x555555, 0x888888, 'linepoint')
+			
 			var output = document.getElementById('output')
 			timeline.addon.timeframe.process = function () {
-			 // before frame data assignments 
-			 // this._timeFrame (process cpu delay tick count)
+				// before frame data assignments
+				// this._timeFrame (process cpu delay tick count)
 			}
-
+			
 			timeline.addon.timeframe.invoke = function () {
-			renderer.render(scene, camera); 
-			// after frame data
-			output.innerHTML = ([
-				'"cube_x" value at frame:',
-			   ''+this.frame._duration +'='+ cube_x.at().value + ',',
-			   '250=' + cube_x.at(250).value + ',',
-			   '500=' + cube_x.at(500).value + ',',
-			   '750=' + cube_x.at(750).value + ',',
-			   'duration=' + this.frame._duration + ',',
-			   '_timeFrame=' + this._timeFrame + ',',
-			   'lapse=' + this.lapse + ','
-			].join('<br>'))
-			 // using cube_y? I will fix offsets soon ...
+				renderer.render(scene, camera)
+				// after frame data
+				output.innerHTML = [
+					'frame:' + this.frame._duration + ' cube_x:' + cube_x.at(this.frame._duration).value + ',',
+					'duration=' + this.frame._duration + ',',
+					'_timeFrame=' + this._timeFrame + ',',
+					'lapse=' + this.lapse + ','
+				].join('<br>')
 			}
+			
+			function trace (colorHex, colorPointHex, update) {
+				if (window.line) {
+					scene.remove(scene.getObjectByName(window.line.name))
+				}
+				var material = new THREE.LineBasicMaterial({ color: colorHex })
+				var geometry = new THREE.Geometry()
+				for (var l = 0; l < 1000; l += 10) {
+					geometry.vertices.push(
+						new THREE.Vector3(
+							cube_x.at(l).value,
+							cube_y.at(l).value,
+							cube_z.at(l).value
+						)
+					)
+				}
+				window.line = new THREE.Line(geometry, material)
+				if (update) window.line.name = update
+				scene.add(window.line)
+			
+				if (!colorPointHex) return
+				if (window.points) {
+					scene.remove(scene.getObjectByName(window.points.name))
+				}
+				material = new THREE.PointsMaterial({ color: colorPointHex, size: 0.1 })
+				geometry = new THREE.Geometry()
+				for (l = 0; l < 1000; l += 100) {
+					geometry.vertices.push(
+						new THREE.Vector3(
+							cube_x.at(l).value,
+							cube_y.at(l).value,
+							cube_z.at(l).value
+						)
+					)
+				}
+				window.points = new THREE.Points(geometry, material)
+				if (update) window.points.name = update + 'points'
+				scene.add(window.points)
+			}							
 		</script>
 		<script type="text/javascript" src="lib/ctx.addon.js"></script>
 		<script type="text/javascript" src="node_modules/exdat/build/dat.gui.js"></script>
