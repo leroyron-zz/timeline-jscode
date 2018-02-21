@@ -1,6 +1,11 @@
 Timeline JSCode
 ==============
 
+Update
+-------
+
+This library is for experimentation, now working on TimelineCode with networking capabilities for NodeJS and Browsers, Official (https://github.com/leroyron/timelinecode)
+
 Install
 -------
 
