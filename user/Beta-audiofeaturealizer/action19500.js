@@ -95,8 +95,6 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
             ],
                 [['alpha', this.alpha.value]]
             )
-
-            // buffer.queue('execLerp', stream, [this], ['alpha'], ctx.audio[0][2].enhancement, '18', 1, 0.24, true, false, startLength, endLength, 'linear', 5)
         }]
     ]
     var genSprites = []

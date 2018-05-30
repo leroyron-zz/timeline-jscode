@@ -11,7 +11,6 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
     timeframe.timeline.removeInsertsNear('segment', startLength, 200)
     // timeframe.timeline.removeInsertAt('segment', startLength)
     ctx['action' + startLength] = function (duration) {
-        // let spts = this['action' + 10200].prototype.spts
         if (duration > 10200 && duration < 14200) {
             var frequencyWidth = (canvas.app.width / 32)
             var frequencyHeight = 0
@@ -68,7 +67,6 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
                 ]
             )
 
-            // debugger
             buffer.queue('eval', stream,
                 [
                     [
@@ -76,14 +74,6 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
                     ]
                 ],
             false)
-
-            /* buffer.queue('eval', stream,
-                [
-                    [
-                    [this.position], [[['x', -0.1 - this.position.x]]], [['easeOutQuad', endLength - startLength]], startLength
-                    ]
-                ],
-            false) */
         }],
         ['2/text.png', 1.0, 0.0, '465px', '750px', 'TR', 0, app.height / 750, 0, 0, undefined, function () {
             this._resize = function () {
@@ -96,8 +86,6 @@ window.Authority = new function (app, canvas, ctx, bind, buffer) {
             ],
                 [['alpha', this.alpha.value]]
             )
-
-            // buffer.queue('execLerp', stream, [this], ['alpha'], ctx.audio[0][2].enhancement, '18', 1, 0.24, true, false, startLength, endLength, 'linear', 5)
         }]
     ]
     var genSprites = []

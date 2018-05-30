@@ -152,13 +152,14 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         [801, 802, 803],
         false)
 
+        camera.rotation.type = 'rotation'
         ctx.timeline.addon.binding.init(stream, [
         [camera.rotation, 885] // unique key (rotation)
         ],
             [
-            ['x', Math.degrees(camera.rotation.x)],
-            ['y', Math.degrees(camera.rotation.y)],
-            ['z', Math.degrees(camera.rotation.z)]
+                ['x', Math.degrees(camera.rotation.x)],
+                ['y', Math.degrees(camera.rotation.y)],
+                ['z', Math.degrees(camera.rotation.z)]
             ],
         [804, 805, 806],
         false)
@@ -252,6 +253,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
                 [801, 802, 803],
                 false)
 
+                craft.rotation.type = 'rotation'
                 ctx[stream].addon.binding.init(stream, [
                 [craft.rotation, 895]
                 ],
@@ -482,6 +484,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
             false)
         }
 
+        addTo.nodes[node].rotation.type = 'rotation'
         if (bindRotationID) {
             ctx[stream].addon.binding.init(stream, [
             [addTo.nodes[node].rotation, bindRotationID]

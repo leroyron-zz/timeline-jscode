@@ -93,7 +93,7 @@ this.canvas.app = new function (app, canvas, ctx) {
 
         if (loadedFromFile) {
             for (let increment = 0; increment < bufferLength; increment++) {
-                frequencyHeight = (audio.frequency[increment] * (1 + audio.enhancement[increment])) * (canvas.app.height * 0.002) + (20 * audio.enhancement[increment])
+                frequencyHeight = audio.frequency[increment] * (canvas.app.height * 0.002) + audio.enhancement[increment]
                 this.fillStyle = 'rgba(0,255,0,0.5)'
                 this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
@@ -107,7 +107,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         if (inject) {
             for (let increment = 0; increment < bufferLength; increment++) {
                 // MP3 data
-                frequencyHeight = (audioFreqData[increment] * (1 + audio.enhancement[increment])) * (canvas.app.height * 0.002) + (20 * audio.enhancement[increment])
+                frequencyHeight = audio.frequency[increment] * (canvas.app.height * 0.002) + audio.enhancement[increment]
                 this.fillStyle = 'rgba(0,255,0,0.5)'
                 this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
@@ -121,7 +121,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             for (let increment = 0; increment < bufferLength; increment++) {
                 // Streaming data
 
-                frequencyHeight = (audio.frequency[increment] * (1 + audio.enhancement[increment])) * (canvas.app.height * 0.002) + (20 * audio.enhancement[increment])
+                frequencyHeight = audio.frequency[increment] * (canvas.app.height * 0.002) + audio.enhancement[increment]
                 this.fillStyle = 'rgba(0,255,0,0.5)'
                 this.fillRect(x, canvas.app.height - frequencyHeight, frequencyWidth, frequencyHeight)
 
@@ -181,19 +181,17 @@ this.canvas.app = new function (app, canvas, ctx) {
                 ['poly', audioFreqData]
                 ],
             [802],
-            false,
-            1) // 0 - 255
+            false) // 0 - 255
 
             bind.init(stream, [
             [audio.enhancement = {'poly': []}, 801]
             ],
                 [
-                ['poly', audioFreqData]
+                ['poly', Math.Poly.divideScalar(audioFreqData, 100)]
                 ],
             [802],
             false,
-            100) // 0 - 100
-            // enhance precision
+        100) // 0 - 100
 
             buildStream()
 

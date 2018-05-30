@@ -28,8 +28,10 @@
             <div id="fps"></div>   
         </div>
     </body>
-    <script type="text/javascript" src="node_modules/three/build/three.js"></script>
-    <script type="text/javascript" src="node_modules/stats.js/src/Stats.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/threejs/r84/three.min.js"></script>
+    <script>window.THREE || document.write('<script src=".scripts/three/build/three.js"><\/script>')</script>
+    <script type="text/javascript" src="https://rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
+    <script>window.Stats || document.write('<script src=".scripts/stats.js/src/Stats.js"><\/script>')</script>
     <script type="text/javascript" src="lib/vendor/CSPL.js"></script>
 
     <script type="text/javascript" src="lib/array.addon.js"></script>
@@ -127,7 +129,7 @@
             // user setting
             
             ctx.loadScript(["user/"+app.codesetting+"/app.js",
-                            "node_modules/exdat/build/dat.gui.js",
+                            "https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.0/dat.gui.min.js",
                             "lib/dat.gui.addon.js",
                             "lib/dat.gui.addon.window.app.js",
                             "lib/dat.gui.addon.Streaming.js",
@@ -143,6 +145,8 @@
                             "lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.sound.js",
                             "lib/dat.gui.addon.Streaming.timeframe.timeline.seek.insert.dialog.js",
                             "lib/dat.gui.addon.Streaming.timeframe.timeline.charts.js",
+                        ],
+                        [".scripts/exdat/build/dat.gui.js"
                         ], function () {
                 canvas.app.SetupContextBindsForStreamAndBuildAfterLoad('timeline');
             })

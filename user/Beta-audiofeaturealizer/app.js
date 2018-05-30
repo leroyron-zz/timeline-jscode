@@ -499,9 +499,7 @@ this.canvas.app = new function (app, canvas, ctx) {
             ['poly', audioFreqData]
             ],
         [802],
-        false,
-        100) // 0 - 100
-        // enhance precision */
+        false)*/
 
         // binding staging
         for (let si = 0; si < spts.length; si++) {
@@ -523,7 +521,6 @@ this.canvas.app = new function (app, canvas, ctx) {
                 ])
         }
         for (let si = 0; si < spts.length; si++) {
-            // debugger
             bind.queue(stream, [
             [spts[si].rotate]
             ],

@@ -358,7 +358,7 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
     craft.rotation.onChange(function () {
         if (!this.blockCallback) {
             this.blockCallback = true
-            craft.quaternion.setFromEuler(this, false)
+            //craft.quaternion.setFromEuler(this, false)
         }
     })
 
@@ -449,19 +449,18 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
                 craft.rotation.blockCallback = false
                 if (!viewChanged) { craft.view.change = craft.view.current; viewChanged = true }
             } else {
-                camera.ease += 0.01
+                camera.ease *= 1.02
                 camera.move.copy(camera.orbital.position)
                 camera.move.add(camera.offset)
                 camera.move.sub(camera.position)
-                camera.move.multiplyScalar(camera.ease)
+                camera.move.multiplyScalar(camera.ease * 1.7)
                 camera.position.add(camera.move)
 
                 craft.move.copy(camera.orbital.position)
                 craft.move.add(camera.offset)
                 craft.move.sub(camera.position)
                 // beginning clockpit mode
-                craft.move.multiplyScalar(camera.ease + 0.12)
-                // craft.move.multiplyScalar((camera.ease + 0.135))
+                craft.move.multiplyScalar(camera.ease  * 1.15)
                 craft.position.add(craft.move)
 
                 camera.orbital.reticle.material.uniforms.alpha.value =

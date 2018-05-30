@@ -36,8 +36,6 @@ window.Authority = new function (camera, timeframe, buffer, binding, app) {
             ]
         ],
     false)
-    // buffer.valIn('timeline', [app.y], ['value'], 76, 200, 1044)
-    // app.y.elem.value = 76
 
     // Slinky Staggers into play position
     buffer.eval('timeline',

@@ -6,7 +6,6 @@ window.Authority = new function (app, timeline, timeframe, buffer, binding, ctx)
     }
 
     this.main = function () {
-        debugger
         timeframe.stop()
         // ASSIGN
         ctx.segment = this.segmentID
