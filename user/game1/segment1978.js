@@ -11,7 +11,7 @@ window.Authority = new function (camera, timeframe, buffer, binding, nodes) {
                         [camera.position], [[['x', 200]]], [['easeOutSine', 222]], this.segmentID// start from current frame
                     ]
                 ],
-            true)// true for relative values for timeframe thursting
+            true)// true for relative values for timeframe thrusting
         }
     }
     return this

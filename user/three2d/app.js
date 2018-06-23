@@ -229,7 +229,7 @@ this.canvas.app = new function (app, THREE, canvas, ctx) {
         console.log('Finished Binding to stream - Building')
         ctx.timeline.build(function () {
             console.log('Finished Building - Initializing')
-            ctx.timeline.addon.timeframe._init(window) // timeframe init has to be set to true for additional scripts to load
+            ctx.timeline.addon.timeframe.start(window) // timeframe init has to be set to true for additional scripts to load
         })
     }
 }(this.app, this.THREE, this.canvas, this.ctx)

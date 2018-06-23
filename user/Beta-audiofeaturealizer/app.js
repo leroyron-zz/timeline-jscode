@@ -682,7 +682,7 @@ this.canvas.app = new function (app, canvas, ctx) {
         ctx.timeline.build(function () {
             console.log('Finished Build - Initializing')
             // already forced init after load
-            // timeframe._init(window) // timeframe init has to be set to true for additional scripts to load
+            // timeframe.start(window) // timeframe init has to be set to true for additional scripts to load
             callback()
         })
     }

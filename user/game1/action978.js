@@ -158,10 +158,10 @@ window.Authority = new function (app, THREE, camera, canvas, ctx) {
         },
         thrusts:
         {
-            leftthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }},
-            rightthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }},
-            forwardthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }},
-            backwardsthrust: {vector: {x: 0, y: 0, z: 0}, thurst: function () { thrust(this.velocity) }}
+            leftthrust: {vector: {x: 0, y: 0, z: 0}, thrust: function () { thrust(this.velocity) }},
+            rightthrust: {vector: {x: 0, y: 0, z: 0}, thrust: function () { thrust(this.velocity) }},
+            forwardthrust: {vector: {x: 0, y: 0, z: 0}, thrust: function () { thrust(this.velocity) }},
+            backwardsthrust: {vector: {x: 0, y: 0, z: 0}, thrust: function () { thrust(this.velocity) }}
         },
         playstate:
         {
